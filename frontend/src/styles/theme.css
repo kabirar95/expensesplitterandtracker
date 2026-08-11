@@ -1,0 +1,116 @@
+/* ============================================================
+   THEME — Dark Mode & Light Mode definitions
+   ============================================================
+   We use CSS custom properties to define theme colors.
+   When the theme switches, only these variables change —
+   all components automatically pick up the new colors.
+   
+   How it works:
+   - [data-theme="light"] on <html> → light colors active
+   - [data-theme="dark"]  on <html> → dark colors active
+   - JavaScript toggles this attribute
+   ============================================================ */
+
+/* ── Light Theme (Default) ── */
+[data-theme="light"] {
+  /* Primary brand colors — vibrant indigo/purple */
+  --color-primary: #6366f1;
+  --color-primary-hover: #4f46e5;
+  --color-primary-light: #e0e7ff;
+  --color-primary-ghost: rgba(99, 102, 241, 0.1);
+
+  /* Success, Warning, Danger */
+  --color-success: #10b981;
+  --color-success-light: #d1fae5;
+  --color-warning: #f59e0b;
+  --color-warning-light: #fef3c7;
+  --color-danger: #ef4444;
+  --color-danger-light: #fee2e2;
+  --color-info: #3b82f6;
+  --color-info-light: #dbeafe;
+
+  /* Backgrounds */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --bg-elevated: #ffffff;
+  --bg-sidebar: #f8fafc;
+  --bg-input: #ffffff;
+  --bg-hover: #f1f5f9;
+
+  /* Text */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
+  --text-inverse: #ffffff;
+  --text-link: #6366f1;
+
+  /* Borders */
+  --border-color: #e2e8f0;
+  --border-color-strong: #cbd5e1;
+
+  /* Glassmorphism overlay */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+  /* Chart colors */
+  --chart-1: #6366f1;
+  --chart-2: #8b5cf6;
+  --chart-3: #ec4899;
+  --chart-4: #f59e0b;
+  --chart-5: #10b981;
+  --chart-6: #3b82f6;
+
+  /* Scrollbar */
+  --scrollbar-track: #f1f5f9;
+  --scrollbar-thumb: #cbd5e1;
+}
+
+/* ── Dark Theme ── */
+[data-theme="dark"] {
+  --color-primary: #818cf8;
+  --color-primary-hover: #6366f1;
+  --color-primary-light: #312e81;
+  --color-primary-ghost: rgba(129, 140, 248, 0.15);
+
+  --color-success: #34d399;
+  --color-success-light: #064e3b;
+  --color-warning: #fbbf24;
+  --color-warning-light: #78350f;
+  --color-danger: #f87171;
+  --color-danger-light: #7f1d1d;
+  --color-info: #60a5fa;
+  --color-info-light: #1e3a5f;
+
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --bg-elevated: #1e293b;
+  --bg-sidebar: #1e293b;
+  --bg-input: #1e293b;
+  --bg-hover: #334155;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --text-inverse: #0f172a;
+  --text-link: #818cf8;
+
+  --border-color: #334155;
+  --border-color-strong: #475569;
+
+  --glass-bg: rgba(15, 23, 42, 0.7);
+  --glass-border: rgba(51, 65, 85, 0.5);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  --chart-1: #818cf8;
+  --chart-2: #a78bfa;
+  --chart-3: #f472b6;
+  --chart-4: #fbbf24;
+  --chart-5: #34d399;
+  --chart-6: #60a5fa;
+
+  --scrollbar-track: #1e293b;
+  --scrollbar-thumb: #475569;
+}

@@ -1,0 +1,14 @@
+.spinner-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner-sm { font-size: 1rem; }
+.spinner-md { font-size: 1.5rem; }
+.spinner-lg { font-size: 2.25rem; }
+.spinner-xl { font-size: 3rem; }
+
+.spinner-primary { color: var(--color-primary); }
+.spinner-white { color: #ffffff; }
+.spinner-secondary { color: var(--text-secondary); }
