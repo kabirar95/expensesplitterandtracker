@@ -3,27 +3,37 @@
 # ============================================================
 
 from datetime import datetime, timedelta
-from typing import Optional, dict
+from typing import Optional, Dict
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from app.config import settings
 from app.models.user import UserProfile
 from app.database import get_supabase
-
-# Password Hashing with bcrypt
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Local in-memory users fallback database
 _local_users_db = {}
 
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    """
+    Hash a password using bcrypt with 72-byte truncation safety.
+    """
+    pw_bytes = password.encode("utf-8")[:72]
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(pw_bytes, salt).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    """
+    Verify a password against a stored bcrypt hash.
+    """
+    try:
+        pw_bytes = plain_password.encode("utf-8")[:72]
+        hash_bytes = hashed_password.encode("utf-8")
+        return bcrypt.checkpw(pw_bytes, hash_bytes)
+    except Exception:
+        return False
 
 
 def create_access_token(user_id: str) -> str:
@@ -46,7 +56,7 @@ def create_refresh_token(user_id: str) -> str:
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
 
-def decode_token(token: str) -> Optional[dict]:
+def decode_token(token: str) -> Optional[Dict]:
     try:
         payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
         return payload
@@ -54,7 +64,7 @@ def decode_token(token: str) -> Optional[dict]:
         return None
 
 
-async def find_user_by_email(email: str) -> Optional[dict]:
+async def find_user_by_email(email: str) -> Optional[Dict]:
     supabase = get_supabase()
     if supabase:
         try:
@@ -62,7 +72,7 @@ async def find_user_by_email(email: str) -> Optional[dict]:
             if res.data and len(res.data) > 0:
                 return res.data[0]
         except Exception as e:
-            print(f"Supabase read error: {e}")
+            print(f"Supabase read notice: {e}")
 
     for u in _local_users_db.values():
         if u.get("email") == email:
@@ -70,7 +80,7 @@ async def find_user_by_email(email: str) -> Optional[dict]:
     return None
 
 
-async def find_user_by_username(username: str) -> Optional[dict]:
+async def find_user_by_username(username: str) -> Optional[Dict]:
     supabase = get_supabase()
     if supabase:
         try:
@@ -78,7 +88,7 @@ async def find_user_by_username(username: str) -> Optional[dict]:
             if res.data and len(res.data) > 0:
                 return res.data[0]
         except Exception as e:
-            print(f"Supabase read error: {e}")
+            print(f"Supabase read notice: {e}")
 
     for u in _local_users_db.values():
         if u.get("username") == username:
@@ -86,7 +96,7 @@ async def find_user_by_username(username: str) -> Optional[dict]:
     return None
 
 
-async def find_user_by_id(user_id: str) -> Optional[dict]:
+async def find_user_by_id(user_id: str) -> Optional[Dict]:
     supabase = get_supabase()
     if supabase:
         try:
@@ -94,12 +104,12 @@ async def find_user_by_id(user_id: str) -> Optional[dict]:
             if res.data and len(res.data) > 0:
                 return res.data[0]
         except Exception as e:
-            print(f"Supabase read error: {e}")
+            print(f"Supabase read notice: {e}")
 
     return _local_users_db.get(user_id)
 
 
-async def save_user(user_data: dict) -> dict:
+async def save_user(user_data: Dict) -> Dict:
     supabase = get_supabase()
     if supabase:
         try:
@@ -113,7 +123,7 @@ async def save_user(user_data: dict) -> dict:
     return user_data
 
 
-async def authenticate_user(email: str, password: str) -> Optional[dict]:
+async def authenticate_user(email: str, password: str) -> Optional[Dict]:
     user = await find_user_by_email(email)
     if not user:
         return None

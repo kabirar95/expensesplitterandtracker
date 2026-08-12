@@ -26,20 +26,13 @@ from app.routers import auth, groups, expenses
 async def lifespan(app: FastAPI):
     """
     Runs when the app starts and stops.
-    
-    - On startup: connect to MongoDB
-    - On shutdown: cleanup (handled automatically by Motor)
-    
-    This replaces the old @app.on_event("startup") pattern.
     """
-    # Startup
-    print("🚀 Starting up — connecting to MongoDB...")
-    await init_db()
-    print("✅ Database connected!")
+    print("🚀 Starting up — connecting to Supabase...")
+    init_db()
+    print("✅ Application ready!")
     
-    yield  # App is running and handling requests here
+    yield
     
-    # Shutdown
     print("👋 Shutting down...")
 
 
