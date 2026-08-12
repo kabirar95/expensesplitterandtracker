@@ -3,13 +3,6 @@
 # ============================================================
 # Schemas define what data the API accepts (requests) and
 # what data it returns (responses).
-#
-# Why separate from models?
-# - Models = how data is stored in the DB (has password_hash)
-# - Schemas = how data enters/leaves the API (has password, no hash)
-#
-# This separation is a security best practice — we never
-# accidentally send the password hash to the frontend.
 # ============================================================
 
 from datetime import datetime
@@ -21,9 +14,9 @@ from pydantic import BaseModel, EmailStr, Field
 
 class UserSignup(BaseModel):
     """Data needed to create a new account."""
-    email: EmailStr                                     # Must be a valid email
-    username: str = Field(..., min_length=3, max_length=30)  # 3-30 characters
-    password: str = Field(..., min_length=6)            # At least 6 characters
+    email: EmailStr
+    username: str = Field(..., min_length=3, max_length=30)
+    password: str = Field(..., min_length=6)
     display_name: str = Field(..., min_length=1, max_length=100)
 
 
@@ -45,27 +38,24 @@ class UserUpdate(BaseModel):
 
 class UserResponse(BaseModel):
     """
-    User data sent to the frontend.
-    
-    Notice: NO password_hash field! This is the whole point
-    of separating models from schemas.
+    User data sent to the frontend (password_hash is omitted).
     """
-    id: str                                             # MongoDB ObjectId as string
+    id: str                                             # Supabase UUID as string
     email: str
     username: str
     display_name: str
     avatar_url: Optional[str] = None
-    default_currency: str
-    email_digest_enabled: bool
+    default_currency: str = "INR"
+    email_digest_enabled: bool = False
     created_at: datetime
 
 
 class TokenResponse(BaseModel):
     """JWT tokens returned after login/signup."""
-    access_token: str                                   # Short-lived token (30 min)
-    refresh_token: str                                  # Long-lived token (7 days)
-    token_type: str = "bearer"                          # Always "bearer" for JWT
-    user: UserResponse                                  # User info included for convenience
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+    user: UserResponse
 
 
 class TokenRefreshRequest(BaseModel):

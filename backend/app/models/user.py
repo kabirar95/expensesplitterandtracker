@@ -1,42 +1,23 @@
 # ============================================================
-# USER MODEL — How user data is stored in MongoDB
-# ============================================================
-# This is a Beanie Document — it defines the shape of documents
-# in the "users" collection in MongoDB.
-#
-# Think of it like a table schema in SQL, but for MongoDB.
-# Each instance of this class = one document in the collection.
+# USER PROFILE MODEL — Supabase PostgreSQL Table Shape
 # ============================================================
 
 from datetime import datetime
 from typing import Optional
-from beanie import Document
-from pydantic import EmailStr, Field
+from pydantic import BaseModel, EmailStr
 
 
-class User(Document):
+class UserProfile(BaseModel):
     """
-    Represents a registered user in the app.
-    
-    Stored in MongoDB collection: "users"
+    Represents a user profile record in the Supabase 'profiles' table.
     """
-    email: EmailStr                                     # "kabir@example.com" — must be unique
-    username: str                                       # "kabir_r" — must be unique
-    password_hash: str                                  # Bcrypt-hashed password (NEVER store plain text!)
-    display_name: str                                   # "Kabir Ramteke" — shown in the UI
-    avatar_url: Optional[str] = None                    # Profile picture URL
-    default_currency: str = "INR"                       # User's preferred currency
-    
-    # Email digest preferences
-    email_digest_enabled: bool = False                  # Weekly email summary toggle
-    
-    # Timestamps
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
-
-    class Settings:
-        name = "users"                                  # MongoDB collection name
-        indexes = [
-            "email",                                    # Index on email for fast lookups
-            "username",                                 # Index on username for fast lookups
-        ]
+    id: str                                             # Supabase UUID
+    email: EmailStr
+    username: str
+    password_hash: str
+    display_name: str
+    avatar_url: Optional[str] = None
+    default_currency: str = "INR"
+    email_digest_enabled: bool = False
+    created_at: datetime = datetime.utcnow()
+    updated_at: datetime = datetime.utcnow()
