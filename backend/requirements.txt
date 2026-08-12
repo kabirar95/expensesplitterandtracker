@@ -12,8 +12,8 @@ python-jose[cryptography]==3.3.0   # JWT token creation/verification
 passlib[bcrypt]==1.7.4             # Password hashing with bcrypt
 
 # ── Validation ──
-pydantic[email]==2.8.0      # Data validation (EmailStr, etc.)
-pydantic-settings==2.4.0   # Settings from environment variables
+pydantic[email]>=2.11.7      # Data validation (EmailStr, etc.)
+pydantic-settings>=2.4.0   # Settings from environment variables
 
 # ── AI (Gemini) ──
 google-generativeai==0.8.0  # Google Gemini API client
