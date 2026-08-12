@@ -2,9 +2,10 @@
 fastapi==0.115.0            # The web framework
 uvicorn[standard]==0.30.0   # ASGI server (runs FastAPI)
 
-# ── Database ──
-motor==3.5.0                # Async MongoDB driver
-beanie==1.26.0              # MongoDB ODM (Object Document Mapper)
+# ── Database & Auth (Supabase / PostgreSQL) ──
+supabase==2.7.4             # Official Supabase Python SDK
+postgrest==0.16.5           # PostgREST Python client
+psycopg2-binary==2.9.9      # PostgreSQL database adapter
 
 # ── Authentication ──
 python-jose[cryptography]==3.3.0   # JWT token creation/verification

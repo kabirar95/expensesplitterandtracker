@@ -1,9 +1,6 @@
 # ============================================================
 # CONFIGURATION — All settings loaded from environment variables
 # ============================================================
-# This file uses Pydantic Settings to load config from .env files.
-# Never hardcode secrets here — always use environment variables.
-# ============================================================
 
 from pydantic_settings import BaseSettings
 from typing import List
@@ -12,21 +9,16 @@ from typing import List
 class Settings(BaseSettings):
     """
     Application settings loaded from environment variables.
-    
-    Pydantic Settings automatically reads from:
-    1. Environment variables (highest priority)
-    2. .env file (fallback)
-    
-    Example: MONGODB_URL in .env → settings.mongodb_url in Python
     """
 
     # ── App Settings ──
     app_name: str = "Expense Splitter & Tracker"
     debug: bool = False
 
-    # ── MongoDB ──
-    mongodb_url: str = "mongodb://localhost:27017"
-    database_name: str = "expense_splitter"
+    # ── Supabase (PostgreSQL Cloud) ──
+    supabase_url: str = ""
+    supabase_key: str = ""                         # Service Role Key or Anon Key
+    supabase_service_role_key: str = ""
 
     # ── JWT Authentication ──
     jwt_secret: str = "change-this-to-a-random-secret-in-production"
@@ -34,8 +26,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 30       # Access token lives for 30 minutes
     refresh_token_expire_days: int = 7          # Refresh token lives for 7 days
 
-    # ── CORS (Cross-Origin Resource Sharing) ──
-    # Which frontend URLs are allowed to call our API
+    # ── CORS ──
     cors_origins: List[str] = ["http://localhost:5173", "http://localhost:3000"]
 
     # ── Gemini AI ──
@@ -50,10 +41,9 @@ class Settings(BaseSettings):
     default_currency: str = "INR"
 
     class Config:
-        env_file = ".env"               # Load from .env file
+        env_file = ".env"
         env_file_encoding = "utf-8"
-        case_sensitive = False           # MONGODB_URL and mongodb_url both work
+        case_sensitive = False
 
 
-# Create a single instance — import this everywhere
 settings = Settings()

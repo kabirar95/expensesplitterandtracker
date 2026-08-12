@@ -1,19 +1,13 @@
 # ============================================================
-# DOCKER COMPOSE — Orchestrates all 3 services
+# DOCKER COMPOSE — Orchestrates Frontend + Backend
 # ============================================================
-# This file defines our entire development environment:
+# Services:
 #   1. Frontend (React + Vite) → port 5173
 #   2. Backend (FastAPI + Uvicorn) → port 8000
-#   3. Database (MongoDB) → port 27017
+#   3. Database (Supabase PostgreSQL Cloud)
 #
-# Run everything with one command:
+# Run everything with:
 #   docker compose up --build
-#
-# Stop everything:
-#   docker compose down
-#
-# Stop and delete all data:
-#   docker compose down -v
 # ============================================================
 
 services:
@@ -23,14 +17,16 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "5173:5173"               # Map container port to host port
+      - "5173:5173"
     volumes:
-      - ./frontend:/app           # Mount code for hot-reload
-      - /app/node_modules         # Don't override node_modules from container
+      - ./frontend:/app
+      - /app/node_modules
     environment:
       - VITE_API_URL=http://localhost:8000
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL:-}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY:-}
     depends_on:
-      - backend                   # Start backend first
+      - backend
     networks:
       - app-network
 
@@ -42,38 +38,20 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app            # Mount code for hot-reload
+      - ./backend:/app
     environment:
-      - MONGODB_URL=mongodb://mongo:27017
-      - DATABASE_NAME=expense_splitter
-      - JWT_SECRET=dev-secret-change-in-production-please
+      - SUPABASE_URL=${SUPABASE_URL:-}
+      - SUPABASE_KEY=${SUPABASE_KEY:-}
+      - JWT_SECRET=${JWT_SECRET:-dev-secret-change-in-production-please}
       - CORS_ORIGINS=["http://localhost:5173","http://localhost:3000"]
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       - RESEND_API_KEY=${RESEND_API_KEY:-}
       - DEFAULT_CURRENCY=INR
       - DEBUG=true
-    depends_on:
-      - mongo                     # Start MongoDB first
     networks:
       - app-network
-
-  # ── Database (MongoDB) ──
-  mongo:
-    image: mongo:7               # Official MongoDB 7 image
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db       # Persist data between restarts
-    networks:
-      - app-network
-
-# ── Named Volumes ──
-# Docker manages this storage — your data survives container restarts
-volumes:
-  mongo_data:
 
 # ── Network ──
-# All services can talk to each other by name (e.g., "mongo", "backend")
 networks:
   app-network:
     driver: bridge
