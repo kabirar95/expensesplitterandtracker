@@ -23,8 +23,6 @@ services:
       - /app/node_modules
     environment:
       - VITE_API_URL=http://localhost:8000
-      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL:-}
-      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY:-}
     depends_on:
       - backend
     networks:
@@ -41,19 +39,9 @@ services:
       - ./backend:/app
     env_file:
       - ./backend/.env
-    environment:
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_KEY=${SUPABASE_KEY}
-      - JWT_SECRET=${JWT_SECRET:-dev-secret-change-in-production-please}
-      - CORS_ORIGINS=["http://localhost:5173","http://localhost:3000"]
-      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
-      - RESEND_API_KEY=${RESEND_API_KEY:-}
-      - DEFAULT_CURRENCY=INR
-      - DEBUG=true
     networks:
       - app-network
 
-# ── Network ──
 networks:
   app-network:
     driver: bridge
