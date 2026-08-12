@@ -85,13 +85,13 @@ export default function GroupsPage() {
 
     activeExpenses.forEach((exp) => {
       const payer = exp.paid_by;
-      const totalAmount = exp.amount;
+      const totalAmount = parseFloat(exp.amount || 0);
       const splits = exp.splits || [];
 
       if (splits.length > 0) {
         splits.forEach((s) => {
-          const member = s.member_name;
-          const share = s.amount;
+          const member = s.user_name || s.member_name;
+          const share = parseFloat(s.amount || 0);
           if (member in memberBalances) {
             if (member === payer) {
               memberBalances[member] += totalAmount - share;
@@ -101,7 +101,6 @@ export default function GroupsPage() {
           }
         });
       } else {
-        // Default equal fallback if splits array is empty
         const count = activeGroup.members.length || 1;
         const equalShare = totalAmount / count;
         activeGroup.members.forEach((m) => {
@@ -412,9 +411,9 @@ export default function GroupsPage() {
                                 {exp.splits && exp.splits.length > 0 ? (
                                   exp.splits.map((s, idx) => (
                                     <div key={idx} className="split-member-card">
-                                      <span className="split-member-name">{s.member_name}</span>
+                                      <span className="split-member-name">{s.user_name || s.member_name}</span>
                                       <span className="split-member-amount font-mono">
-                                        ₹{s.amount.toFixed(2)}
+                                        ₹{parseFloat(s.amount).toFixed(2)}
                                       </span>
                                     </div>
                                   ))
