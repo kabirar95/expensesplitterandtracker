@@ -11,17 +11,22 @@ supabase: Client = None
 
 def init_db() -> Client:
     """
-    Initialize the Supabase client connection.
+    Initialize the Supabase client connection safely.
     Called once when the FastAPI app starts up.
     """
     global supabase
     if not settings.supabase_url or not settings.supabase_key:
-        print("⚠️ Warning: SUPABASE_URL or SUPABASE_KEY not set. Local DB mock mode active.")
+        print("⚠️ Warning: SUPABASE_URL or SUPABASE_KEY not set. Fallback local DB active.")
         return None
 
-    supabase = create_client(settings.supabase_url, settings.supabase_key)
-    print("✅ Connected to Supabase (PostgreSQL)!")
-    return supabase
+    try:
+        supabase = create_client(settings.supabase_url, settings.supabase_key)
+        print("✅ Connected to Supabase (PostgreSQL)!")
+        return supabase
+    except Exception as e:
+        print(f"⚠️ Supabase init notice ({e}). Fallback local memory store active.")
+        supabase = None
+        return None
 
 
 def get_supabase() -> Client:
@@ -30,5 +35,8 @@ def get_supabase() -> Client:
     """
     global supabase
     if supabase is None and settings.supabase_url and settings.supabase_key:
-        supabase = create_client(settings.supabase_url, settings.supabase_key)
+        try:
+            supabase = create_client(settings.supabase_url, settings.supabase_key)
+        except Exception:
+            supabase = None
     return supabase
