@@ -18,7 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import init_db
-from app.routers import auth
+from app.routers import auth, groups, expenses
 
 
 # ── Lifespan — runs on startup and shutdown ──
@@ -67,11 +67,9 @@ app.add_middleware(
 
 
 # ── Register Routers ──
-# Each router handles a group of related endpoints.
-# We'll add more as we build them.
 app.include_router(auth.router)
-# app.include_router(groups.router)       # Coming in Phase 2
-# app.include_router(expenses.router)     # Coming in Phase 2
+app.include_router(groups.router)
+app.include_router(expenses.router)
 # app.include_router(personal.router)     # Coming in Phase 3
 # app.include_router(budgets.router)      # Coming in Phase 3
 # app.include_router(settlements.router)  # Coming in Phase 4
