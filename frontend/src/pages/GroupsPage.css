@@ -1,5 +1,5 @@
 /* ============================================================
-   GROUPS PAGE CYBER STYLES
+   GROUPS PAGE CYBER STYLES — Live Net Balances & Drawer
    ============================================================ */
 
 .groups-container {
@@ -215,7 +215,84 @@
   background-color: var(--color-primary-ghost);
 }
 
-/* ── Expenses Section ── */
+/* ── LIVE NET BALANCES WIDGET ── */
+.group-balances-widget {
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.balances-title {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-cyan);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.balances-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-3);
+}
+
+.balance-card {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-tertiary);
+}
+
+.balance-card.balance-positive {
+  border-color: rgba(16, 185, 129, 0.4);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.balance-card.balance-negative {
+  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+.balance-name {
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+}
+
+.balance-val {
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
+}
+
+.balance-positive .balance-val {
+  color: var(--color-success);
+}
+
+.balance-negative .balance-val {
+  color: var(--color-danger);
+}
+
+.balance-zero .balance-val {
+  color: var(--text-tertiary);
+}
+
+.balance-status {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  text-transform: lowercase;
+}
+
+/* ── Expenses Section & Drawer ── */
 .expenses-section {
   padding: var(--space-6);
   display: flex;
@@ -234,6 +311,12 @@
   gap: var(--space-3);
 }
 
+.expense-item-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .expense-item-card {
   display: flex;
   align-items: center;
@@ -242,6 +325,7 @@
   border-radius: var(--radius-lg);
   background-color: var(--bg-tertiary);
   border: 1px solid var(--border-color);
+  cursor: pointer;
   transition: all var(--transition-fast);
 }
 
@@ -292,6 +376,14 @@
   color: var(--color-success);
 }
 
+.expand-toggle-btn {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .expense-delete-btn {
   font-size: 1.1rem;
   color: var(--text-tertiary);
@@ -303,6 +395,50 @@
 .expense-delete-btn:hover {
   color: var(--color-danger);
   background-color: var(--color-danger-light);
+}
+
+.expense-splits-drawer {
+  padding: var(--space-4);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-top: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.drawer-title {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.splits-pills-grid {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.split-member-card {
+  font-size: var(--font-size-xs);
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-md);
+  background-color: var(--bg-hover);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.split-member-name {
+  color: var(--text-secondary);
+}
+
+.split-member-amount {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-cyan);
 }
 
 .empty-state {

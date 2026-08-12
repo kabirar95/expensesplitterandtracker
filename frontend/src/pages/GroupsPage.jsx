@@ -6,8 +6,10 @@ import {
   BiTrash,
   BiUserPlus,
   BiMoney,
-  BiCategory,
-  BiCheckCircle,
+  BiTrendingUp,
+  BiTrendingDown,
+  BiChevronDown,
+  BiChevronUp,
 } from 'react-icons/bi';
 import { toast } from 'react-hot-toast';
 
@@ -36,10 +38,11 @@ export default function GroupsPage() {
     removeExpense,
   } = useGroupStore();
 
-  // Modals state
+  // Modals & UI state
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
   const [newMemberInput, setNewMemberInput] = useState('');
+  const [expandedExpenseId, setExpandedExpenseId] = useState(null);
 
   // Form states
   const [newGroupData, setNewGroupData] = useState({ name: '', description: '', category: 'trip', membersInput: '' });
@@ -58,14 +61,12 @@ export default function GroupsPage() {
     loadGroups();
   }, [loadGroups]);
 
-  // Set first group active if none selected
   useEffect(() => {
     if (groups.length > 0 && !activeGroup) {
       setActiveGroup(groups[0]);
     }
   }, [groups, activeGroup, setActiveGroup]);
 
-  // Set default paid_by when activeGroup changes
   useEffect(() => {
     if (activeGroup && activeGroup.members?.length > 0) {
       setNewExpenseData((prev) => ({
@@ -74,6 +75,45 @@ export default function GroupsPage() {
       }));
     }
   }, [activeGroup]);
+
+  // Compute Net Balances for each member in active group
+  const memberBalances = {};
+  if (activeGroup && activeGroup.members) {
+    activeGroup.members.forEach((m) => {
+      memberBalances[m.name] = 0;
+    });
+
+    activeExpenses.forEach((exp) => {
+      const payer = exp.paid_by;
+      const totalAmount = exp.amount;
+      const splits = exp.splits || [];
+
+      if (splits.length > 0) {
+        splits.forEach((s) => {
+          const member = s.member_name;
+          const share = s.amount;
+          if (member in memberBalances) {
+            if (member === payer) {
+              memberBalances[member] += totalAmount - share;
+            } else {
+              memberBalances[member] -= share;
+            }
+          }
+        });
+      } else {
+        // Default equal fallback if splits array is empty
+        const count = activeGroup.members.length || 1;
+        const equalShare = totalAmount / count;
+        activeGroup.members.forEach((m) => {
+          if (m.name === payer) {
+            memberBalances[m.name] += totalAmount - equalShare;
+          } else {
+            memberBalances[m.name] -= equalShare;
+          }
+        });
+      }
+    });
+  }
 
   // Handlers
   const handleCreateGroup = async (e) => {
@@ -136,7 +176,7 @@ export default function GroupsPage() {
         notes: newExpenseData.notes,
       });
 
-      toast.success('Expense added!');
+      toast.success('Expense added & split among members!');
       setIsAddExpenseModalOpen(false);
       setNewExpenseData({
         description: '',
@@ -162,13 +202,17 @@ export default function GroupsPage() {
     }
   };
 
+  const toggleExpandExpense = (id) => {
+    setExpandedExpenseId(expandedExpenseId === id ? null : id);
+  };
+
   return (
     <div className="groups-container animate-fade-in">
       {/* Header */}
       <div className="groups-header">
         <div>
           <h1 className="gradient-text">Expense Groups</h1>
-          <p>Split trip, roommate, and party expenses effortlessly (No member logins required!)</p>
+          <p>Split trip, roommate, and party expenses effortlessly with live member balances!</p>
         </div>
         <Button variant="primary" icon={BiPlus} onClick={() => setIsCreateModalOpen(true)}>
           Create Group
@@ -266,6 +310,35 @@ export default function GroupsPage() {
                     </button>
                   </form>
                 </div>
+
+                {/* LIVE NET BALANCES WIDGET */}
+                <div className="group-balances-widget">
+                  <h4 className="balances-title">
+                    <BiTrendingUp /> Live Net Balances (Who Owes Whom)
+                  </h4>
+                  <div className="balances-grid">
+                    {Object.entries(memberBalances).map(([memberName, bal]) => {
+                      const isPositive = bal > 0.01;
+                      const isNegative = bal < -0.01;
+                      return (
+                        <div
+                          key={memberName}
+                          className={`balance-card ${
+                            isPositive ? 'balance-positive' : isNegative ? 'balance-negative' : 'balance-zero'
+                          }`}
+                        >
+                          <span className="balance-name">{memberName}</span>
+                          <span className="balance-val font-mono">
+                            {isPositive ? `+₹${bal.toFixed(2)}` : isNegative ? `-₹${Math.abs(bal).toFixed(2)}` : '₹0.00'}
+                          </span>
+                          <span className="balance-status font-mono">
+                            {isPositive ? 'gets back' : isNegative ? 'owes' : 'settled up'}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
               {/* Expense History Section */}
@@ -290,31 +363,77 @@ export default function GroupsPage() {
                   </div>
                 ) : (
                   <div className="expenses-list">
-                    {activeExpenses.map((exp) => (
-                      <div key={exp.id} className="expense-item-card">
-                        <div className="expense-icon-badge">
-                          <BiMoney />
-                        </div>
-                        <div className="expense-main-info">
-                          <span className="expense-description">{exp.description}</span>
-                          <span className="expense-meta">
-                            Paid by <strong>{exp.paid_by}</strong> • Split ({exp.split_type})
-                          </span>
-                        </div>
-                        <div className="expense-amount-col">
-                          <span className="expense-amount font-mono">
-                            ₹{exp.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                          </span>
-                          <button
-                            className="expense-delete-btn"
-                            onClick={() => handleDeleteExpense(exp.id)}
-                            title="Delete expense"
+                    {activeExpenses.map((exp) => {
+                      const isExpanded = expandedExpenseId === exp.id;
+                      const splitCount = exp.splits?.length || activeGroup.members?.length || 1;
+                      const sharePerPerson = exp.amount / splitCount;
+
+                      return (
+                        <div key={exp.id} className="expense-item-wrapper">
+                          <div
+                            className="expense-item-card"
+                            onClick={() => toggleExpandExpense(exp.id)}
                           >
-                            <BiTrash />
-                          </button>
+                            <div className="expense-icon-badge">
+                              <BiMoney />
+                            </div>
+                            <div className="expense-main-info">
+                              <span className="expense-description">{exp.description}</span>
+                              <span className="expense-meta">
+                                Paid by <strong>{exp.paid_by}</strong> • Split {exp.split_type} (₹
+                                {sharePerPerson.toFixed(2)}/person)
+                              </span>
+                            </div>
+                            <div className="expense-amount-col">
+                              <span className="expense-amount font-mono">
+                                ₹{exp.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                              </span>
+                              <button className="expand-toggle-btn">
+                                {isExpanded ? <BiChevronUp /> : <BiChevronDown />}
+                              </button>
+                              <button
+                                className="expense-delete-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteExpense(exp.id);
+                                }}
+                                title="Delete expense"
+                              >
+                                <BiTrash />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Expanded Split Breakdown Drawer */}
+                          {isExpanded && (
+                            <div className="expense-splits-drawer animate-fade-in">
+                              <span className="drawer-title">Split Breakdown per member:</span>
+                              <div className="splits-pills-grid">
+                                {exp.splits && exp.splits.length > 0 ? (
+                                  exp.splits.map((s, idx) => (
+                                    <div key={idx} className="split-member-card">
+                                      <span className="split-member-name">{s.member_name}</span>
+                                      <span className="split-member-amount font-mono">
+                                        ₹{s.amount.toFixed(2)}
+                                      </span>
+                                    </div>
+                                  ))
+                                ) : (
+                                  activeGroup.members?.map((m, idx) => (
+                                    <div key={idx} className="split-member-card">
+                                      <span className="split-member-name">{m.name}</span>
+                                      <span className="split-member-amount font-mono">
+                                        ₹{sharePerPerson.toFixed(2)}
+                                      </span>
+                                    </div>
+                                  ))
+                                )}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
