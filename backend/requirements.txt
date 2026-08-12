@@ -3,8 +3,8 @@ fastapi==0.115.0            # The web framework
 uvicorn[standard]==0.30.0   # ASGI server (runs FastAPI)
 
 # ── Database & Auth (Supabase / PostgreSQL) ──
-supabase==2.7.4             # Official Supabase Python SDK
-postgrest==0.16.5           # PostgREST Python client
+supabase>=2.31.0            # Official Supabase Python SDK
+postgrest>=2.31.0          # PostgREST Python client
 psycopg2-binary==2.9.9      # PostgreSQL database adapter
 
 # ── Authentication ──
