@@ -39,9 +39,11 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
+    env_file:
+      - ./backend/.env
     environment:
-      - SUPABASE_URL=${SUPABASE_URL:-}
-      - SUPABASE_KEY=${SUPABASE_KEY:-}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
       - JWT_SECRET=${JWT_SECRET:-dev-secret-change-in-production-please}
       - CORS_ORIGINS=["http://localhost:5173","http://localhost:3000"]
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
