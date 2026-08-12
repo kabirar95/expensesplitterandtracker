@@ -4,18 +4,24 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-6);
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-primary);
+  background-image: var(--mesh-glow-1), var(--mesh-glow-2);
+  background-attachment: fixed;
+  position: relative;
+  overflow: hidden;
 }
 
 .auth-card {
   width: 100%;
   max-width: 440px;
-  background-color: var(--bg-elevated);
-  border: 1px solid var(--border-color);
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-2xl);
-  padding: var(--space-8);
-  box-shadow: var(--shadow-xl);
-  transition: background-color var(--transition-base), border-color var(--transition-base);
+  padding: var(--space-10) var(--space-8);
+  box-shadow: var(--glass-shadow), var(--glow-primary);
+  transition: all var(--transition-base);
 }
 
 .auth-header {
@@ -24,19 +30,20 @@
 }
 
 .auth-logo {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  background: linear-gradient(135deg, var(--color-primary), #8b5cf6);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-black);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent-cyan));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: var(--space-2);
+  letter-spacing: -0.03em;
 }
 
 .auth-title {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
-  margin-bottom: var(--space-1);
+  margin-bottom: var(--space-2);
 }
 
 .auth-subtitle {
@@ -52,16 +59,15 @@
   text-align: center;
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
-
-  p {
-    margin: 0;
-  }
 }
 
 .auth-link {
   color: var(--color-primary);
   font-weight: var(--font-weight-semibold);
-  &:hover {
-    text-decoration: underline;
-  }
+  transition: all var(--transition-fast);
+}
+
+.auth-link:hover {
+  color: var(--color-accent-cyan);
+  text-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
 }

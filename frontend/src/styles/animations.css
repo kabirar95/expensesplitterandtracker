@@ -1,5 +1,5 @@
 /* ============================================================
-   ANIMATIONS — Reusable animation keyframes & classes
+   CYBER ANIMATIONS
    ============================================================ */
 
 /* ── Fade In ── */
@@ -9,74 +9,66 @@
 }
 
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-20px); }
+  from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeInScale {
-  from { opacity: 0; transform: scale(0.95); }
+  from { opacity: 0; transform: scale(0.96); }
   to { opacity: 1; transform: scale(1); }
 }
 
-/* ── Slide In ── */
-@keyframes slideInRight {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
+/* ── Glow Pulse ── */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(139, 92, 246, 0.5);
+  }
 }
 
-@keyframes slideInLeft {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(0); }
+/* ── Float ── */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 
-/* ── Spin (for loaders) ── */
+/* ── Spin ── */
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
-/* ── Pulse (for skeleton loading) ── */
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-/* ── Bounce ── */
-@keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-}
-
-/* ── Shimmer (for loading states) ── */
+/* ── Shimmer ── */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
 
+/* ── Live Indicator Pulse ── */
+@keyframes livePulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
 /* ── Animation Classes ── */
 .animate-fade-in { animation: fadeIn var(--transition-base) ease-out; }
 .animate-fade-in-up { animation: fadeInUp var(--transition-slow) ease-out; }
-.animate-fade-in-down { animation: fadeInDown var(--transition-slow) ease-out; }
 .animate-fade-in-scale { animation: fadeInScale var(--transition-base) ease-out; }
-.animate-slide-in-right { animation: slideInRight var(--transition-slow) ease-out; }
-.animate-slide-in-left { animation: slideInLeft var(--transition-slow) ease-out; }
+.animate-pulse-glow { animation: pulseGlow 3s ease-in-out infinite; }
+.animate-float { animation: float 4s ease-in-out infinite; }
 .animate-spin { animation: spin 1s linear infinite; }
-.animate-pulse { animation: pulse 2s ease-in-out infinite; }
-.animate-bounce { animation: bounce 1s ease-in-out infinite; }
+.animate-live-pulse { animation: livePulse 2s infinite; }
 
-/* Staggered animation delays (for lists) */
-.stagger-1 { animation-delay: 50ms; }
-.stagger-2 { animation-delay: 100ms; }
-.stagger-3 { animation-delay: 150ms; }
-.stagger-4 { animation-delay: 200ms; }
-.stagger-5 { animation-delay: 250ms; }
+/* Staggered animation delays */
+.stagger-1 { animation-delay: 40ms; }
+.stagger-2 { animation-delay: 80ms; }
+.stagger-3 { animation-delay: 120ms; }
+.stagger-4 { animation-delay: 160ms; }
 
-/* Skeleton loading shimmer */
+/* Skeleton Loading Shimmer */
 .skeleton {
   background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-hover) 50%, var(--bg-tertiary) 75%);
   background-size: 200% 100%;

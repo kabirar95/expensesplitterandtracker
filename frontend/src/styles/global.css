@@ -1,9 +1,8 @@
 /* ============================================================
-   GLOBAL STYLES — Base styles applied across the entire app
+   GLOBAL CYBER STYLES
    ============================================================ */
 
-/* ── Import Google Font ── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 body {
   font-family: var(--font-primary);
@@ -11,6 +10,8 @@ body {
   line-height: var(--line-height-normal);
   color: var(--text-primary);
   background-color: var(--bg-primary);
+  background-image: var(--mesh-glow-1), var(--mesh-glow-2);
+  background-attachment: fixed;
   transition: background-color var(--transition-base), color var(--transition-base);
 }
 
@@ -23,14 +24,20 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-tight);
   color: var(--text-primary);
+  letter-spacing: -0.02em;
 }
 
-h1 { font-size: var(--font-size-4xl); }
-h2 { font-size: var(--font-size-3xl); }
+h1 { font-size: var(--font-size-4xl); font-weight: var(--font-weight-black); }
+h2 { font-size: var(--font-size-3xl); font-weight: var(--font-weight-bold); }
 h3 { font-size: var(--font-size-2xl); }
 h4 { font-size: var(--font-size-xl); }
 h5 { font-size: var(--font-size-lg); }
 h6 { font-size: var(--font-size-base); }
+
+/* ── Numbers / Amounts ── */
+.font-mono, .amount-display, .currency-tag {
+  font-family: var(--font-mono);
+}
 
 /* ── Paragraphs ── */
 p {
@@ -44,13 +51,13 @@ a {
   transition: color var(--transition-fast);
 }
 a:hover {
-  color: var(--color-primary-hover);
+  color: var(--color-primary);
 }
 
-/* ── Custom Scrollbar ── */
+/* ── Custom Cyber Scrollbar ── */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: var(--scrollbar-track);
@@ -60,13 +67,30 @@ a:hover {
   border-radius: var(--radius-full);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-tertiary);
+  background: var(--color-primary);
 }
 
-/* ── Selection ── */
-::selection {
-  background-color: var(--color-primary);
-  color: white;
+/* ── Glassmorphic Cards ── */
+.cyber-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow);
+  transition: all var(--transition-base);
+}
+
+.cyber-card:hover {
+  border-color: var(--border-glow);
+  box-shadow: var(--glow-primary);
+}
+
+/* ── Gradient Text ── */
+.gradient-text {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent-cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* ── Utility Classes ── */
@@ -85,6 +109,8 @@ a:hover {
 .text-center { text-align: center; }
 .text-right { text-align: right; }
 .text-primary-color { color: var(--color-primary); }
+.text-cyan { color: var(--color-accent-cyan); }
+.text-magenta { color: var(--color-accent-magenta); }
 .text-success { color: var(--color-success); }
 .text-warning { color: var(--color-warning); }
 .text-danger { color: var(--color-danger); }

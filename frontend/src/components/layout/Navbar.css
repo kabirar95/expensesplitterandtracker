@@ -1,33 +1,37 @@
 .navbar {
   height: var(--navbar-height);
-  background-color: var(--bg-elevated);
-  border-bottom: 1px solid var(--border-color);
-  padding: 0 var(--space-6);
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 0 var(--space-8);
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: sticky;
   top: 0;
   z-index: var(--z-sticky);
-  transition: background-color var(--transition-base), border-color var(--transition-base);
+  transition: all var(--transition-base);
 }
 
 .navbar-brand {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .navbar-logo-icon {
-  font-size: 1.75rem;
+  font-size: 1.85rem;
+  filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.5));
 }
 
 .navbar-logo-text {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
-  background: linear-gradient(135deg, var(--color-primary), #a78bfa);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-black);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent-cyan));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  letter-spacing: -0.03em;
 }
 
 .navbar-actions {
@@ -45,24 +49,27 @@
   align-items: center;
   justify-content: center;
   transition: all var(--transition-fast);
+  border: 1px solid transparent;
 }
 
 .theme-toggle-btn:hover {
   background-color: var(--bg-hover);
-  color: var(--text-primary);
+  color: var(--color-primary);
+  border-color: var(--border-color);
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
 }
 
 .navbar-user-profile {
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding-left: var(--space-3);
+  padding-left: var(--space-4);
   border-left: 1px solid var(--border-color);
 }
 
 .navbar-username {
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
 }
 

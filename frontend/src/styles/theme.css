@@ -1,116 +1,116 @@
 /* ============================================================
-   THEME — Dark Mode & Light Mode definitions
-   ============================================================
-   We use CSS custom properties to define theme colors.
-   When the theme switches, only these variables change —
-   all components automatically pick up the new colors.
-   
-   How it works:
-   - [data-theme="light"] on <html> → light colors active
-   - [data-theme="dark"]  on <html> → dark colors active
-   - JavaScript toggles this attribute
+   CYBER-TECH THEMES (Dark First + Cyber Light)
    ============================================================ */
 
-/* ── Light Theme (Default) ── */
+/* ── Dark Theme (Cybertech Default) ── */
+[data-theme="dark"], :root {
+  /* Brand Accents */
+  --color-primary: #8b5cf6;          /* Electric Violet */
+  --color-primary-hover: #7c3aed;
+  --color-primary-light: rgba(139, 92, 246, 0.15);
+  --color-primary-ghost: rgba(139, 92, 246, 0.12);
+
+  --color-accent-cyan: #06b6d4;      /* Electric Cyan */
+  --color-accent-magenta: #f43f5e;   /* Hot Magenta */
+
+  --color-success: #10b981;          /* Cyber Emerald */
+  --color-success-light: rgba(16, 185, 129, 0.15);
+  --color-warning: #f59e0b;          /* Neon Amber */
+  --color-warning-light: rgba(245, 158, 11, 0.15);
+  --color-danger: #ef4444;           /* Vivid Red */
+  --color-danger-light: rgba(239, 68, 68, 0.15);
+
+  /* Deep Space Canvas */
+  --bg-primary: #030712;
+  --bg-secondary: #0b0f19;
+  --bg-tertiary: #111827;
+  --bg-elevated: rgba(17, 24, 39, 0.75);
+  --bg-sidebar: #090d16;
+  --bg-input: rgba(17, 24, 39, 0.8);
+  --bg-hover: rgba(31, 41, 55, 0.6);
+
+  /* Text Colors */
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --text-tertiary: #6b7280;
+  --text-inverse: #030712;
+  --text-link: #a78bfa;
+
+  /* Cyber Borders */
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-color-strong: rgba(255, 255, 255, 0.16);
+  --border-glow: rgba(139, 92, 246, 0.4);
+
+  /* Glassmorphism */
+  --glass-bg: rgba(11, 15, 25, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+
+  /* Ambient Mesh Background Gradients */
+  --mesh-glow-1: radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.15) 0%, transparent 45%);
+  --mesh-glow-2: radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.12) 0%, transparent 45%);
+
+  /* Chart Colors */
+  --chart-1: #8b5cf6;
+  --chart-2: #06b6d4;
+  --chart-3: #10b981;
+  --chart-4: #f59e0b;
+  --chart-5: #f43f5e;
+  --chart-6: #ec4899;
+
+  --scrollbar-track: #090d16;
+  --scrollbar-thumb: #1f2937;
+}
+
+/* ── Light Theme (Futuristic Light) ── */
 [data-theme="light"] {
-  /* Primary brand colors — vibrant indigo/purple */
-  --color-primary: #6366f1;
-  --color-primary-hover: #4f46e5;
-  --color-primary-light: #e0e7ff;
-  --color-primary-ghost: rgba(99, 102, 241, 0.1);
+  --color-primary: #7c3aed;
+  --color-primary-hover: #6d28d9;
+  --color-primary-light: #f3e8ff;
+  --color-primary-ghost: rgba(124, 58, 237, 0.08);
 
-  /* Success, Warning, Danger */
-  --color-success: #10b981;
+  --color-accent-cyan: #0284c7;
+  --color-accent-magenta: #e11d48;
+
+  --color-success: #059669;
   --color-success-light: #d1fae5;
-  --color-warning: #f59e0b;
+  --color-warning: #d97706;
   --color-warning-light: #fef3c7;
-  --color-danger: #ef4444;
+  --color-danger: #dc2626;
   --color-danger-light: #fee2e2;
-  --color-info: #3b82f6;
-  --color-info-light: #dbeafe;
 
-  /* Backgrounds */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --bg-tertiary: #f1f5f9;
-  --bg-elevated: #ffffff;
-  --bg-sidebar: #f8fafc;
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-tertiary: #e2e8f0;
+  --bg-elevated: rgba(255, 255, 255, 0.85);
+  --bg-sidebar: #ffffff;
   --bg-input: #ffffff;
   --bg-hover: #f1f5f9;
 
-  /* Text */
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --text-tertiary: #94a3b8;
   --text-inverse: #ffffff;
-  --text-link: #6366f1;
+  --text-link: #7c3aed;
 
-  /* Borders */
   --border-color: #e2e8f0;
   --border-color-strong: #cbd5e1;
+  --border-glow: rgba(124, 58, 237, 0.3);
 
-  /* Glassmorphism overlay */
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.3);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(226, 232, 240, 0.8);
+  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
 
-  /* Chart colors */
-  --chart-1: #6366f1;
-  --chart-2: #8b5cf6;
-  --chart-3: #ec4899;
-  --chart-4: #f59e0b;
-  --chart-5: #10b981;
-  --chart-6: #3b82f6;
+  --mesh-glow-1: radial-gradient(circle at 15% 15%, rgba(124, 58, 237, 0.06) 0%, transparent 45%);
+  --mesh-glow-2: radial-gradient(circle at 85% 85%, rgba(2, 132, 199, 0.06) 0%, transparent 45%);
 
-  /* Scrollbar */
+  --chart-1: #7c3aed;
+  --chart-2: #0284c7;
+  --chart-3: #059669;
+  --chart-4: #d97706;
+  --chart-5: #dc2626;
+  --chart-6: #db2777;
+
   --scrollbar-track: #f1f5f9;
   --scrollbar-thumb: #cbd5e1;
-}
-
-/* ── Dark Theme ── */
-[data-theme="dark"] {
-  --color-primary: #818cf8;
-  --color-primary-hover: #6366f1;
-  --color-primary-light: #312e81;
-  --color-primary-ghost: rgba(129, 140, 248, 0.15);
-
-  --color-success: #34d399;
-  --color-success-light: #064e3b;
-  --color-warning: #fbbf24;
-  --color-warning-light: #78350f;
-  --color-danger: #f87171;
-  --color-danger-light: #7f1d1d;
-  --color-info: #60a5fa;
-  --color-info-light: #1e3a5f;
-
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-tertiary: #334155;
-  --bg-elevated: #1e293b;
-  --bg-sidebar: #1e293b;
-  --bg-input: #1e293b;
-  --bg-hover: #334155;
-
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --text-tertiary: #64748b;
-  --text-inverse: #0f172a;
-  --text-link: #818cf8;
-
-  --border-color: #334155;
-  --border-color-strong: #475569;
-
-  --glass-bg: rgba(15, 23, 42, 0.7);
-  --glass-border: rgba(51, 65, 85, 0.5);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-
-  --chart-1: #818cf8;
-  --chart-2: #a78bfa;
-  --chart-3: #f472b6;
-  --chart-4: #fbbf24;
-  --chart-5: #34d399;
-  --chart-6: #60a5fa;
-
-  --scrollbar-track: #1e293b;
-  --scrollbar-thumb: #475569;
 }
