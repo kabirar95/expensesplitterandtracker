@@ -1,5 +1,5 @@
 /* ============================================================
-   GROUPS PAGE CYBER STYLES — Live Net Balances & Drawer
+   GROUPS PAGE CYBER STYLES — Live Net Balances & Settlements
    ============================================================ */
 
 .groups-container {
@@ -290,6 +290,76 @@
   font-size: var(--font-size-xs);
   color: var(--text-tertiary);
   text-transform: lowercase;
+}
+
+/* ── SIMPLIFIED SETTLEMENTS WIDGET ── */
+.settlements-widget {
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.06), rgba(6, 182, 212, 0.06));
+  border: 1px solid var(--border-glow);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.settlements-title {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-primary-light);
+}
+
+.all-settled-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-success);
+  font-weight: var(--font-weight-semibold);
+}
+
+.settlements-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.settlement-card {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+.settlement-from {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-danger);
+}
+
+.settlement-action {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.settlement-to {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-success);
+}
+
+.settlement-amount {
+  margin-left: auto;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-base);
+  color: var(--color-cyan);
 }
 
 /* ── Expenses Section & Drawer ── */

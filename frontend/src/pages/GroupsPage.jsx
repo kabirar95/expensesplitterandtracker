@@ -7,9 +7,10 @@ import {
   BiUserPlus,
   BiMoney,
   BiTrendingUp,
-  BiTrendingDown,
   BiChevronDown,
   BiChevronUp,
+  BiRightArrowAlt,
+  BiCheckDouble,
 } from 'react-icons/bi';
 import { toast } from 'react-hot-toast';
 
@@ -22,6 +23,50 @@ import Modal from '../components/common/Modal';
 import Spinner from '../components/common/Spinner';
 
 import './GroupsPage.css';
+
+// ── Min-Cash-Flow Settlement Debt Simplification Algorithm ──
+function calculateSimplifiedSettlements(balances) {
+  const debtors = [];
+  const creditors = [];
+
+  for (const [name, amount] of Object.entries(balances)) {
+    if (amount < -0.01) {
+      debtors.push({ name, amount: Math.abs(amount) });
+    } else if (amount > 0.01) {
+      creditors.push({ name, amount });
+    }
+  }
+
+  debtors.sort((a, b) => b.amount - a.amount);
+  creditors.sort((a, b) => b.amount - a.amount);
+
+  const settlements = [];
+  let dIndex = 0;
+  let cIndex = 0;
+
+  while (dIndex < debtors.length && cIndex < creditors.length) {
+    const debtor = debtors[dIndex];
+    const creditor = creditors[cIndex];
+
+    const transferAmount = Math.min(debtor.amount, creditor.amount);
+
+    if (transferAmount > 0.01) {
+      settlements.push({
+        from: debtor.name,
+        to: creditor.name,
+        amount: transferAmount,
+      });
+    }
+
+    debtor.amount -= transferAmount;
+    creditor.amount -= transferAmount;
+
+    if (debtor.amount <= 0.01) dIndex++;
+    if (creditor.amount <= 0.01) cIndex++;
+  }
+
+  return settlements;
+}
 
 export default function GroupsPage() {
   const { user } = useAuthStore();
@@ -76,7 +121,7 @@ export default function GroupsPage() {
     }
   }, [activeGroup]);
 
-  // Compute Net Balances for each member in active group
+  // Compute Net Balances for each member
   const memberBalances = {};
   if (activeGroup && activeGroup.members) {
     activeGroup.members.forEach((m) => {
@@ -113,6 +158,9 @@ export default function GroupsPage() {
       }
     });
   }
+
+  // Calculate Simplified Debt Settlements (Who Pays Whom)
+  const settlements = calculateSimplifiedSettlements(memberBalances);
 
   // Handlers
   const handleCreateGroup = async (e) => {
@@ -211,7 +259,7 @@ export default function GroupsPage() {
       <div className="groups-header">
         <div>
           <h1 className="gradient-text">Expense Groups</h1>
-          <p>Split trip, roommate, and party expenses effortlessly with live member balances!</p>
+          <p>Split trip, roommate, and party expenses effortlessly with simplified settlements!</p>
         </div>
         <Button variant="primary" icon={BiPlus} onClick={() => setIsCreateModalOpen(true)}>
           Create Group
@@ -313,7 +361,7 @@ export default function GroupsPage() {
                 {/* LIVE NET BALANCES WIDGET */}
                 <div className="group-balances-widget">
                   <h4 className="balances-title">
-                    <BiTrendingUp /> Live Net Balances (Who Owes Whom)
+                    <BiTrendingUp /> Net Balances
                   </h4>
                   <div className="balances-grid">
                     {Object.entries(memberBalances).map(([memberName, bal]) => {
@@ -337,6 +385,33 @@ export default function GroupsPage() {
                       );
                     })}
                   </div>
+                </div>
+
+                {/* SIMPLIFIED SETTLEMENTS (WHO PAYS WHOM) */}
+                <div className="settlements-widget">
+                  <h4 className="settlements-title">
+                    🤝 Simplified Settlements (Who Pays Whom)
+                  </h4>
+                  {settlements.length === 0 ? (
+                    <div className="all-settled-badge">
+                      <BiCheckDouble /> All members are completely settled up!
+                    </div>
+                  ) : (
+                    <div className="settlements-list">
+                      {settlements.map((s, idx) => (
+                        <div key={idx} className="settlement-card">
+                          <span className="settlement-from">{s.from}</span>
+                          <span className="settlement-action">
+                            pays <BiRightArrowAlt />
+                          </span>
+                          <span className="settlement-to">{s.to}</span>
+                          <span className="settlement-amount font-mono">
+                            ₹{s.amount.toFixed(2)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -411,7 +486,9 @@ export default function GroupsPage() {
                                 {exp.splits && exp.splits.length > 0 ? (
                                   exp.splits.map((s, idx) => (
                                     <div key={idx} className="split-member-card">
-                                      <span className="split-member-name">{s.user_name || s.member_name}</span>
+                                      <span className="split-member-name">
+                                        {s.user_name || s.member_name}
+                                      </span>
                                       <span className="split-member-amount font-mono">
                                         ₹{parseFloat(s.amount).toFixed(2)}
                                       </span>
