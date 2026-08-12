@@ -1,20 +1,12 @@
 # ============================================================
 # AUTH ROUTER — API endpoints for signup, login, refresh, logout
 # ============================================================
-# These are the URLs that the frontend calls for authentication.
-# Each function handles one endpoint:
-#
-#   POST /api/auth/signup   → Create a new account
-#   POST /api/auth/login    → Log in, get JWT tokens
-#   POST /api/auth/refresh  → Get new access token using refresh token
-#   POST /api/auth/logout   → (placeholder — JWT logout is client-side)
-#   GET  /api/auth/me       → Get current user info
-# ============================================================
 
+import uuid
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, status, Depends
 
-from app.models.user import User
+from app.models.user import UserProfile
 from app.schemas.user import (
     UserSignup,
     UserLogin,
@@ -29,24 +21,27 @@ from app.services.auth_service import (
     create_access_token,
     create_refresh_token,
     decode_token,
+    find_user_by_email,
+    find_user_by_username,
+    find_user_by_id,
+    save_user,
 )
 from app.middleware.auth import get_current_user
+from app.database import get_supabase
 
-# Create the router — all routes here will be prefixed with /api/auth
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 
-def _user_to_response(user: User) -> UserResponse:
-    """Convert a User database document to a UserResponse schema."""
+def _user_dict_to_response(user_data: dict) -> UserResponse:
     return UserResponse(
-        id=str(user.id),
-        email=user.email,
-        username=user.username,
-        display_name=user.display_name,
-        avatar_url=user.avatar_url,
-        default_currency=user.default_currency,
-        email_digest_enabled=user.email_digest_enabled,
-        created_at=user.created_at,
+        id=str(user_data.get("id")),
+        email=user_data.get("email"),
+        username=user_data.get("username"),
+        display_name=user_data.get("display_name"),
+        avatar_url=user_data.get("avatar_url"),
+        default_currency=user_data.get("default_currency", "INR"),
+        email_digest_enabled=user_data.get("email_digest_enabled", False),
+        created_at=user_data.get("created_at") or datetime.utcnow(),
     )
 
 
@@ -54,47 +49,43 @@ def _user_to_response(user: User) -> UserResponse:
 async def signup(data: UserSignup):
     """
     Create a new user account.
-    
-    Steps:
-    1. Check if email or username already exists
-    2. Hash the password
-    3. Create the user document in MongoDB
-    4. Generate JWT tokens
-    5. Return tokens + user info
     """
-    # Check if email is taken
-    existing_email = await User.find_one(User.email == data.email)
+    existing_email = await find_user_by_email(data.email)
     if existing_email:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="An account with this email already exists",
         )
 
-    # Check if username is taken
-    existing_username = await User.find_one(User.username == data.username)
+    existing_username = await find_user_by_username(data.username)
     if existing_username:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="This username is already taken",
         )
 
-    # Create the user
-    user = User(
-        email=data.email,
-        username=data.username,
-        password_hash=hash_password(data.password),
-        display_name=data.display_name,
-    )
-    await user.insert()
+    user_id = str(uuid.uuid4())
+    new_user = {
+        "id": user_id,
+        "email": data.email,
+        "username": data.username,
+        "password_hash": hash_password(data.password),
+        "display_name": data.display_name,
+        "default_currency": "INR",
+        "email_digest_enabled": False,
+        "created_at": datetime.utcnow().isoformat(),
+        "updated_at": datetime.utcnow().isoformat(),
+    }
 
-    # Generate tokens
-    access_token = create_access_token(str(user.id))
-    refresh_token = create_refresh_token(str(user.id))
+    saved_user = await save_user(new_user)
+
+    access_token = create_access_token(user_id)
+    refresh_token = create_refresh_token(user_id)
 
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
-        user=_user_to_response(user),
+        user=_user_dict_to_response(saved_user),
     )
 
 
@@ -102,23 +93,22 @@ async def signup(data: UserSignup):
 async def login(data: UserLogin):
     """
     Log in with email and password.
-    
-    Returns JWT tokens if credentials are valid.
     """
-    user = await authenticate_user(data.email, data.password)
-    if not user:
+    user_data = await authenticate_user(data.email, data.password)
+    if not user_data:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
         )
 
-    access_token = create_access_token(str(user.id))
-    refresh_token = create_refresh_token(str(user.id))
+    user_id = str(user_data.get("id"))
+    access_token = create_access_token(user_id)
+    refresh_token = create_refresh_token(user_id)
 
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
-        user=_user_to_response(user),
+        user=_user_dict_to_response(user_data),
     )
 
 
@@ -126,71 +116,65 @@ async def login(data: UserLogin):
 async def refresh_token(data: TokenRefreshRequest):
     """
     Get a new access token using a refresh token.
-    
-    Called when the access token expires (every 30 min).
-    The frontend sends the refresh token, and we return
-    a fresh access token — keeping the user logged in
-    without making them re-enter their password.
     """
     payload = decode_token(data.refresh_token)
-    if payload is None:
+    if payload is None or payload.get("type") != "refresh":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired refresh token — please log in again",
-        )
-
-    if payload.get("type") != "refresh":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token type — expected a refresh token",
+            detail="Invalid or expired refresh token",
         )
 
     user_id = payload.get("sub")
-    user = await User.get(user_id)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
-        )
+    user_data = await find_user_by_id(user_id)
+    if not user_data:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
 
-    # Generate new tokens
-    new_access_token = create_access_token(str(user.id))
-    new_refresh_token = create_refresh_token(str(user.id))
+    new_access_token = create_access_token(user_id)
+    new_refresh_token = create_refresh_token(user_id)
 
     return TokenResponse(
         access_token=new_access_token,
         refresh_token=new_refresh_token,
-        user=_user_to_response(user),
+        user=_user_dict_to_response(user_data),
     )
 
 
 @router.get("/me", response_model=UserResponse)
-async def get_me(current_user: User = Depends(get_current_user)):
+async def get_me(current_user: UserProfile = Depends(get_current_user)):
     """
     Get the currently logged-in user's profile.
-    
-    Requires a valid access token in the Authorization header.
     """
-    return _user_to_response(current_user)
+    return UserResponse(
+        id=current_user.id,
+        email=current_user.email,
+        username=current_user.username,
+        display_name=current_user.display_name,
+        avatar_url=current_user.avatar_url,
+        default_currency=current_user.default_currency,
+        email_digest_enabled=current_user.email_digest_enabled,
+        created_at=current_user.created_at,
+    )
 
 
 @router.put("/me", response_model=UserResponse)
-async def update_me(data: UserUpdate, current_user: User = Depends(get_current_user)):
+async def update_me(data: UserUpdate, current_user: UserProfile = Depends(get_current_user)):
     """
-    Update the currently logged-in user's profile.
-    
-    Only updates fields that are provided (not None).
+    Update profile fields.
     """
+    user_data = await find_user_by_id(current_user.id)
+    if not user_data:
+        raise HTTPException(status_code=404, detail="User not found")
+
     if data.display_name is not None:
-        current_user.display_name = data.display_name
+        user_data["display_name"] = data.display_name
     if data.avatar_url is not None:
-        current_user.avatar_url = data.avatar_url
+        user_data["avatar_url"] = data.avatar_url
     if data.default_currency is not None:
-        current_user.default_currency = data.default_currency
+        user_data["default_currency"] = data.default_currency
     if data.email_digest_enabled is not None:
-        current_user.email_digest_enabled = data.email_digest_enabled
+        user_data["email_digest_enabled"] = data.email_digest_enabled
 
-    current_user.updated_at = datetime.utcnow()
-    await current_user.save()
+    user_data["updated_at"] = datetime.utcnow().isoformat()
+    updated = await save_user(user_data)
 
-    return _user_to_response(current_user)
+    return _user_dict_to_response(updated)
