@@ -3,7 +3,7 @@
    ============================================================ */
 
 import { create } from 'zustand';
-import { fetchGroups, createGroup, addGroupMember } from '../services/groupService';
+import { fetchGroups, createGroup, addGroupMember, deleteGroup } from '../services/groupService';
 import { fetchGroupExpenses, createExpense, deleteExpense } from '../services/expenseService';
 
 const useGroupStore = create((set, get) => ({
@@ -66,6 +66,19 @@ const useGroupStore = create((set, get) => ({
     set((state) => ({
       activeExpenses: state.activeExpenses.filter((e) => e.id !== expenseId),
     }));
+  },
+
+  removeGroup: async (groupId) => {
+    await deleteGroup(groupId);
+    set((state) => {
+      const remaining = state.groups.filter((g) => g.id !== groupId);
+      const nextActive = state.activeGroup?.id === groupId ? remaining[0] || null : state.activeGroup;
+      return {
+        groups: remaining,
+        activeGroup: nextActive,
+        activeExpenses: nextActive ? state.activeExpenses : [],
+      };
+    });
   },
 }));
 

@@ -23,3 +23,7 @@ export const addGroupMember = async (groupId, memberName) => {
   const response = await api.post(`/api/groups/${groupId}/members`, { name: memberName });
   return response.data;
 };
+
+export const deleteGroup = async (groupId) => {
+  await api.delete(`/api/groups/${groupId}`);
+};

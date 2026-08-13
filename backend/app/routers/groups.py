@@ -176,3 +176,24 @@ async def add_group_member(
 
     _local_groups_db[group_id] = group
     return _group_to_response(group)
+
+
+@router.delete("/{group_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_group(
+    group_id: str,
+    current_user: UserProfile = Depends(get_current_user),
+):
+    """
+    Delete a group and all its linked expenses (Cascade deletion).
+    """
+    supabase = get_supabase()
+    if supabase:
+        try:
+            # Delete linked expenses first (or PostgreSQL CASCADE handles it)
+            supabase.table("expenses").delete().eq("group_id", group_id).execute()
+            supabase.table("groups").delete().eq("id", group_id).execute()
+        except Exception as e:
+            print(f"Supabase delete notice: {e}")
+
+    _local_groups_db.pop(group_id, None)
+    return None

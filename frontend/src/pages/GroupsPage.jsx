@@ -81,11 +81,13 @@ export default function GroupsPage() {
     addMemberToActiveGroup,
     addExpenseToActiveGroup,
     removeExpense,
+    removeGroup,
   } = useGroupStore();
 
   // Modals & UI state
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
+  const [isDeleteGroupModalOpen, setIsDeleteGroupModalOpen] = useState(false);
   const [newMemberInput, setNewMemberInput] = useState('');
   const [expandedExpenseId, setExpandedExpenseId] = useState(null);
 
@@ -249,6 +251,20 @@ export default function GroupsPage() {
     }
   };
 
+  const handleDeleteGroup = async () => {
+    if (!activeGroup) return;
+    setSubmitting(true);
+    try {
+      await removeGroup(activeGroup.id);
+      toast.success(`Group '${activeGroup.name}' deleted`);
+      setIsDeleteGroupModalOpen(false);
+    } catch (err) {
+      toast.error('Failed to delete group');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const toggleExpandExpense = (id) => {
     setExpandedExpenseId(expandedExpenseId === id ? null : id);
   };
@@ -322,14 +338,24 @@ export default function GroupsPage() {
                     <h2>{activeGroup.name}</h2>
                     {activeGroup.description && <p>{activeGroup.description}</p>}
                   </div>
-                  <Button
-                    variant="primary"
-                    size="md"
-                    icon={BiReceipt}
-                    onClick={() => setIsAddExpenseModalOpen(true)}
-                  >
-                    Add Expense
-                  </Button>
+                  <div className="active-group-actions">
+                    <Button
+                      variant="primary"
+                      size="md"
+                      icon={BiReceipt}
+                      onClick={() => setIsAddExpenseModalOpen(true)}
+                    >
+                      Add Expense
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="md"
+                      icon={BiTrash}
+                      onClick={() => setIsDeleteGroupModalOpen(true)}
+                    >
+                      Delete Group
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Members Row */}
@@ -629,6 +655,30 @@ export default function GroupsPage() {
             Save Expense
           </Button>
         </form>
+      </Modal>
+
+      {/* Delete Group Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteGroupModalOpen}
+        onClose={() => setIsDeleteGroupModalOpen(false)}
+        title="Delete Expense Group"
+      >
+        <div className="delete-group-confirmation">
+          <p>
+            Are you sure you want to delete <strong>'{activeGroup?.name}'</strong>?
+          </p>
+          <p className="text-warning">
+            ⚠️ This will permanently remove this group and all its linked expenses from Supabase.
+          </p>
+          <div className="modal-actions-row mt-4">
+            <Button variant="outline" onClick={() => setIsDeleteGroupModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="danger" loading={submitting} onClick={handleDeleteGroup}>
+              Yes, Delete Group
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );
