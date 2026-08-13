@@ -668,7 +668,7 @@ export default function GroupsPage() {
             Are you sure you want to delete <strong>'{activeGroup?.name}'</strong>?
           </p>
           <p className="text-warning">
-            ⚠️ This will permanently remove this group and all its linked expenses from Supabase.
+            ⚠️ This will permanently delete this group and all its expenses. You won't be able to view or access this group again.
           </p>
           <div className="modal-actions-row mt-4">
             <Button variant="outline" onClick={() => setIsDeleteGroupModalOpen(false)}>
