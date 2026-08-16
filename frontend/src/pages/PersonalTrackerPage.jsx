@@ -447,14 +447,14 @@ export default function PersonalTrackerPage() {
             </div>
 
             <div className="metric-box">
-              <span className="metric-lbl">Est. Current Month Spent</span>
-              <span className="metric-val text-purple">₹{totalSpent.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+              <span className="metric-lbl">Total Spent ({currentYearStr})</span>
+              <span className="metric-val text-purple">₹{yearlySpent.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
             </div>
 
             <div className="metric-box">
-              <span className="metric-lbl">Annual Savings Target</span>
+              <span className="metric-lbl">Est. Annual Savings</span>
               <span className="metric-val text-success">
-                ₹{Math.max((overallTargetBudget * 12) - (totalSpent * 12), 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                ₹{Math.max((overallTargetBudget * 12) - yearlySpent, 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
               </span>
             </div>
           </div>
@@ -469,6 +469,10 @@ export default function PersonalTrackerPage() {
               const mName = d.toLocaleDateString('en-US', { month: 'short' });
               const isSelected = mKey === selectedMonthYear;
 
+              const mSpent = personalExpenses
+                .filter((e) => String(e.expense_date || '').startsWith(mKey))
+                .reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+
               return (
                 <div
                   key={mKey}
@@ -480,7 +484,7 @@ export default function PersonalTrackerPage() {
                 >
                   <span className="m-card-name">{mName} {yrStr}</span>
                   <span className="m-card-sub font-mono">
-                    {mKey === selectedMonthYear ? `₹${totalSpent.toFixed(0)}` : 'View Month'}
+                    {mSpent > 0 ? `₹${mSpent.toFixed(0)}` : 'View Month'}
                   </span>
                 </div>
               );
