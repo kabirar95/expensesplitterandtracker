@@ -73,19 +73,27 @@ export default function PersonalTrackerPage() {
     loadPersonalData(selectedMonthYear);
   }, [loadPersonalData, selectedMonthYear]);
 
-  // Month navigation helpers
+  // Month navigation helpers (Timezone-safe arithmetic)
   const handlePrevMonth = () => {
-    const [year, month] = selectedMonthYear.split('-').map(Number);
-    const prevDate = new Date(year, month - 2, 1);
-    const newMonthStr = prevDate.toISOString().substring(0, 7);
-    setSelectedMonthYear(newMonthStr);
+    let [year, month] = selectedMonthYear.split('-').map(Number);
+    month -= 1;
+    if (month < 1) {
+      month = 12;
+      year -= 1;
+    }
+    const monthStr = String(month).padStart(2, '0');
+    setSelectedMonthYear(`${year}-${monthStr}`);
   };
 
   const handleNextMonth = () => {
-    const [year, month] = selectedMonthYear.split('-').map(Number);
-    const nextDate = new Date(year, month, 1);
-    const newMonthStr = nextDate.toISOString().substring(0, 7);
-    setSelectedMonthYear(newMonthStr);
+    let [year, month] = selectedMonthYear.split('-').map(Number);
+    month += 1;
+    if (month > 12) {
+      month = 1;
+      year += 1;
+    }
+    const monthStr = String(month).padStart(2, '0');
+    setSelectedMonthYear(`${year}-${monthStr}`);
   };
 
   // Format month label e.g. "August 2026"
