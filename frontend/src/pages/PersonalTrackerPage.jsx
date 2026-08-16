@@ -107,22 +107,35 @@ export default function PersonalTrackerPage() {
     }
   };
 
-  // Compute Total Metrics & Overall Budget
-  const totalSpent = personalExpenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
-  
-  // Overall Budget
+  // Compute Monthly Spent, Yearly Spent & Budget Metrics
+  const currentYearStr = selectedMonthYear.substring(0, 4);
+
+  // Monthly Spent (Filtered by selectedMonthYear e.g. "2026-09")
+  const currentMonthExpenses = personalExpenses.filter((e) =>
+    String(e.expense_date || '').startsWith(selectedMonthYear)
+  );
+  const monthlySpent = currentMonthExpenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+
+  // Yearly Spent (Filtered by currentYearStr e.g. "2026")
+  const currentYearExpenses = personalExpenses.filter((e) =>
+    String(e.expense_date || '').startsWith(currentYearStr)
+  );
+  const yearlySpent = currentYearExpenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+
+  // Overall Monthly Budget Calculations
   const overallBudgetObj = budgets.find((b) => b.category.toLowerCase() === 'overall');
   const overallTargetBudget = overallBudgetObj ? parseFloat(overallBudgetObj.target_amount) : 0;
-  const overallRemaining = overallTargetBudget > 0 ? overallTargetBudget - totalSpent : 0;
-  const overallRawPct = overallTargetBudget > 0 ? Math.round((totalSpent / overallTargetBudget) * 100) : 0;
+  const overallRemaining = overallTargetBudget > 0 ? overallTargetBudget - monthlySpent : 0;
+  const overallRawPct = overallTargetBudget > 0 ? Math.round((monthlySpent / overallTargetBudget) * 100) : 0;
   const overallFillPct = overallTargetBudget > 0 ? Math.min(overallRawPct, 100) : 0;
 
-  // Filtered Expenses
+  // Filtered Expenses for Feed
   const filteredExpenses = personalExpenses.filter((e) => {
+    const matchesMonth = String(e.expense_date || '').startsWith(selectedMonthYear);
     const matchesSearch = e.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory =
       selectedCategoryFilter === 'all' || e.category.toLowerCase() === selectedCategoryFilter;
-    return matchesSearch && matchesCategory;
+    return matchesMonth && matchesSearch && matchesCategory;
   });
 
   // Handlers
@@ -286,8 +299,13 @@ export default function PersonalTrackerPage() {
 
             <div className="overall-metrics-row font-mono">
               <div className="metric-box">
-                <span className="metric-lbl">Total Spent</span>
-                <span className="metric-val text-purple">₹{totalSpent.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                <span className="metric-lbl">Monthly Spent</span>
+                <span className="metric-val text-purple">₹{monthlySpent.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+              </div>
+
+              <div className="metric-box">
+                <span className="metric-lbl">Yearly Spent ({currentYearStr})</span>
+                <span className="metric-val text-cyan">₹{yearlySpent.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
               </div>
 
               <div className="metric-box">
@@ -315,7 +333,7 @@ export default function PersonalTrackerPage() {
             {overallTargetBudget > 0 && (
               <div className="overall-progress-wrapper">
                 <div className="overall-progress-header font-mono">
-                  <span>Monthly Budget Usage</span>
+                  <span>Monthly Budget Usage ({getFormattedMonthLabel(selectedMonthYear)})</span>
                   <span className={overallRawPct > 100 ? 'text-danger' : overallRawPct >= 75 ? 'text-warning' : 'text-success'}>
                     {overallRawPct}% {overallRawPct > 100 ? `(EXCEEDED BY +₹${Math.abs(overallRemaining).toFixed(2)})` : overallRawPct >= 75 ? '(WARNING)' : ''}
                   </span>
@@ -337,7 +355,7 @@ export default function PersonalTrackerPage() {
           {/* CATEGORY BUDGETS PROGRESS SECTION */}
           <div className="budgets-section cyber-card">
             <div className="card-section-header">
-              <h3>Category Breakdown Budgets</h3>
+              <h3>Category Breakdown Budgets ({getFormattedMonthLabel(selectedMonthYear)})</h3>
               <Button variant="outline" size="sm" icon={BiPlus} onClick={() => setIsSetBudgetModalOpen(true)}>
                 Set Category Budget
               </Button>
@@ -348,7 +366,7 @@ export default function PersonalTrackerPage() {
                 const budgetObj = budgets.find((b) => b.category.toLowerCase() === catKey.toLowerCase());
                 const targetAmt = budgetObj ? parseFloat(budgetObj.target_amount) : 0;
                 const spentAmt = personalExpenses
-                  .filter((e) => e.category.toLowerCase() === catKey.toLowerCase())
+                  .filter((e) => e.category.toLowerCase() === catKey.toLowerCase() && String(e.expense_date || '').startsWith(selectedMonthYear))
                   .reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
 
                 const pct = targetAmt > 0 ? Math.min(Math.round((spentAmt / targetAmt) * 100), 100) : 0;

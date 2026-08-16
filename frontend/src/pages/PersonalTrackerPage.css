@@ -251,6 +251,11 @@
   text-shadow: 0 0 12px rgba(192, 132, 252, 0.3);
 }
 
+.text-cyan {
+  color: #38bdf8;
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+}
+
 .overall-progress-wrapper {
   display: flex;
   flex-direction: column;
