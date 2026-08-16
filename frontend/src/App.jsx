@@ -13,6 +13,9 @@ import SignupPage from './pages/SignupPage';
 import DashboardPage from './pages/DashboardPage';
 import GroupsPage from './pages/GroupsPage';
 import PersonalTrackerPage from './pages/PersonalTrackerPage';
+import AnalyticsPage from './pages/AnalyticsPage';
+import AIAssistantPage from './pages/AIAssistantPage';
+import ProfilePage from './pages/ProfilePage';
 
 
 export default function App() {
