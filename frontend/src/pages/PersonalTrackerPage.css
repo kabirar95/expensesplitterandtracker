@@ -96,13 +96,14 @@
 }
 
 .metric-val {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-extrabold);
   color: var(--text-primary);
 }
 
 .text-purple {
-  color: var(--color-primary-light);
+  color: #c084fc;
+  text-shadow: 0 0 12px rgba(192, 132, 252, 0.3);
 }
 
 .overall-progress-wrapper {

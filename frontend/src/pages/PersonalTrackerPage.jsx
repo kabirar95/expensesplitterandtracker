@@ -222,10 +222,12 @@ export default function PersonalTrackerPage() {
           </div>
 
           <div className="metric-box">
-            <span className="metric-lbl">Remaining Cap</span>
+            <span className="metric-lbl">{overallTargetBudget > 0 && overallRemaining < 0 ? 'Over Budget By' : 'Remaining Cap'}</span>
             <span className={`metric-val ${overallRemaining >= 0 ? 'text-success' : 'text-danger'}`}>
               {overallTargetBudget > 0
-                ? `₹${overallRemaining.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
+                ? overallRemaining < 0
+                  ? `+₹${Math.abs(overallRemaining).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
+                  : `₹${overallRemaining.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
                 : 'Set budget first'}
             </span>
           </div>
@@ -237,7 +239,7 @@ export default function PersonalTrackerPage() {
             <div className="overall-progress-header font-mono">
               <span>Monthly Budget Usage</span>
               <span className={overallRawPct > 100 ? 'text-danger' : overallRawPct >= 75 ? 'text-warning' : 'text-success'}>
-                {overallRawPct}% {overallRawPct > 100 ? '(EXCEEDED)' : overallRawPct >= 75 ? '(WARNING)' : ''}
+                {overallRawPct}% {overallRawPct > 100 ? `(EXCEEDED BY +₹${Math.abs(overallRemaining).toFixed(2)})` : overallRawPct >= 75 ? '(WARNING)' : ''}
               </span>
             </div>
             <div className="overall-progress-track">
@@ -273,6 +275,7 @@ export default function PersonalTrackerPage() {
 
             const pct = targetAmt > 0 ? Math.min(Math.round((spentAmt / targetAmt) * 100), 100) : 0;
             const rawPct = targetAmt > 0 ? Math.round((spentAmt / targetAmt) * 100) : 0;
+            const catOverAmt = targetAmt > 0 && spentAmt > targetAmt ? spentAmt - targetAmt : 0;
 
             let statusClass = 'budget-safe';
             let statusBadge = <span className="status-badge badge-safe"><BiCheckCircle /> Safe ({rawPct}%)</span>;
@@ -280,7 +283,11 @@ export default function PersonalTrackerPage() {
             if (targetAmt > 0) {
               if (rawPct > 100) {
                 statusClass = 'budget-alert';
-                statusBadge = <span className="status-badge badge-alert"><BiErrorCircle /> Exceeded ({rawPct}%)</span>;
+                statusBadge = (
+                  <span className="status-badge badge-alert">
+                    <BiErrorCircle /> Over Budget (+₹{catOverAmt.toFixed(2)})
+                  </span>
+                );
               } else if (rawPct >= 75) {
                 statusClass = 'budget-warning';
                 statusBadge = <span className="status-badge badge-warning"><BiErrorCircle /> Near Limit ({rawPct}%)</span>;
