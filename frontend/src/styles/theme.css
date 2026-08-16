@@ -30,11 +30,12 @@
   --bg-hover: rgba(31, 41, 55, 0.6);
 
   /* Text Colors */
-  --text-primary: #f9fafb;
-  --text-secondary: #9ca3af;
-  --text-tertiary: #6b7280;
+  --text-primary: #ffffff;
+  --text-secondary: #e2e8f0;
+  --text-tertiary: #cbd5e1;
+  --text-muted: #cbd5e1;
   --text-inverse: #030712;
-  --text-link: #a78bfa;
+  --text-link: #38bdf8;
 
   /* Cyber Borders */
   --border-color: rgba(255, 255, 255, 0.08);
