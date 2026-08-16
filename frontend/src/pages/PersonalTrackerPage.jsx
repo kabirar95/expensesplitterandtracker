@@ -1,0 +1,482 @@
+import React, { useEffect, useState } from 'react';
+import {
+  BiPlus,
+  BiMoney,
+  BiWallet,
+  BiPieChartAlt2,
+  BiTrash,
+  BiSearch,
+  BiFilterAlt,
+  BiEdit,
+  BiTrendingUp,
+  BiAlert,
+  BiCheckCircle,
+} from 'react-icons/bi';
+import { toast } from 'react-hot-toast';
+
+import usePersonalExpenseStore from '../store/personalExpenseStore';
+import Button from '../components/common/Button';
+import Input from '../components/common/Input';
+import Modal from '../components/common/Modal';
+import Spinner from '../components/common/Spinner';
+
+import './PersonalTrackerPage.css';
+
+const CATEGORY_MAP = {
+  food: { name: 'Food & Dining', icon: '🍔', color: '#8b5cf6' },
+  rent: { name: 'Rent & Bills', icon: '🏠', color: '#06b6d4' },
+  shopping: { name: 'Shopping', icon: '🛍️', color: '#ec4899' },
+  travel: { name: 'Travel & Cab', icon: '🚗', color: '#f59e0b' },
+  entertainment: { name: 'Entertainment', icon: '🎬', color: '#10b981' },
+  health: { name: 'Health & Fitness', icon: '🩺', color: '#3b82f6' },
+  other: { name: 'Other / Misc', icon: '📦', color: '#6b7280' },
+};
+
+export default function PersonalTrackerPage() {
+  const {
+    personalExpenses,
+    budgets,
+    loading,
+    loadPersonalData,
+    addExpense,
+    removeExpense,
+    updateBudget,
+  } = usePersonalExpenseStore();
+
+  // Modals state
+  const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
+  const [isSetBudgetModalOpen, setIsSetBudgetModalOpen] = useState(false);
+
+  // Form states
+  const [expenseForm, setExpenseForm] = useState({
+    description: '',
+    amount: '',
+    category: 'food',
+    expense_date: new Date().toISOString().split('T')[0],
+    notes: '',
+  });
+
+  const [budgetForm, setBudgetForm] = useState({
+    category: 'food',
+    target_amount: '',
+  });
+
+  const [submitting, setSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('all');
+
+  useEffect(() => {
+    loadPersonalData();
+  }, [loadPersonalData]);
+
+  // Compute Total Metrics
+  const totalSpent = personalExpenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+  const totalBudget = budgets.reduce((sum, b) => sum + parseFloat(b.target_amount || 0), 0);
+  const remainingBudget = totalBudget - totalSpent;
+
+  // Filtered Expenses
+  const filteredExpenses = personalExpenses.filter((e) => {
+    const matchesSearch = e.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory =
+      selectedCategoryFilter === 'all' || e.category.toLowerCase() === selectedCategoryFilter;
+    return matchesSearch && matchesCategory;
+  });
+
+  // Handlers
+  const handleAddExpenseSubmit = async (e) => {
+    e.preventDefault();
+    if (!expenseForm.description.trim()) return toast.error('Description required');
+    if (!expenseForm.amount || parseFloat(expenseForm.amount) <= 0)
+      return toast.error('Valid amount required');
+
+    setSubmitting(true);
+    try {
+      await addExpense({
+        description: expenseForm.description,
+        amount: parseFloat(expenseForm.amount),
+        category: expenseForm.category,
+        expense_date: expenseForm.expense_date,
+        notes: expenseForm.notes,
+      });
+
+      toast.success('Personal expense added!');
+      setIsAddExpenseModalOpen(false);
+      setExpenseForm({
+        description: '',
+        amount: '',
+        category: 'food',
+        expense_date: new Date().toISOString().split('T')[0],
+        notes: '',
+      });
+    } catch (err) {
+      toast.error('Failed to add expense');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSetBudgetSubmit = async (e) => {
+    e.preventDefault();
+    if (!budgetForm.target_amount || parseFloat(budgetForm.target_amount) <= 0)
+      return toast.error('Valid budget target amount required');
+
+    setSubmitting(true);
+    try {
+      await updateBudget({
+        category: budgetForm.category,
+        target_amount: parseFloat(budgetForm.target_amount),
+      });
+
+      toast.success(`Budget updated for ${CATEGORY_MAP[budgetForm.category]?.name || budgetForm.category}!`);
+      setIsSetBudgetModalOpen(false);
+      setBudgetForm({ category: 'food', target_amount: '' });
+    } catch (err) {
+      toast.error('Failed to set budget');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteExpense = async (id) => {
+    try {
+      await removeExpense(id);
+      toast.success('Expense deleted');
+    } catch (err) {
+      toast.error('Failed to delete expense');
+    }
+  };
+
+  const openEditBudgetForCategory = (catKey) => {
+    const existing = budgets.find((b) => b.category.toLowerCase() === catKey.toLowerCase());
+    setBudgetForm({
+      category: catKey,
+      target_amount: existing ? existing.target_amount : '',
+    });
+    setIsSetBudgetModalOpen(true);
+  };
+
+  return (
+    <div className="personal-tracker-container animate-fade-in">
+      {/* Header */}
+      <div className="tracker-header">
+        <div>
+          <h1 className="gradient-text">Personal Tracker & Budgets</h1>
+          <p>Track your private daily expenses and monitor category budget limits!</p>
+        </div>
+        <div className="tracker-header-buttons">
+          <Button
+            variant="outline"
+            icon={BiPieChartAlt2}
+            onClick={() => setIsSetBudgetModalOpen(true)}
+          >
+            Set Budget
+          </Button>
+          <Button
+            variant="primary"
+            icon={BiPlus}
+            onClick={() => setIsAddExpenseModalOpen(true)}
+          >
+            Add Expense
+          </Button>
+        </div>
+      </div>
+
+      {/* Summary Cards Row */}
+      <div className="summary-grid">
+        <div className="summary-card cyber-card">
+          <div className="summary-icon-box spent-icon">
+            <BiMoney />
+          </div>
+          <div className="summary-info">
+            <span className="summary-label">Total Spent This Month</span>
+            <span className="summary-value font-mono">
+              ₹{totalSpent.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+            </span>
+          </div>
+        </div>
+
+        <div className="summary-card cyber-card">
+          <div className="summary-icon-box budget-icon">
+            <BiWallet />
+          </div>
+          <div className="summary-info">
+            <span className="summary-label">Total Target Budget</span>
+            <span className="summary-value font-mono">
+              ₹{totalBudget.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+            </span>
+          </div>
+        </div>
+
+        <div className="summary-card cyber-card">
+          <div className={`summary-icon-box ${remainingBudget >= 0 ? 'remaining-icon' : 'warning-icon'}`}>
+            <BiTrendingUp />
+          </div>
+          <div className="summary-info">
+            <span className="summary-label">Remaining Balance</span>
+            <span className={`summary-value font-mono ${remainingBudget >= 0 ? 'text-success' : 'text-danger'}`}>
+              ₹{remainingBudget.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* CATEGORY BUDGETS PROGRESS SECTION */}
+      <div className="budgets-section cyber-card">
+        <div className="card-section-header">
+          <h3>Category Budgets</h3>
+          <Button variant="outline" size="sm" icon={BiPlus} onClick={() => setIsSetBudgetModalOpen(true)}>
+            Add / Edit Budget
+          </Button>
+        </div>
+
+        <div className="budgets-grid">
+          {Object.entries(CATEGORY_MAP).map(([catKey, catMeta]) => {
+            const budgetObj = budgets.find((b) => b.category.toLowerCase() === catKey.toLowerCase());
+            const targetAmt = budgetObj ? parseFloat(budgetObj.target_amount) : 0;
+            const spentAmt = personalExpenses
+              .filter((e) => e.category.toLowerCase() === catKey.toLowerCase())
+              .reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+
+            const pct = targetAmt > 0 ? Math.min(Math.round((spentAmt / targetAmt) * 100), 100) : 0;
+            const rawPct = targetAmt > 0 ? Math.round((spentAmt / targetAmt) * 100) : 0;
+
+            let statusClass = 'budget-safe';
+            let statusBadge = <span className="status-badge badge-safe"><BiCheckCircle /> Safe ({rawPct}%)</span>;
+
+            if (targetAmt > 0) {
+              if (rawPct > 100) {
+                statusClass = 'budget-alert';
+                statusBadge = <span className="status-badge badge-alert"><BiAlert /> Exceeded ({rawPct}%)</span>;
+              } else if (rawPct >= 75) {
+                statusClass = 'budget-warning';
+                statusBadge = <span className="status-badge badge-warning"><BiAlert /> Near Limit ({rawPct}%)</span>;
+              }
+            } else {
+              statusBadge = <span className="status-badge badge-none">No budget set</span>;
+            }
+
+            return (
+              <div key={catKey} className={`category-budget-card ${statusClass}`}>
+                <div className="budget-card-header">
+                  <div className="category-title-icon">
+                    <span className="cat-emoji">{catMeta.icon}</span>
+                    <span className="cat-title">{catMeta.name}</span>
+                  </div>
+                  <button
+                    className="edit-budget-btn"
+                    onClick={() => openEditBudgetForCategory(catKey)}
+                    title="Set Budget Limit"
+                  >
+                    <BiEdit />
+                  </button>
+                </div>
+
+                <div className="budget-amounts-row font-mono">
+                  <span className="spent-val">₹{spentAmt.toFixed(2)}</span>
+                  <span className="target-val">/ {targetAmt > 0 ? `₹${targetAmt.toFixed(2)}` : 'No Limit'}</span>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="budget-progress-track">
+                  <div
+                    className="budget-progress-fill"
+                    style={{ width: `${pct}%`, backgroundColor: catMeta.color }}
+                  ></div>
+                </div>
+
+                <div className="budget-card-footer">{statusBadge}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* PERSONAL TRANSACTIONS FEED */}
+      <div className="transactions-section cyber-card">
+        <div className="transactions-header-row">
+          <h3>Personal Expense Feed</h3>
+          
+          <div className="filters-bar">
+            {/* Search Bar */}
+            <div className="search-input-wrapper">
+              <BiSearch className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search expenses..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input"
+              />
+            </div>
+
+            {/* Category Filter dropdown */}
+            <select
+              value={selectedCategoryFilter}
+              onChange={(e) => setSelectedCategoryFilter(e.target.value)}
+              className="category-filter-select"
+            >
+              <option value="all">All Categories</option>
+              {Object.entries(CATEGORY_MAP).map(([k, v]) => (
+                <option key={k} value={k}>
+                  {v.icon} {v.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {loading && personalExpenses.length === 0 ? (
+          <div className="text-center py-8">
+            <Spinner size="md" />
+          </div>
+        ) : filteredExpenses.length === 0 ? (
+          <div className="empty-state py-10">
+            <BiWallet className="empty-icon" />
+            <p>No personal expenses found.</p>
+            <Button
+              variant="outline"
+              size="sm"
+              icon={BiPlus}
+              onClick={() => setIsAddExpenseModalOpen(true)}
+            >
+              Add First Expense
+            </Button>
+          </div>
+        ) : (
+          <div className="expenses-feed-list">
+            {filteredExpenses.map((exp) => {
+              const catMeta = CATEGORY_MAP[exp.category?.toLowerCase()] || CATEGORY_MAP.other;
+              return (
+                <div key={exp.id} className="personal-expense-item">
+                  <div className="category-emoji-box" style={{ backgroundColor: `${catMeta.color}20` }}>
+                    {catMeta.icon}
+                  </div>
+
+                  <div className="expense-details">
+                    <span className="expense-title">{exp.description}</span>
+                    <span className="expense-submeta">
+                      {catMeta.name} • {exp.expense_date}
+                    </span>
+                    {exp.notes && <span className="expense-notes">{exp.notes}</span>}
+                  </div>
+
+                  <div className="expense-amount-actions">
+                    <span className="expense-cost font-mono">
+                      ₹{parseFloat(exp.amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </span>
+                    <button
+                      className="delete-item-btn"
+                      onClick={() => handleDeleteExpense(exp.id)}
+                      title="Delete expense"
+                    >
+                      <BiTrash />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Modal: Add Personal Expense */}
+      <Modal
+        isOpen={isAddExpenseModalOpen}
+        onClose={() => setIsAddExpenseModalOpen(false)}
+        title="Add Personal Expense"
+      >
+        <form onSubmit={handleAddExpenseSubmit}>
+          <Input
+            label="Description"
+            placeholder="e.g. Weekly Groceries, Petrol, Netflix Subscription"
+            value={expenseForm.description}
+            onChange={(e) => setExpenseForm({ ...expenseForm, description: e.target.value })}
+            required
+          />
+
+          <Input
+            label="Amount (₹)"
+            type="number"
+            step="0.01"
+            placeholder="0.00"
+            value={expenseForm.amount}
+            onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
+            required
+          />
+
+          <div className="input-group">
+            <label className="input-label">Category</label>
+            <select
+              className="input-field"
+              value={expenseForm.category}
+              onChange={(e) => setExpenseForm({ ...expenseForm, category: e.target.value })}
+            >
+              {Object.entries(CATEGORY_MAP).map(([k, v]) => (
+                <option key={k} value={k}>
+                  {v.icon} {v.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <Input
+            label="Date"
+            type="date"
+            value={expenseForm.expense_date}
+            onChange={(e) => setExpenseForm({ ...expenseForm, expense_date: e.target.value })}
+          />
+
+          <Input
+            label="Notes (Optional)"
+            placeholder="Additional details..."
+            value={expenseForm.notes}
+            onChange={(e) => setExpenseForm({ ...expenseForm, notes: e.target.value })}
+          />
+
+          <Button type="submit" variant="primary" fullWidth loading={submitting}>
+            Save Personal Expense
+          </Button>
+        </form>
+      </Modal>
+
+      {/* Modal: Set Category Budget */}
+      <Modal
+        isOpen={isSetBudgetModalOpen}
+        onClose={() => setIsSetBudgetModalOpen(false)}
+        title="Set Category Monthly Budget"
+      >
+        <form onSubmit={handleSetBudgetSubmit}>
+          <div className="input-group">
+            <label className="input-label">Category</label>
+            <select
+              className="input-field"
+              value={budgetForm.category}
+              onChange={(e) => setBudgetForm({ ...budgetForm, category: e.target.value })}
+            >
+              {Object.entries(CATEGORY_MAP).map(([k, v]) => (
+                <option key={k} value={k}>
+                  {v.icon} {v.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <Input
+            label="Target Monthly Budget Limit (₹)"
+            type="number"
+            step="100"
+            placeholder="e.g. 5000"
+            value={budgetForm.target_amount}
+            onChange={(e) => setBudgetForm({ ...budgetForm, target_amount: e.target.value })}
+            required
+            helperText="You will receive alerts when your spending exceeds 75% and 90% of this limit."
+          />
+
+          <Button type="submit" variant="primary" fullWidth loading={submitting}>
+            Save Budget Limit
+          </Button>
+        </form>
+      </Modal>
+    </div>
+  );
+}

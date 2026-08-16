@@ -12,10 +12,8 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import DashboardPage from './pages/DashboardPage';
 import GroupsPage from './pages/GroupsPage';
-import PersonalExpensesPage from './pages/PersonalExpensesPage';
-import AnalyticsPage from './pages/AnalyticsPage';
-import AIAssistantPage from './pages/AIAssistantPage';
-import ProfilePage from './pages/ProfilePage';
+import PersonalTrackerPage from './pages/PersonalTrackerPage';
+
 
 export default function App() {
   const { accessToken, setLoading } = useAuthStore();
@@ -67,7 +65,7 @@ export default function App() {
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="groups" element={<GroupsPage />} />
-          <Route path="personal" element={<PersonalExpensesPage />} />
+          <Route path="personal" element={<PersonalTrackerPage />} />
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="ai-assistant" element={<AIAssistantPage />} />
           <Route path="profile" element={<ProfilePage />} />
