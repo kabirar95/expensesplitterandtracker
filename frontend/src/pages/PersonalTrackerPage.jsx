@@ -57,7 +57,7 @@ export default function PersonalTrackerPage() {
   });
 
   const [budgetForm, setBudgetForm] = useState({
-    category: 'food',
+    category: 'overall',
     target_amount: '',
   });
 
@@ -69,10 +69,15 @@ export default function PersonalTrackerPage() {
     loadPersonalData();
   }, [loadPersonalData]);
 
-  // Compute Total Metrics
+  // Compute Total Metrics & Overall Budget
   const totalSpent = personalExpenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
-  const totalBudget = budgets.reduce((sum, b) => sum + parseFloat(b.target_amount || 0), 0);
-  const remainingBudget = totalBudget - totalSpent;
+  
+  // Overall Budget
+  const overallBudgetObj = budgets.find((b) => b.category.toLowerCase() === 'overall');
+  const overallTargetBudget = overallBudgetObj ? parseFloat(overallBudgetObj.target_amount) : 0;
+  const overallRemaining = overallTargetBudget > 0 ? overallTargetBudget - totalSpent : 0;
+  const overallRawPct = overallTargetBudget > 0 ? Math.round((totalSpent / overallTargetBudget) * 100) : 0;
+  const overallFillPct = overallTargetBudget > 0 ? Math.min(overallRawPct, 100) : 0;
 
   // Filtered Expenses
   const filteredExpenses = personalExpenses.filter((e) => {
@@ -181,51 +186,80 @@ export default function PersonalTrackerPage() {
         </div>
       </div>
 
-      {/* Summary Cards Row */}
-      <div className="summary-grid">
-        <div className="summary-card cyber-card">
-          <div className="summary-icon-box spent-icon">
-            <BiMoney />
+      {/* OVERALL MAIN MONTHLY BUDGET HERO CARD */}
+      <div className="overall-budget-hero cyber-card">
+        <div className="overall-budget-header">
+          <div className="overall-title-group">
+            <span className="hero-emoji">🌟</span>
+            <div>
+              <h3>Overall Monthly Budget</h3>
+              <p className="hero-subtext">Main monthly target cap for all personal expenses</p>
+            </div>
           </div>
-          <div className="summary-info">
-            <span className="summary-label">Total Spent This Month</span>
-            <span className="summary-value font-mono">
-              ₹{totalSpent.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+          <Button
+            variant="outline"
+            size="sm"
+            icon={BiEdit}
+            onClick={() => openEditBudgetForCategory('overall')}
+          >
+            {overallTargetBudget > 0 ? 'Edit Main Budget' : 'Set Main Budget'}
+          </Button>
+        </div>
+
+        <div className="overall-metrics-row font-mono">
+          <div className="metric-box">
+            <span className="metric-lbl">Total Spent</span>
+            <span className="metric-val text-purple">₹{totalSpent.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+          </div>
+
+          <div className="metric-box">
+            <span className="metric-lbl">Overall Target Limit</span>
+            <span className="metric-val">
+              {overallTargetBudget > 0
+                ? `₹${overallTargetBudget.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
+                : 'Not Set'}
+            </span>
+          </div>
+
+          <div className="metric-box">
+            <span className="metric-lbl">Remaining Cap</span>
+            <span className={`metric-val ${overallRemaining >= 0 ? 'text-success' : 'text-danger'}`}>
+              {overallTargetBudget > 0
+                ? `₹${overallRemaining.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
+                : 'Set budget first'}
             </span>
           </div>
         </div>
 
-        <div className="summary-card cyber-card">
-          <div className="summary-icon-box budget-icon">
-            <BiWallet />
+        {/* Overall Progress Bar */}
+        {overallTargetBudget > 0 && (
+          <div className="overall-progress-wrapper">
+            <div className="overall-progress-header font-mono">
+              <span>Monthly Budget Usage</span>
+              <span className={overallRawPct > 100 ? 'text-danger' : overallRawPct >= 75 ? 'text-warning' : 'text-success'}>
+                {overallRawPct}% {overallRawPct > 100 ? '(EXCEEDED)' : overallRawPct >= 75 ? '(WARNING)' : ''}
+              </span>
+            </div>
+            <div className="overall-progress-track">
+              <div
+                className="overall-progress-fill"
+                style={{
+                  width: `${overallFillPct}%`,
+                  backgroundColor:
+                    overallRawPct > 100 ? 'var(--color-danger)' : overallRawPct >= 75 ? 'var(--color-warning)' : 'var(--color-success)',
+                }}
+              ></div>
+            </div>
           </div>
-          <div className="summary-info">
-            <span className="summary-label">Total Target Budget</span>
-            <span className="summary-value font-mono">
-              ₹{totalBudget.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-            </span>
-          </div>
-        </div>
-
-        <div className="summary-card cyber-card">
-          <div className={`summary-icon-box ${remainingBudget >= 0 ? 'remaining-icon' : 'warning-icon'}`}>
-            <BiTrendingUp />
-          </div>
-          <div className="summary-info">
-            <span className="summary-label">Remaining Balance</span>
-            <span className={`summary-value font-mono ${remainingBudget >= 0 ? 'text-success' : 'text-danger'}`}>
-              ₹{remainingBudget.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-            </span>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* CATEGORY BUDGETS PROGRESS SECTION */}
       <div className="budgets-section cyber-card">
         <div className="card-section-header">
-          <h3>Category Budgets</h3>
+          <h3>Category Breakdown Budgets</h3>
           <Button variant="outline" size="sm" icon={BiPlus} onClick={() => setIsSetBudgetModalOpen(true)}>
-            Add / Edit Budget
+            Set Category Budget
           </Button>
         </div>
 
@@ -453,11 +487,14 @@ export default function PersonalTrackerPage() {
               value={budgetForm.category}
               onChange={(e) => setBudgetForm({ ...budgetForm, category: e.target.value })}
             >
-              {Object.entries(CATEGORY_MAP).map(([k, v]) => (
-                <option key={k} value={k}>
-                  {v.icon} {v.name}
-                </option>
-              ))}
+              <option value="overall">🌟 Overall Monthly Budget (Main Target)</option>
+              <optgroup label="Category Breakdowns">
+                {Object.entries(CATEGORY_MAP).map(([k, v]) => (
+                  <option key={k} value={k}>
+                    {v.icon} {v.name}
+                  </option>
+                ))}
+              </optgroup>
             </select>
           </div>
 
