@@ -36,12 +36,16 @@ export default function PersonalTrackerPage() {
   const {
     personalExpenses,
     budgets,
+    selectedMonthYear,
+    setSelectedMonthYear,
     loading,
     loadPersonalData,
     addExpense,
     removeExpense,
     updateBudget,
   } = usePersonalExpenseStore();
+
+  const [viewMode, setViewMode] = useState('monthly'); // 'monthly' or 'yearly'
 
   // Modals state
   const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
@@ -66,8 +70,34 @@ export default function PersonalTrackerPage() {
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('all');
 
   useEffect(() => {
-    loadPersonalData();
-  }, [loadPersonalData]);
+    loadPersonalData(selectedMonthYear);
+  }, [loadPersonalData, selectedMonthYear]);
+
+  // Month navigation helpers
+  const handlePrevMonth = () => {
+    const [year, month] = selectedMonthYear.split('-').map(Number);
+    const prevDate = new Date(year, month - 2, 1);
+    const newMonthStr = prevDate.toISOString().substring(0, 7);
+    setSelectedMonthYear(newMonthStr);
+  };
+
+  const handleNextMonth = () => {
+    const [year, month] = selectedMonthYear.split('-').map(Number);
+    const nextDate = new Date(year, month, 1);
+    const newMonthStr = nextDate.toISOString().substring(0, 7);
+    setSelectedMonthYear(newMonthStr);
+  };
+
+  // Format month label e.g. "August 2026"
+  const getFormattedMonthLabel = (ymStr) => {
+    try {
+      const [y, m] = ymStr.split('-').map(Number);
+      const d = new Date(y, m - 1, 1);
+      return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    } catch {
+      return ymStr;
+    }
+  };
 
   // Compute Total Metrics & Overall Budget
   const totalSpent = personalExpenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
@@ -186,151 +216,252 @@ export default function PersonalTrackerPage() {
         </div>
       </div>
 
-      {/* OVERALL MAIN MONTHLY BUDGET HERO CARD */}
-      <div className="overall-budget-hero cyber-card">
-        <div className="overall-budget-header">
-          <div className="overall-title-group">
-            <span className="hero-emoji">🌟</span>
-            <div>
-              <h3>Overall Monthly Budget</h3>
-              <p className="hero-subtext">Main monthly target cap for all personal expenses</p>
-            </div>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            icon={BiEdit}
-            onClick={() => openEditBudgetForCategory('overall')}
+      {/* Month & Horizon Navigation Bar */}
+      <div className="budget-navigation-bar cyber-card">
+        <div className="view-mode-tabs">
+          <button
+            className={`tab-btn ${viewMode === 'monthly' ? 'active' : ''}`}
+            onClick={() => setViewMode('monthly')}
           >
-            {overallTargetBudget > 0 ? 'Edit Main Budget' : 'Set Main Budget'}
-          </Button>
+            📅 Monthly View
+          </button>
+          <button
+            className={`tab-btn ${viewMode === 'yearly' ? 'active' : ''}`}
+            onClick={() => setViewMode('yearly')}
+          >
+            📈 Yearly Horizon ({selectedMonthYear.substring(0, 4)})
+          </button>
         </div>
 
-        <div className="overall-metrics-row font-mono">
-          <div className="metric-box">
-            <span className="metric-lbl">Total Spent</span>
-            <span className="metric-val text-purple">₹{totalSpent.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
-          </div>
-
-          <div className="metric-box">
-            <span className="metric-lbl">Overall Target Limit</span>
-            <span className="metric-val">
-              {overallTargetBudget > 0
-                ? `₹${overallTargetBudget.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
-                : 'Not Set'}
-            </span>
-          </div>
-
-          <div className="metric-box">
-            <span className="metric-lbl">{overallTargetBudget > 0 && overallRemaining < 0 ? 'Over Budget By' : 'Remaining Cap'}</span>
-            <span className={`metric-val ${overallRemaining >= 0 ? 'text-success' : 'text-danger'}`}>
-              {overallTargetBudget > 0
-                ? overallRemaining < 0
-                  ? `+₹${Math.abs(overallRemaining).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
-                  : `₹${overallRemaining.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
-                : 'Set budget first'}
-            </span>
-          </div>
-        </div>
-
-        {/* Overall Progress Bar */}
-        {overallTargetBudget > 0 && (
-          <div className="overall-progress-wrapper">
-            <div className="overall-progress-header font-mono">
-              <span>Monthly Budget Usage</span>
-              <span className={overallRawPct > 100 ? 'text-danger' : overallRawPct >= 75 ? 'text-warning' : 'text-success'}>
-                {overallRawPct}% {overallRawPct > 100 ? `(EXCEEDED BY +₹${Math.abs(overallRemaining).toFixed(2)})` : overallRawPct >= 75 ? '(WARNING)' : ''}
-              </span>
+        {viewMode === 'monthly' && (
+          <div className="month-navigator">
+            <button className="nav-arrow-btn" onClick={handlePrevMonth} title="Previous Month">
+              ◀
+            </button>
+            <div className="current-month-display">
+              <span className="month-text">{getFormattedMonthLabel(selectedMonthYear)}</span>
+              <input
+                type="month"
+                value={selectedMonthYear}
+                onChange={(e) => e.target.value && setSelectedMonthYear(e.target.value)}
+                className="month-picker-input"
+              />
             </div>
-            <div className="overall-progress-track">
-              <div
-                className="overall-progress-fill"
-                style={{
-                  width: `${overallFillPct}%`,
-                  backgroundColor:
-                    overallRawPct > 100 ? 'var(--color-danger)' : overallRawPct >= 75 ? 'var(--color-warning)' : 'var(--color-success)',
-                }}
-              ></div>
-            </div>
+            <button className="nav-arrow-btn" onClick={handleNextMonth} title="Next Month">
+              ▶
+            </button>
           </div>
         )}
       </div>
 
-      {/* CATEGORY BUDGETS PROGRESS SECTION */}
-      <div className="budgets-section cyber-card">
-        <div className="card-section-header">
-          <h3>Category Breakdown Budgets</h3>
-          <Button variant="outline" size="sm" icon={BiPlus} onClick={() => setIsSetBudgetModalOpen(true)}>
-            Set Category Budget
-          </Button>
-        </div>
+      {viewMode === 'monthly' ? (
+        <>
+          {/* OVERALL MAIN MONTHLY BUDGET HERO CARD */}
+          <div className="overall-budget-hero cyber-card">
+            <div className="overall-budget-header">
+              <div className="overall-title-group">
+                <span className="hero-emoji">🌟</span>
+                <div>
+                  <h3>Overall Monthly Budget ({getFormattedMonthLabel(selectedMonthYear)})</h3>
+                  <p className="hero-subtext">Main monthly target cap for all personal expenses</p>
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                icon={BiEdit}
+                onClick={() => openEditBudgetForCategory('overall')}
+              >
+                {overallTargetBudget > 0 ? 'Edit Main Budget' : 'Set Main Budget'}
+              </Button>
+            </div>
 
-        <div className="budgets-grid">
-          {Object.entries(CATEGORY_MAP).map(([catKey, catMeta]) => {
-            const budgetObj = budgets.find((b) => b.category.toLowerCase() === catKey.toLowerCase());
-            const targetAmt = budgetObj ? parseFloat(budgetObj.target_amount) : 0;
-            const spentAmt = personalExpenses
-              .filter((e) => e.category.toLowerCase() === catKey.toLowerCase())
-              .reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+            <div className="overall-metrics-row font-mono">
+              <div className="metric-box">
+                <span className="metric-lbl">Total Spent</span>
+                <span className="metric-val text-purple">₹{totalSpent.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+              </div>
 
-            const pct = targetAmt > 0 ? Math.min(Math.round((spentAmt / targetAmt) * 100), 100) : 0;
-            const rawPct = targetAmt > 0 ? Math.round((spentAmt / targetAmt) * 100) : 0;
-            const catOverAmt = targetAmt > 0 && spentAmt > targetAmt ? spentAmt - targetAmt : 0;
+              <div className="metric-box">
+                <span className="metric-lbl">Overall Target Limit</span>
+                <span className="metric-val">
+                  {overallTargetBudget > 0
+                    ? `₹${overallTargetBudget.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
+                    : 'Not Set'}
+                </span>
+              </div>
 
-            let statusClass = 'budget-safe';
-            let statusBadge = <span className="status-badge badge-safe"><BiCheckCircle /> Safe ({rawPct}%)</span>;
+              <div className="metric-box">
+                <span className="metric-lbl">{overallTargetBudget > 0 && overallRemaining < 0 ? 'Over Budget By' : 'Remaining Cap'}</span>
+                <span className={`metric-val ${overallRemaining >= 0 ? 'text-success' : 'text-danger'}`}>
+                  {overallTargetBudget > 0
+                    ? overallRemaining < 0
+                      ? `+₹${Math.abs(overallRemaining).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
+                      : `₹${overallRemaining.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
+                    : 'Set budget first'}
+                </span>
+              </div>
+            </div>
 
-            if (targetAmt > 0) {
-              if (rawPct > 100) {
-                statusClass = 'budget-alert';
-                statusBadge = (
-                  <span className="status-badge badge-alert">
-                    <BiErrorCircle /> Over Budget (+₹{catOverAmt.toFixed(2)})
+            {/* Overall Progress Bar */}
+            {overallTargetBudget > 0 && (
+              <div className="overall-progress-wrapper">
+                <div className="overall-progress-header font-mono">
+                  <span>Monthly Budget Usage</span>
+                  <span className={overallRawPct > 100 ? 'text-danger' : overallRawPct >= 75 ? 'text-warning' : 'text-success'}>
+                    {overallRawPct}% {overallRawPct > 100 ? `(EXCEEDED BY +₹${Math.abs(overallRemaining).toFixed(2)})` : overallRawPct >= 75 ? '(WARNING)' : ''}
                   </span>
-                );
-              } else if (rawPct >= 75) {
-                statusClass = 'budget-warning';
-                statusBadge = <span className="status-badge badge-warning"><BiErrorCircle /> Near Limit ({rawPct}%)</span>;
-              }
-            } else {
-              statusBadge = <span className="status-badge badge-none">No budget set</span>;
-            }
-
-            return (
-              <div key={catKey} className={`category-budget-card ${statusClass}`}>
-                <div className="budget-card-header">
-                  <div className="category-title-icon">
-                    <span className="cat-emoji">{catMeta.icon}</span>
-                    <span className="cat-title">{catMeta.name}</span>
-                  </div>
-                  <button
-                    className="edit-budget-btn"
-                    onClick={() => openEditBudgetForCategory(catKey)}
-                    title="Set Budget Limit"
-                  >
-                    <BiEdit />
-                  </button>
                 </div>
-
-                <div className="budget-amounts-row font-mono">
-                  <span className="spent-val">₹{spentAmt.toFixed(2)}</span>
-                  <span className="target-val">/ {targetAmt > 0 ? `₹${targetAmt.toFixed(2)}` : 'No Limit'}</span>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="budget-progress-track">
+                <div className="overall-progress-track">
                   <div
-                    className="budget-progress-fill"
-                    style={{ width: `${pct}%`, backgroundColor: catMeta.color }}
+                    className="overall-progress-fill"
+                    style={{
+                      width: `${overallFillPct}%`,
+                      backgroundColor:
+                        overallRawPct > 100 ? 'var(--color-danger)' : overallRawPct >= 75 ? 'var(--color-warning)' : 'var(--color-success)',
+                    }}
                   ></div>
                 </div>
-
-                <div className="budget-card-footer">{statusBadge}</div>
               </div>
-            );
-          })}
+            )}
+          </div>
+
+          {/* CATEGORY BUDGETS PROGRESS SECTION */}
+          <div className="budgets-section cyber-card">
+            <div className="card-section-header">
+              <h3>Category Breakdown Budgets</h3>
+              <Button variant="outline" size="sm" icon={BiPlus} onClick={() => setIsSetBudgetModalOpen(true)}>
+                Set Category Budget
+              </Button>
+            </div>
+
+            <div className="budgets-grid">
+              {Object.entries(CATEGORY_MAP).map(([catKey, catMeta]) => {
+                const budgetObj = budgets.find((b) => b.category.toLowerCase() === catKey.toLowerCase());
+                const targetAmt = budgetObj ? parseFloat(budgetObj.target_amount) : 0;
+                const spentAmt = personalExpenses
+                  .filter((e) => e.category.toLowerCase() === catKey.toLowerCase())
+                  .reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+
+                const pct = targetAmt > 0 ? Math.min(Math.round((spentAmt / targetAmt) * 100), 100) : 0;
+                const rawPct = targetAmt > 0 ? Math.round((spentAmt / targetAmt) * 100) : 0;
+                const catOverAmt = targetAmt > 0 && spentAmt > targetAmt ? spentAmt - targetAmt : 0;
+
+                let statusClass = 'budget-safe';
+                let statusBadge = <span className="status-badge badge-safe"><BiCheckCircle /> Safe ({rawPct}%)</span>;
+
+                if (targetAmt > 0) {
+                  if (rawPct > 100) {
+                    statusClass = 'budget-alert';
+                    statusBadge = (
+                      <span className="status-badge badge-alert">
+                        <BiErrorCircle /> Over Budget (+₹{catOverAmt.toFixed(2)})
+                      </span>
+                    );
+                  } else if (rawPct >= 75) {
+                    statusClass = 'budget-warning';
+                    statusBadge = <span className="status-badge badge-warning"><BiErrorCircle /> Near Limit ({rawPct}%)</span>;
+                  }
+                } else {
+                  statusBadge = <span className="status-badge badge-none">No budget set</span>;
+                }
+
+                return (
+                  <div key={catKey} className={`category-budget-card ${statusClass}`}>
+                    <div className="budget-card-header">
+                      <div className="category-title-icon">
+                        <span className="cat-emoji">{catMeta.icon}</span>
+                        <span className="cat-title">{catMeta.name}</span>
+                      </div>
+                      <button
+                        className="edit-budget-btn"
+                        onClick={() => openEditBudgetForCategory(catKey)}
+                        title="Set Budget Limit"
+                      >
+                        <BiEdit />
+                      </button>
+                    </div>
+
+                    <div className="budget-amounts-row font-mono">
+                      <span className="spent-val">₹{spentAmt.toFixed(2)}</span>
+                      <span className="target-val">/ {targetAmt > 0 ? `₹${targetAmt.toFixed(2)}` : 'No Limit'}</span>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="budget-progress-track">
+                      <div
+                        className="budget-progress-fill"
+                        style={{ width: `${pct}%`, backgroundColor: catMeta.color }}
+                      ></div>
+                    </div>
+
+                    <div className="budget-card-footer">{statusBadge}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      ) : (
+        /* YEARLY HORIZON VIEW */
+        <div className="yearly-horizon-section cyber-card">
+          <div className="card-section-header">
+            <div>
+              <h3>Annual Budget & Horizon ({selectedMonthYear.substring(0, 4)})</h3>
+              <p className="hero-subtext">Estimated annual financial forecast & 12-month projection</p>
+            </div>
+          </div>
+
+          <div className="overall-metrics-row font-mono mt-4">
+            <div className="metric-box">
+              <span className="metric-lbl">Total Annual Target</span>
+              <span className="metric-val">
+                ₹{(overallTargetBudget * 12).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              </span>
+            </div>
+
+            <div className="metric-box">
+              <span className="metric-lbl">Est. Current Month Spent</span>
+              <span className="metric-val text-purple">₹{totalSpent.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+            </div>
+
+            <div className="metric-box">
+              <span className="metric-lbl">Annual Savings Target</span>
+              <span className="metric-val text-success">
+                ₹{Math.max((overallTargetBudget * 12) - (totalSpent * 12), 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              </span>
+            </div>
+          </div>
+
+          {/* 12 Month Grid Projection */}
+          <div className="yearly-months-grid mt-6">
+            {Array.from({ length: 12 }, (_, i) => {
+              const monthNum = (i + 1).toString().padStart(2, '0');
+              const yrStr = selectedMonthYear.substring(0, 4);
+              const mKey = `${yrStr}-${monthNum}`;
+              const d = new Date(parseInt(yrStr), i, 1);
+              const mName = d.toLocaleDateString('en-US', { month: 'short' });
+              const isSelected = mKey === selectedMonthYear;
+
+              return (
+                <div
+                  key={mKey}
+                  className={`month-card-item ${isSelected ? 'active-month-card' : ''}`}
+                  onClick={() => {
+                    setSelectedMonthYear(mKey);
+                    setViewMode('monthly');
+                  }}
+                >
+                  <span className="m-card-name">{mName} {yrStr}</span>
+                  <span className="m-card-sub font-mono">
+                    {mKey === selectedMonthYear ? `₹${totalSpent.toFixed(0)}` : 'View Month'}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* PERSONAL TRANSACTIONS FEED */}
       <div className="transactions-section cyber-card">

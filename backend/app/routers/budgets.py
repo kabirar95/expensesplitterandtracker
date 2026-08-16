@@ -116,6 +116,10 @@ async def list_my_budgets(
 
     spent_by_category = {}
     for exp in expenses_list:
+        exp_date_str = str(exp.get("expense_date", ""))
+        # Filter expense by target month_year prefix (e.g. "2026-08")
+        if target_month and not exp_date_str.startswith(target_month):
+            continue
         c = exp.get("category", "").lower()
         amt = float(exp.get("amount", 0))
         spent_by_category[c] = spent_by_category.get(c, 0.0) + amt
