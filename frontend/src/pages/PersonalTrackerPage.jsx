@@ -9,7 +9,7 @@ import {
   BiFilterAlt,
   BiEdit,
   BiTrendingUp,
-  BiAlert,
+  BiErrorCircle,
   BiCheckCircle,
 } from 'react-icons/bi';
 import { toast } from 'react-hot-toast';
@@ -246,10 +246,10 @@ export default function PersonalTrackerPage() {
             if (targetAmt > 0) {
               if (rawPct > 100) {
                 statusClass = 'budget-alert';
-                statusBadge = <span className="status-badge badge-alert"><BiAlert /> Exceeded ({rawPct}%)</span>;
+                statusBadge = <span className="status-badge badge-alert"><BiErrorCircle /> Exceeded ({rawPct}%)</span>;
               } else if (rawPct >= 75) {
                 statusClass = 'budget-warning';
-                statusBadge = <span className="status-badge badge-warning"><BiAlert /> Near Limit ({rawPct}%)</span>;
+                statusBadge = <span className="status-badge badge-warning"><BiErrorCircle /> Near Limit ({rawPct}%)</span>;
               }
             } else {
               statusBadge = <span className="status-badge badge-none">No budget set</span>;

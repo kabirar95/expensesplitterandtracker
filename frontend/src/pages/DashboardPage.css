@@ -190,7 +190,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-3.5) var(--space-4);
+  padding: var(--space-3) var(--space-4);
   background-color: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
@@ -229,7 +229,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-3.5) var(--space-4);
+  padding: var(--space-3) var(--space-4);
   background-color: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
