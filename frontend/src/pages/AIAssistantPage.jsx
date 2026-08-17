@@ -16,9 +16,11 @@ export default function AIAssistantPage() {
   const user = useAuthStore((state) => state.user);
   const personalExpenses = usePersonalExpenseStore((state) => state.personalExpenses) ?? EMPTY_ARRAY;
   const budgets = usePersonalExpenseStore((state) => state.budgets) ?? EMPTY_ARRAY;
-  const selectedMonthYear = usePersonalExpenseStore((state) => state.selectedMonthYear) || '2026-08';
+  const selectedMonthYear = usePersonalExpenseStore((state) => state.selectedMonthYear) || new Date().toISOString().substring(0, 7);
+  const loadPersonalData = usePersonalExpenseStore((state) => state.loadPersonalData);
   const groups = useGroupStore((state) => state.groups) ?? EMPTY_ARRAY;
   const balances = useGroupStore((state) => state.balances) ?? EMPTY_ARRAY;
+  const loadGroups = useGroupStore((state) => state.loadGroups);
 
   // ── Persistent chat state from Zustand (survives navigation) ──
   const messages = useAIChatStore((state) => state.messages);
@@ -34,6 +36,13 @@ export default function AIAssistantPage() {
   useEffect(() => {
     initMessages(user?.full_name);
   }, [initMessages, user?.full_name]);
+
+  // Fetch latest financial data when AI page is visited
+  // (in case the user came here without visiting Personal Tracker or Dashboard first)
+  useEffect(() => {
+    loadPersonalData(selectedMonthYear);
+    if (loadGroups) loadGroups();
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
