@@ -49,17 +49,18 @@ export default function AIAssistantPage() {
     .filter((e) => String(e.expense_date || '').startsWith(currentYearStr))
     .reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
 
-  const overallBudgetObj = budgets.find((b) => b.category.toLowerCase() === 'overall');
-  const overallBudget = overallBudgetObj ? parseFloat(overallBudgetObj.target_amount) : 0;
+  const overallBudgetObj = budgets.find((b) => String(b?.category || '').toLowerCase() === 'overall');
+  const overallBudget = overallBudgetObj ? parseFloat(overallBudgetObj.target_amount || 0) : 0;
 
-  const categoryBudgets = budgets.map((b) => {
-    const catSpent = personalExpenses
-      .filter((e) => e.category.toLowerCase() === b.category.toLowerCase() && String(e.expense_date || '').startsWith(selectedMonthYear))
-      .reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+  const categoryBudgets = (budgets || []).map((b) => {
+    const bCat = String(b?.category || '').toLowerCase();
+    const catSpent = (personalExpenses || [])
+      .filter((e) => String(e?.category || '').toLowerCase() === bCat && String(e?.expense_date || '').startsWith(selectedMonthYear))
+      .reduce((sum, e) => sum + parseFloat(e?.amount || 0), 0);
 
     return {
-      category: b.category,
-      target_amount: parseFloat(b.target_amount),
+      category: b?.category || 'general',
+      target_amount: parseFloat(b?.target_amount || 0),
       spent_amount: catSpent,
     };
   });
@@ -124,8 +125,7 @@ export default function AIAssistantPage() {
   };
 
   const formatMarkdown = (text) => {
-    // Simple markdown renderer for bold, lists, and linebreaks
-    let formatted = text
+    let formatted = String(text || '')
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
       .replace(/\n\n/g, '<br/><br/>')
