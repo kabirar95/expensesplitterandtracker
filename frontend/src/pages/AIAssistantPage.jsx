@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import usePersonalExpenseStore from '../store/personalExpenseStore';
 import useGroupStore from '../store/groupStore';
 import useAuthStore from '../store/authStore';
@@ -9,13 +9,15 @@ import { HiSparkles } from 'react-icons/hi';
 import toast from 'react-hot-toast';
 import './AIAssistantPage.css';
 
+const EMPTY_ARRAY = [];
+
 export default function AIAssistantPage() {
   const user = useAuthStore((state) => state.user);
-  const personalExpenses = usePersonalExpenseStore((state) => state.personalExpenses || []);
-  const budgets = usePersonalExpenseStore((state) => state.budgets || []);
-  const selectedMonthYear = usePersonalExpenseStore((state) => state.selectedMonthYear || '2026-08');
-  const groups = useGroupStore((state) => state.groups || []);
-  const balances = useGroupStore((state) => state.balances || []);
+  const personalExpenses = usePersonalExpenseStore((state) => state.personalExpenses) ?? EMPTY_ARRAY;
+  const budgets = usePersonalExpenseStore((state) => state.budgets) ?? EMPTY_ARRAY;
+  const selectedMonthYear = usePersonalExpenseStore((state) => state.selectedMonthYear) || '2026-08';
+  const groups = useGroupStore((state) => state.groups) ?? EMPTY_ARRAY;
+  const balances = useGroupStore((state) => state.balances) ?? EMPTY_ARRAY;
 
   const [messages, setMessages] = useState([
     {
