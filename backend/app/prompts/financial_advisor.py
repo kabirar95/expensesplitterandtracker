@@ -1,21 +1,43 @@
 # ============================================================
-# FINANCIAL ADVISOR PROMPT TEMPLATES
+# DIVVY AI SYSTEM PROMPT — Elite Financial Intelligence Engine
 # ============================================================
 
 DIVVY_AI_SYSTEM_PROMPT = """
-You are Divvy AI — an elite, hyper-intelligent, empathetic personal finance advisor and expense splitting strategist built for the Divvy app.
+You are **Divvy AI** — an elite, deeply intelligent personal finance advisor and expense strategist.
 
-Your goal is to give clear, concise, actionable financial advice based on the user's real-time financial context.
+You are embedded inside the Divvy expense-splitting and personal finance tracking app. You have full, real-time access to the user's financial data: their monthly and yearly spending, category budgets, recent transactions, and group balances.
 
-RULES:
-1. Always be encouraging, smart, and direct. Avoid generic filler.
-2. Format responses with clean Markdown bullet points, bold numbers, and relevant emojis.
-3. Use the user's provided real-time expense data, category budgets, and group balances to answer specifically.
-4. If the user asks a question about their spending, refer directly to the numbers in their context.
-5. Provide practical, high-value money-saving tips when asked.
-6. Use currency symbol (₹) for all monetary values.
-7. Keep answers under 3-4 short paragraphs or key bullet points.
+## YOUR PERSONALITY
+- Highly intelligent, warm, and conversational — like a knowledgeable friend who happens to be a CFP (Certified Financial Planner)
+- You ask clarifying follow-up questions when the user is vague
+- You give genuinely insightful, data-driven advice — not generic tips
+- You remember what was said earlier in the conversation and refer back to it naturally
+- You are honest: if the user is over-budget, you tell them clearly but constructively
+- You never say "I cannot help with that" — you always try to provide value
+
+## CAPABILITIES
+- Analyse spending patterns and identify trends in the user's data
+- Calculate budget utilisation and forecast month-end spending
+- Give personalised, actionable saving strategies based on the user's actual categories
+- Explain financial concepts in simple, engaging language (compound interest, emergency funds, 50/30/20 rule, etc.)
+- Help users think through financial decisions (should I buy X? can I afford Y?)
+- Answer general finance questions — investing, debt, taxes, insurance, savings — intelligently
+- Help users optimise their group expense splits and resolve shared debts
+
+## RESPONSE STYLE
+- Use Markdown: **bold** for numbers and key terms, bullet lists for clarity
+- Use ₹ for all monetary values
+- Be concise but complete — 3-6 lines for simple questions, structured breakdown for complex ones
+- Use emojis sparingly and purposefully (not on every line)
+- If the user's question is ambiguous, ask ONE targeted clarifying question before answering
+- Always end with something actionable or a follow-up offer ("Want me to break this down by category?" etc.)
+
+## IMPORTANT
+- Base your answers on the LIVE FINANCIAL DATA provided in the context below
+- Never make up numbers — if data isn't available, say so clearly
+- Treat the user with respect: they are trying to improve their finances
 """
+
 
 def build_financial_context_prompt(
     user_name: str,
@@ -28,39 +50,66 @@ def build_financial_context_prompt(
     group_balances: list
 ) -> str:
     """
-    Constructs a rich live financial data context string to feed to Gemini AI.
+    Constructs a rich live financial data context string to feed to the AI.
     """
-    cat_summary = []
+    # Category breakdown
+    cat_lines = []
     for cb in category_budgets:
-        target = cb.get("target_amount", 0)
-        spent = cb.get("spent_amount", 0)
+        target = float(cb.get("target_amount") or 0)
+        spent = float(cb.get("spent_amount") or 0)
         pct = round((spent / target * 100)) if target > 0 else 0
-        cat_summary.append(f"- {cb.get('category').capitalize()}: Spent ₹{spent:,.2f} of ₹{target:,.2f} ({pct}%)")
+        status = "🟢 On Track" if pct < 75 else "🟡 Approaching Limit" if pct <= 100 else "🔴 Over Budget"
+        cat_lines.append(
+            f"  • {str(cb.get('category', 'General')).capitalize()}: "
+            f"Spent ₹{spent:,.2f} of ₹{target:,.2f} ({pct}%) — {status}"
+        )
 
-    recent_summary = []
-    for exp in recent_personal_expenses[:5]:
-        recent_summary.append(f"- {exp.get('description')} (₹{exp.get('amount')}) on {exp.get('category')} ({exp.get('expense_date')})")
+    # Recent transactions
+    recent_lines = []
+    for exp in recent_personal_expenses[:8]:
+        recent_lines.append(
+            f"  • {exp.get('description', 'Expense')} — ₹{exp.get('amount', 0)} "
+            f"[{str(exp.get('category', 'general')).capitalize()}] on {exp.get('expense_date', 'N/A')}"
+        )
 
-    group_summary = []
-    for g in group_balances[:3]:
-        group_summary.append(f"- Group '{g.get('group_name')}': Net Balance ₹{g.get('net_balance'):,.2f}")
+    # Group balances
+    group_lines = []
+    for g in group_balances[:5]:
+        balance = float(g.get("net_balance") or 0)
+        direction = "you are owed" if balance > 0 else "you owe" if balance < 0 else "settled"
+        group_lines.append(
+            f"  • Group '{g.get('group_name', 'Unknown')}': ₹{abs(balance):,.2f} ({direction})"
+        )
+
+    # Budget status
+    if overall_budget > 0:
+        remaining = overall_budget - monthly_spent
+        pct_used = round((monthly_spent / overall_budget) * 100)
+        budget_status = (
+            f"₹{overall_budget:,.2f} target | ₹{monthly_spent:,.2f} used ({pct_used}%) | "
+            f"{'₹' + f'{remaining:,.2f} remaining' if remaining >= 0 else '⚠️ OVER BUDGET by ₹' + f'{abs(remaining):,.2f}'}"
+        )
+    else:
+        budget_status = "No overall budget set"
 
     context = f"""
-LIVE USER FINANCIAL CONTEXT:
-- User Name: {user_name}
-- Active Month: {selected_month}
-- Monthly Spent (Selected Month): ₹{monthly_spent:,.2f}
-- Yearly Spent (Current Year): ₹{yearly_spent:,.2f}
-- Overall Monthly Target Budget: {"₹" + f"{overall_budget:,.2f}" if overall_budget > 0 else "Not Set"}
-- Remaining Cap: {"₹" + f"{(overall_budget - monthly_spent):,.2f}" if overall_budget > 0 else "N/A"}
+---
+## LIVE USER FINANCIAL CONTEXT (as of {selected_month})
 
-CATEGORY BUDGET BREAKDOWN:
-{chr(10).join(cat_summary) if cat_summary else "No category budgets set."}
+**User:** {user_name}
+**Month:** {selected_month}
+**Monthly Spent:** ₹{monthly_spent:,.2f}
+**Yearly Spent (YTD):** ₹{yearly_spent:,.2f}
+**Overall Budget:** {budget_status}
 
-RECENT PERSONAL TRANSACTIONS:
-{chr(10).join(recent_summary) if recent_summary else "No recent transactions."}
+**Category Budget Breakdown:**
+{chr(10).join(cat_lines) if cat_lines else "  • No category budgets set yet."}
 
-ACTIVE GROUP BALANCES:
-{chr(10).join(group_summary) if group_summary else "No active group debts."}
+**Recent Transactions (last 8):**
+{chr(10).join(recent_lines) if recent_lines else "  • No recent transactions found."}
+
+**Active Group Balances:**
+{chr(10).join(group_lines) if group_lines else "  • No active group debts."}
+---
 """
     return context

@@ -18,7 +18,7 @@ def ai_chat(
     """
     Generate interactive financial advice using Divvy AI (Google Gemini API).
     """
-    user_name = current_user.get("full_name") or current_user.get("email", "User").split("@")[0]
+    user_name = getattr(current_user, "full_name", None) or (getattr(current_user, "email", "User") or "User").split("@")[0]
 
     reply_text = generate_ai_response(
         user_message=payload.message,

@@ -28,11 +28,11 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int = 7          # Refresh token lives for 7 days
 
     # ── CORS ──
-    cors_origins: List[str] = ["http://localhost:5173", "http://localhost:3000"]
+    cors_origins: List[str] = ["http://localhost:5173", "http://localhost:5174", "http://localhost:3000"]
 
     # ── Gemini AI ──
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-2.0-flash"
+    gemini_model: str = "gemini-3.6-flash"
 
     # ── Email (Resend) ──
     resend_api_key: str = ""

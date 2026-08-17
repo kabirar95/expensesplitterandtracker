@@ -85,6 +85,9 @@ export default function AIAssistantPage() {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
+    // Capture current messages BEFORE adding new one (for history)
+    const historyToSend = messages.filter((m) => m.id !== 'welcome-1');
+
     setMessages((prev) => [...prev, userMsg]);
     if (!textToSend) setInputMessage('');
     setLoading(true);
@@ -99,6 +102,8 @@ export default function AIAssistantPage() {
         category_budgets: categoryBudgets,
         recent_personal_expenses: personalExpenses.slice(0, 10),
         group_balances: Array.isArray(balances) ? balances : [],
+        // Send full conversation history for multi-turn memory
+        chat_history: historyToSend.map((m) => ({ sender: m.sender, text: m.text })),
       };
 
       const response = await sendAIChatMessage(payload);
