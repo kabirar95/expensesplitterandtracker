@@ -18,7 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import init_db
-from app.routers import auth, groups, expenses, personal_expenses, budgets
+from app.routers import auth, groups, expenses, personal_expenses, budgets, ai
 
 
 # ── Lifespan — runs on startup and shutdown ──
@@ -46,10 +46,6 @@ app = FastAPI(
 
 
 # ── CORS Middleware ──
-# CORS = Cross-Origin Resource Sharing
-# By default, browsers block requests from one domain to another.
-# Our frontend (localhost:5173) needs to call our backend (localhost:8000).
-# This middleware tells the browser "it's okay, let them through."
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,    # Which URLs can call us
@@ -65,10 +61,7 @@ app.include_router(groups.router)
 app.include_router(expenses.router)
 app.include_router(personal_expenses.router)
 app.include_router(budgets.router)
-# app.include_router(settlements.router)  # Coming in Phase 4
-# app.include_router(analytics.router)    # Coming in Phase 6
-# app.include_router(ai.router)           # Coming in Phase 5
-# app.include_router(export.router)       # Coming in Phase 6
+app.include_router(ai.router)
 
 
 # ── Health Check ──
