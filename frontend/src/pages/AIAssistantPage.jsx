@@ -1,3 +1,4 @@
+import React, { useState, useRef, useEffect } from 'react';
 import usePersonalExpenseStore from '../store/personalExpenseStore';
 import useGroupStore from '../store/groupStore';
 import useAuthStore from '../store/authStore';
@@ -9,9 +10,12 @@ import toast from 'react-hot-toast';
 import './AIAssistantPage.css';
 
 export default function AIAssistantPage() {
-  const { user } = useAuthStore();
-  const { personalExpenses, budgets, selectedMonthYear } = usePersonalExpenseStore();
-  const { groups, balances } = useGroupStore();
+  const user = useAuthStore((state) => state.user);
+  const personalExpenses = usePersonalExpenseStore((state) => state.personalExpenses || []);
+  const budgets = usePersonalExpenseStore((state) => state.budgets || []);
+  const selectedMonthYear = usePersonalExpenseStore((state) => state.selectedMonthYear || '2026-08');
+  const groups = useGroupStore((state) => state.groups || []);
+  const balances = useGroupStore((state) => state.balances || []);
 
   const [messages, setMessages] = useState([
     {
