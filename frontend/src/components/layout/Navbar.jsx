@@ -9,6 +9,8 @@ export default function Navbar() {
   const { theme, toggleTheme } = useThemeStore();
   const { user, logout } = useAuthStore();
 
+  const displayName = user?.full_name || user?.display_name || (user?.email ? user.email.split('@')[0] : 'User');
+
   return (
     <header className="navbar">
       <div className="navbar-brand">
@@ -28,10 +30,11 @@ export default function Navbar() {
 
         {user && (
           <div className="navbar-user-profile">
-            <Avatar name={user.display_name} src={user.avatar_url} size="sm" />
-            <span className="navbar-username">{user.display_name}</span>
+            <Avatar name={displayName} src={user?.avatar_url} size="sm" />
+            <span className="navbar-username">{displayName}</span>
             <button className="logout-btn" onClick={logout} title="Log out">
               <BiLogOut />
+              <span>Log Out</span>
             </button>
           </div>
         )}
