@@ -32,7 +32,7 @@ class Settings(BaseSettings):
 
     # ── Gemini AI ──
     gemini_api_key: str = ""
-    gemini_model: str = "gemini-3.6-flash"
+    gemini_model: str = "gemini-flash-lite-latest"
 
     # ── Email (Resend) ──
     resend_api_key: str = ""
