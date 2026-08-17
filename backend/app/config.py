@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     supabase_url: str = ""
     supabase_key: str = ""                         # Service Role Key or Anon Key
     supabase_service_role_key: str = ""
+    database_url: str = ""                         # Direct PostgreSQL URI
 
     # ── JWT Authentication ──
     jwt_secret: str = "change-this-to-a-random-secret-in-production"
