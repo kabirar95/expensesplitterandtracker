@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import usePersonalExpenseStore from '../store/personalExpenseStore';
 import useGroupStore from '../store/groupStore';
 import useAuthStore from '../store/authStore';
+import useAIChatStore from '../store/aiChatStore';
 import { sendAIChatMessage } from '../services/aiService';
 import Button from '../components/common/Button';
 import { BiPaperPlane, BiBot, BiUser, BiRefresh } from 'react-icons/bi';
@@ -19,18 +20,20 @@ export default function AIAssistantPage() {
   const groups = useGroupStore((state) => state.groups) ?? EMPTY_ARRAY;
   const balances = useGroupStore((state) => state.balances) ?? EMPTY_ARRAY;
 
-  const [messages, setMessages] = useState([
-    {
-      id: 'welcome-1',
-      sender: 'ai',
-      text: `Hello **${user?.full_name || 'there'}**! 👋 I am **Divvy AI**, your personal financial advisor and expense strategist.\n\nAsk me anything about your monthly spending, budget limits, or how to save more money!`,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    },
-  ]);
+  // ── Persistent chat state from Zustand (survives navigation) ──
+  const messages = useAIChatStore((state) => state.messages);
+  const initMessages = useAIChatStore((state) => state.initMessages);
+  const addMessage = useAIChatStore((state) => state.addMessage);
+  const clearMessages = useAIChatStore((state) => state.clearMessages);
 
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
+
+  // Initialise messages only once (no-op if already initialised)
+  useEffect(() => {
+    initMessages(user?.full_name);
+  }, [initMessages, user?.full_name]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -54,12 +57,11 @@ export default function AIAssistantPage() {
   const overallBudgetObj = budgets.find((b) => String(b?.category || '').toLowerCase() === 'overall');
   const overallBudget = overallBudgetObj ? parseFloat(overallBudgetObj.target_amount || 0) : 0;
 
-  const categoryBudgets = (budgets || []).map((b) => {
+  const categoryBudgets = budgets.map((b) => {
     const bCat = String(b?.category || '').toLowerCase();
-    const catSpent = (personalExpenses || [])
+    const catSpent = personalExpenses
       .filter((e) => String(e?.category || '').toLowerCase() === bCat && String(e?.expense_date || '').startsWith(selectedMonthYear))
       .reduce((sum, e) => sum + parseFloat(e?.amount || 0), 0);
-
     return {
       category: b?.category || 'general',
       target_amount: parseFloat(b?.target_amount || 0),
@@ -85,10 +87,11 @@ export default function AIAssistantPage() {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
-    // Capture current messages BEFORE adding new one (for history)
-    const historyToSend = messages.filter((m) => m.id !== 'welcome-1');
+    // Capture history BEFORE adding the new message
+    const currentMessages = messages || [];
+    const historyToSend = currentMessages.filter((m) => m.id !== 'welcome-1');
 
-    setMessages((prev) => [...prev, userMsg]);
+    addMessage(userMsg);
     if (!textToSend) setInputMessage('');
     setLoading(true);
 
@@ -102,7 +105,6 @@ export default function AIAssistantPage() {
         category_budgets: categoryBudgets,
         recent_personal_expenses: personalExpenses.slice(0, 10),
         group_balances: Array.isArray(balances) ? balances : [],
-        // Send full conversation history for multi-turn memory
         chat_history: historyToSend.map((m) => ({ sender: m.sender, text: m.text })),
       };
 
@@ -115,7 +117,7 @@ export default function AIAssistantPage() {
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
 
-      setMessages((prev) => [...prev, aiMsg]);
+      addMessage(aiMsg);
     } catch (err) {
       console.error(err);
       toast.error('Failed to get AI response');
@@ -140,6 +142,8 @@ export default function AIAssistantPage() {
     return { __html: formatted };
   };
 
+  const displayMessages = messages || [];
+
   return (
     <div className="ai-assistant-page">
       {/* Page Header */}
@@ -151,13 +155,13 @@ export default function AIAssistantPage() {
           </div>
           <div>
             <h1>Divvy AI Financial Assistant</h1>
-            <p>Real-time AI insights, spending analysis & smart money advice</p>
+            <p>Real-time AI insights, spending analysis &amp; smart money advice</p>
           </div>
         </div>
 
         <button
           className="clear-chat-btn"
-          onClick={() => setMessages([messages[0]])}
+          onClick={() => clearMessages(user?.full_name)}
           title="Clear Conversation"
         >
           <BiRefresh /> Clear Chat
@@ -181,7 +185,7 @@ export default function AIAssistantPage() {
       {/* Chat Messages Container */}
       <div className="chat-window cyber-card">
         <div className="messages-list">
-          {messages.map((msg) => (
+          {displayMessages.map((msg) => (
             <div key={msg.id} className={`chat-message-row ${msg.sender}`}>
               <div className="msg-avatar">
                 {msg.sender === 'ai' ? <BiBot /> : <BiUser />}
