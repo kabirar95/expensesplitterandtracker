@@ -36,7 +36,11 @@ export default function LoginPage() {
       toast.success('Welcome back!');
       navigate(from, { replace: true });
     } catch (err) {
-      const msg = err.response?.data?.detail || 'Failed to log in';
+      const msg =
+        err.response?.data?.detail ||
+        (err.code === 'ERR_NETWORK' || !err.response
+          ? 'Cannot connect to backend server. Is FastAPI running on port 8000?'
+          : 'Failed to log in');
       toast.error(msg);
     } finally {
       setLoading(false);

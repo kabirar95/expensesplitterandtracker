@@ -47,7 +47,11 @@ export default function SignupPage() {
       toast.success('Account created successfully!');
       navigate('/dashboard');
     } catch (err) {
-      const msg = err.response?.data?.detail || 'Failed to create account';
+      const msg =
+        err.response?.data?.detail ||
+        (err.code === 'ERR_NETWORK' || !err.response
+          ? 'Cannot connect to backend server. Is FastAPI running on port 8000?'
+          : 'Failed to create account');
       toast.error(msg);
     } finally {
       setLoading(false);

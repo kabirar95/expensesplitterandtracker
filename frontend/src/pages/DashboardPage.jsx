@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   BiGroup,
@@ -8,12 +8,14 @@ import {
   BiRightArrowAlt,
   BiTrendingUp,
   BiShieldQuarter,
+  BiBrain,
 } from 'react-icons/bi';
 
 import useAuthStore from '../store/authStore';
 import useGroupStore from '../store/groupStore';
 import usePersonalExpenseStore from '../store/personalExpenseStore';
 import Button from '../components/common/Button';
+import SmartExpenseModal from '../components/common/SmartExpenseModal';
 
 import './DashboardPage.css';
 
@@ -21,6 +23,7 @@ export default function DashboardPage() {
   const { user } = useAuthStore();
   const { groups, loadGroups } = useGroupStore();
   const { personalExpenses, budgets, loadPersonalData } = usePersonalExpenseStore();
+  const [isSmartAddOpen, setIsSmartAddOpen] = useState(false);
 
   useEffect(() => {
     loadGroups();
@@ -42,6 +45,14 @@ export default function DashboardPage() {
           <p>Manage your group splits, track personal budgets, and monitor your overall financial health.</p>
         </div>
         <div className="welcome-quick-actions">
+          <Button
+            variant="secondary"
+            icon={BiBrain}
+            onClick={() => setIsSmartAddOpen(true)}
+            title="Paste bank SMS or casual note to auto-extract with Gemini"
+          >
+            ⚡ Smart Add (SMS / AI)
+          </Button>
           <Link to="/groups">
             <Button variant="primary" icon={BiPlusCircle}>
               Split Expense
@@ -157,6 +168,15 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Smart Add Modal */}
+      <SmartExpenseModal
+        isOpen={isSmartAddOpen}
+        onClose={() => {
+          setIsSmartAddOpen(false);
+          loadPersonalData();
+        }}
+      />
     </div>
   );
 }

@@ -11,7 +11,10 @@ import {
   BiTrendingUp,
   BiErrorCircle,
   BiCheckCircle,
+  BiBrain,
+  BiDownload,
 } from 'react-icons/bi';
+import { HiSparkles } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
 
 import usePersonalExpenseStore from '../store/personalExpenseStore';
@@ -19,6 +22,8 @@ import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import Modal from '../components/common/Modal';
 import Spinner from '../components/common/Spinner';
+import SmartExpenseModal from '../components/common/SmartExpenseModal';
+import api from '../services/api';
 
 import './PersonalTrackerPage.css';
 
@@ -50,6 +55,9 @@ export default function PersonalTrackerPage() {
   // Modals state
   const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
   const [isSetBudgetModalOpen, setIsSetBudgetModalOpen] = useState(false);
+  const [isSmartAddModalOpen, setIsSmartAddModalOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [detectingCategory, setDetectingCategory] = useState(false);
 
   // Form states
   const [expenseForm, setExpenseForm] = useState({
@@ -68,6 +76,53 @@ export default function PersonalTrackerPage() {
   const [submitting, setSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('all');
+
+  const handleAutoDetectCategory = async () => {
+    if (!expenseForm.description.trim()) {
+      toast.error('Please enter a description first');
+      return;
+    }
+    setDetectingCategory(true);
+    try {
+      const res = await api.post('/api/ai/categorize', {
+        description: expenseForm.description,
+        amount: parseFloat(expenseForm.amount || 0),
+      });
+      if (res.data?.category && CATEGORY_MAP[res.data.category]) {
+        setExpenseForm((prev) => ({ ...prev, category: res.data.category }));
+        toast.success(`✨ Category set to ${CATEGORY_MAP[res.data.category].name}!`);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Could not auto-detect category');
+    } finally {
+      setDetectingCategory(false);
+    }
+  };
+
+  const handleExportCSV = async () => {
+    try {
+      setExporting(true);
+      const res = await api.get(`/api/personal-expenses/export/csv?month_year=${selectedMonthYear}`, {
+        responseType: 'blob',
+      });
+      const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `divvy_personal_expenses_${selectedMonthYear}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success('CSV downloaded successfully!');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to export CSV');
+    } finally {
+      setExporting(false);
+    }
+  };
 
   useEffect(() => {
     loadPersonalData(selectedMonthYear);
@@ -222,10 +277,27 @@ export default function PersonalTrackerPage() {
         <div className="tracker-header-buttons">
           <Button
             variant="outline"
+            icon={BiDownload}
+            onClick={handleExportCSV}
+            loading={exporting}
+            title="Download CSV spreadsheet of personal expenses"
+          >
+            Export CSV
+          </Button>
+          <Button
+            variant="outline"
             icon={BiPieChartAlt2}
             onClick={() => setIsSetBudgetModalOpen(true)}
           >
             Set Budget
+          </Button>
+          <Button
+            variant="secondary"
+            icon={BiBrain}
+            onClick={() => setIsSmartAddModalOpen(true)}
+            title="Paste bank SMS or casual note to auto-extract with Gemini"
+          >
+            ⚡ Smart Add (SMS / AI)
           </Button>
           <Button
             variant="primary"
@@ -607,7 +679,29 @@ export default function PersonalTrackerPage() {
           />
 
           <div className="input-group">
-            <label className="input-label">Category</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+              <label className="input-label" style={{ margin: 0 }}>Category</label>
+              <button
+                type="button"
+                onClick={handleAutoDetectCategory}
+                disabled={!expenseForm.description.trim() || detectingCategory}
+                style={{
+                  background: 'rgba(139, 92, 246, 0.15)',
+                  border: '1px solid rgba(139, 92, 246, 0.3)',
+                  color: '#c084fc',
+                  borderRadius: '6px',
+                  padding: '3px 8px',
+                  fontSize: '0.75rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  cursor: expenseForm.description.trim() ? 'pointer' : 'not-allowed',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <HiSparkles /> {detectingCategory ? 'Detecting...' : '✨ Auto-Detect'}
+              </button>
+            </div>
             <select
               className="input-field"
               value={expenseForm.category}
@@ -682,6 +776,13 @@ export default function PersonalTrackerPage() {
           </Button>
         </form>
       </Modal>
+
+      {/* Modal: Smart Add with AI & SMS */}
+      <SmartExpenseModal
+        isOpen={isSmartAddModalOpen}
+        onClose={() => setIsSmartAddModalOpen(false)}
+      />
     </div>
   );
 }
+

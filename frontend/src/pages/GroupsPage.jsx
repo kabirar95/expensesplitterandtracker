@@ -11,11 +11,13 @@ import {
   BiChevronUp,
   BiRightArrowAlt,
   BiCheckDouble,
+  BiDownload,
 } from 'react-icons/bi';
 import { toast } from 'react-hot-toast';
 
 import useGroupStore from '../store/groupStore';
 import useAuthStore from '../store/authStore';
+import api from '../services/api';
 
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
@@ -103,6 +105,32 @@ export default function GroupsPage() {
   });
 
   const [submitting, setSubmitting] = useState(false);
+  const [exportingCSV, setExportingCSV] = useState(false);
+
+  const handleExportGroupCSV = async () => {
+    if (!activeGroup) return;
+    try {
+      setExportingCSV(true);
+      const res = await api.get(`/api/groups/${activeGroup.id}/expenses/export/csv`, {
+        responseType: 'blob',
+      });
+      const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `divvy_group_${activeGroup.name.replace(/\\s+/g, '_')}_expenses.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success('Group CSV exported successfully!');
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to export group CSV');
+    } finally {
+      setExportingCSV(false);
+    }
+  };
 
   useEffect(() => {
     loadGroups();
@@ -339,6 +367,16 @@ export default function GroupsPage() {
                     {activeGroup.description && <p>{activeGroup.description}</p>}
                   </div>
                   <div className="active-group-actions">
+                    <Button
+                      variant="outline"
+                      size="md"
+                      icon={BiDownload}
+                      onClick={handleExportGroupCSV}
+                      loading={exportingCSV}
+                      title="Download CSV breakdown of group expenses"
+                    >
+                      Export CSV
+                    </Button>
                     <Button
                       variant="primary"
                       size="md"
