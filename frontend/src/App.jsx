@@ -7,6 +7,7 @@ import { fetchCurrentUser } from './services/authService';
 
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import AppLayout from './components/layout/AppLayout';
+import InstallPrompt from './components/common/InstallPrompt';
 
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
@@ -50,6 +51,8 @@ export default function App() {
           },
         }}
       />
+
+      <InstallPrompt />
 
       <Routes>
         {/* Public Routes */}

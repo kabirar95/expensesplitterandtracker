@@ -17,6 +17,7 @@ import { toast } from 'react-hot-toast';
 
 import useGroupStore from '../store/groupStore';
 import useAuthStore from '../store/authStore';
+import useCurrencyStore from '../store/currencyStore';
 import api from '../services/api';
 
 import Button from '../components/common/Button';
@@ -86,6 +87,8 @@ export default function GroupsPage() {
     removeGroup,
   } = useGroupStore();
 
+  const { currencies, convertToInr } = useCurrencyStore();
+
   // Modals & UI state
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
@@ -98,6 +101,7 @@ export default function GroupsPage() {
   const [newExpenseData, setNewExpenseData] = useState({
     description: '',
     amount: '',
+    currency: 'INR',
     category: 'food',
     paid_by: '',
     split_type: 'equal',
@@ -244,20 +248,36 @@ export default function GroupsPage() {
 
     setSubmitting(true);
     try {
+      const isForeign = newExpenseData.currency && newExpenseData.currency !== 'INR';
+      const inrAmount = isForeign
+        ? convertToInr(newExpenseData.amount, newExpenseData.currency)
+        : parseFloat(newExpenseData.amount);
+
+      const rateInfo = currencies[newExpenseData.currency];
+      const currencyNote = isForeign
+        ? `[${rateInfo?.symbol || ''}${newExpenseData.amount} ${newExpenseData.currency} @ ₹${rateInfo?.rate_to_inr || 1}/unit] ${newExpenseData.notes || ''}`.trim()
+        : newExpenseData.notes;
+
       await addExpenseToActiveGroup({
         description: newExpenseData.description,
-        amount: parseFloat(newExpenseData.amount),
+        amount: inrAmount,
+        currency: 'INR',
         category: newExpenseData.category,
         paid_by: newExpenseData.paid_by,
         split_type: newExpenseData.split_type,
-        notes: newExpenseData.notes,
+        notes: currencyNote,
       });
 
-      toast.success('Expense added & split among members!');
+      toast.success(
+        isForeign
+          ? `Expense added! Converted ${newExpenseData.amount} ${newExpenseData.currency} to ₹${inrAmount.toFixed(2)} INR`
+          : 'Expense added & split among members!'
+      );
       setIsAddExpenseModalOpen(false);
       setNewExpenseData({
         description: '',
         amount: '',
+        currency: 'INR',
         category: 'food',
         paid_by: activeGroup?.members?.[0]?.name || '',
         split_type: 'equal',
@@ -268,6 +288,7 @@ export default function GroupsPage() {
     } finally {
       setSubmitting(false);
     }
+
   };
 
   const handleDeleteExpense = async (expenseId) => {
@@ -652,15 +673,49 @@ export default function GroupsPage() {
             required
           />
 
-          <Input
-            label="Amount (₹)"
-            type="number"
-            step="0.01"
-            placeholder="0.00"
-            value={newExpenseData.amount}
-            onChange={(e) => setNewExpenseData({ ...newExpenseData, amount: e.target.value })}
-            required
-          />
+          <div className="amount-currency-row" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
+            <Input
+              label={`Amount (${currencies[newExpenseData.currency]?.symbol || '₹'})`}
+              type="number"
+              step="0.01"
+              placeholder="0.00"
+              value={newExpenseData.amount}
+              onChange={(e) => setNewExpenseData({ ...newExpenseData, amount: e.target.value })}
+              required
+            />
+            <div className="input-group">
+              <label className="input-label">Currency</label>
+              <select
+                className="input-field"
+                value={newExpenseData.currency}
+                onChange={(e) => setNewExpenseData({ ...newExpenseData, currency: e.target.value })}
+              >
+                {Object.values(currencies).map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.flag} {c.code}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {newExpenseData.currency !== 'INR' && newExpenseData.amount > 0 && (
+            <div style={{
+              padding: '8px 12px',
+              marginBottom: '14px',
+              background: 'rgba(6, 182, 212, 0.1)',
+              border: '1px dashed rgba(6, 182, 212, 0.3)',
+              borderRadius: '8px',
+              color: '#22d3ee',
+              fontSize: '0.85rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+              <span>Live Conversion:</span>
+              <strong>≈ ₹{convertToInr(newExpenseData.amount, newExpenseData.currency).toLocaleString('en-IN', { minimumFractionDigits: 2 })} INR</strong>
+            </div>
+          )}
 
           <div className="input-group">
             <label className="input-label">Paid By</label>

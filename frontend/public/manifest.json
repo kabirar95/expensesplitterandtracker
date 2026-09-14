@@ -1,0 +1,42 @@
+{
+  "name": "Divvy — Expense Splitter & AI Finance Tracker",
+  "short_name": "Divvy",
+  "description": "Next-gen cybertech expense splitter, AI personal finance tracker, and automated recurring bill manager.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0e17",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Personal Tracker",
+      "url": "/personal",
+      "description": "Track personal expenses and monthly budgets"
+    },
+    {
+      "name": "Groups",
+      "url": "/groups",
+      "description": "Split expenses with friends and roommates"
+    },
+    {
+      "name": "Analytics",
+      "url": "/analytics",
+      "description": "AI spending forecast and financial breakdowns"
+    }
+  ]
+}

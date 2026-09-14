@@ -3,6 +3,7 @@ import { BiSun, BiMoon, BiLogOut, BiUser } from 'react-icons/bi';
 import useThemeStore from '../../store/themeStore';
 import useAuthStore from '../../store/authStore';
 import Avatar from '../common/Avatar';
+import NotificationBell from './NotificationBell';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -19,6 +20,9 @@ export default function Navbar() {
       </div>
 
       <div className="navbar-actions">
+        {/* Real-time Activity & Notifications */}
+        {user && <NotificationBell />}
+
         {/* Dark/Light Theme Toggle */}
         <button
           className="theme-toggle-btn"

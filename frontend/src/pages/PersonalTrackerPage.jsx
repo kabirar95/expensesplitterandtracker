@@ -13,16 +13,20 @@ import {
   BiCheckCircle,
   BiBrain,
   BiDownload,
+  BiRepeat,
 } from 'react-icons/bi';
 import { HiSparkles } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
 
 import usePersonalExpenseStore from '../store/personalExpenseStore';
+import useRecurringStore from '../store/recurringStore';
+import useCurrencyStore from '../store/currencyStore';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import Modal from '../components/common/Modal';
 import Spinner from '../components/common/Spinner';
 import SmartExpenseModal from '../components/common/SmartExpenseModal';
+import RecurringExpensesModal from '../components/recurring/RecurringExpensesModal';
 import api from '../services/api';
 
 import './PersonalTrackerPage.css';
@@ -50,12 +54,16 @@ export default function PersonalTrackerPage() {
     updateBudget,
   } = usePersonalExpenseStore();
 
+  const { processDue } = useRecurringStore();
+  const { currencies, convertToInr, fetchRates } = useCurrencyStore();
+
   const [viewMode, setViewMode] = useState('monthly'); // 'monthly' or 'yearly'
 
   // Modals state
   const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
   const [isSetBudgetModalOpen, setIsSetBudgetModalOpen] = useState(false);
   const [isSmartAddModalOpen, setIsSmartAddModalOpen] = useState(false);
+  const [isRecurringModalOpen, setIsRecurringModalOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [detectingCategory, setDetectingCategory] = useState(false);
 
@@ -63,6 +71,7 @@ export default function PersonalTrackerPage() {
   const [expenseForm, setExpenseForm] = useState({
     description: '',
     amount: '',
+    currency: 'INR',
     category: 'food',
     expense_date: new Date().toISOString().split('T')[0],
     notes: '',
@@ -126,7 +135,15 @@ export default function PersonalTrackerPage() {
 
   useEffect(() => {
     loadPersonalData(selectedMonthYear);
-  }, [loadPersonalData, selectedMonthYear]);
+    fetchRates();
+    // Auto-check and process any due recurring bills
+    processDue().then((res) => {
+      if (res?.processed_count > 0) {
+        toast.success(`⚡ Auto-logged ${res.processed_count} due bill(s): ${res.logged_descriptions.join(', ')}`);
+        loadPersonalData(selectedMonthYear);
+      }
+    });
+  }, [loadPersonalData, selectedMonthYear, fetchRates, processDue]);
 
   // Month navigation helpers (Timezone-safe arithmetic)
   const handlePrevMonth = () => {
@@ -202,19 +219,34 @@ export default function PersonalTrackerPage() {
 
     setSubmitting(true);
     try {
+      const isForeign = expenseForm.currency && expenseForm.currency !== 'INR';
+      const inrAmount = isForeign
+        ? convertToInr(expenseForm.amount, expenseForm.currency)
+        : parseFloat(expenseForm.amount);
+
+      const rateInfo = currencies[expenseForm.currency];
+      const currencyNote = isForeign
+        ? `[${rateInfo?.symbol || ''}${expenseForm.amount} ${expenseForm.currency} @ ₹${rateInfo?.rate_to_inr || 1}/unit] ${expenseForm.notes || ''}`.trim()
+        : expenseForm.notes;
+
       await addExpense({
         description: expenseForm.description,
-        amount: parseFloat(expenseForm.amount),
+        amount: inrAmount,
         category: expenseForm.category,
         expense_date: expenseForm.expense_date,
-        notes: expenseForm.notes,
+        notes: currencyNote,
       });
 
-      toast.success('Personal expense added!');
+      toast.success(
+        isForeign
+          ? `Added! Converted ${expenseForm.amount} ${expenseForm.currency} to ₹${inrAmount.toFixed(2)} INR`
+          : 'Personal expense added!'
+      );
       setIsAddExpenseModalOpen(false);
       setExpenseForm({
         description: '',
         amount: '',
+        currency: 'INR',
         category: 'food',
         expense_date: new Date().toISOString().split('T')[0],
         notes: '',
@@ -275,6 +307,14 @@ export default function PersonalTrackerPage() {
           <p>Track your private daily expenses and monitor category budget limits!</p>
         </div>
         <div className="tracker-header-buttons">
+          <Button
+            variant="outline"
+            icon={BiRepeat}
+            onClick={() => setIsRecurringModalOpen(true)}
+            title="Manage automated recurring bills & subscriptions"
+          >
+            🔁 Recurring Bills
+          </Button>
           <Button
             variant="outline"
             icon={BiDownload}
@@ -668,15 +708,49 @@ export default function PersonalTrackerPage() {
             required
           />
 
-          <Input
-            label="Amount (₹)"
-            type="number"
-            step="0.01"
-            placeholder="0.00"
-            value={expenseForm.amount}
-            onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
-            required
-          />
+          <div className="amount-currency-row" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
+            <Input
+              label={`Amount (${currencies[expenseForm.currency]?.symbol || '₹'})`}
+              type="number"
+              step="0.01"
+              placeholder="0.00"
+              value={expenseForm.amount}
+              onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
+              required
+            />
+            <div className="input-group">
+              <label className="input-label">Currency</label>
+              <select
+                className="input-field"
+                value={expenseForm.currency}
+                onChange={(e) => setExpenseForm({ ...expenseForm, currency: e.target.value })}
+              >
+                {Object.values(currencies).map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.flag} {c.code}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {expenseForm.currency !== 'INR' && expenseForm.amount > 0 && (
+            <div style={{
+              padding: '8px 12px',
+              marginBottom: '14px',
+              background: 'rgba(6, 182, 212, 0.1)',
+              border: '1px dashed rgba(6, 182, 212, 0.3)',
+              borderRadius: '8px',
+              color: '#22d3ee',
+              fontSize: '0.85rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+              <span>Live Conversion:</span>
+              <strong>≈ ₹{convertToInr(expenseForm.amount, expenseForm.currency).toLocaleString('en-IN', { minimumFractionDigits: 2 })} INR</strong>
+            </div>
+          )}
 
           <div className="input-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
@@ -782,7 +856,15 @@ export default function PersonalTrackerPage() {
         isOpen={isSmartAddModalOpen}
         onClose={() => setIsSmartAddModalOpen(false)}
       />
+
+      {/* Modal: Automated Recurring Bills & Subscriptions */}
+      <RecurringExpensesModal
+        isOpen={isRecurringModalOpen}
+        onClose={() => setIsRecurringModalOpen(false)}
+        onExpensesUpdated={() => loadPersonalData(selectedMonthYear)}
+      />
     </div>
   );
 }
+
 
