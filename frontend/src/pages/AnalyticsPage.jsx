@@ -81,14 +81,34 @@ export default function AnalyticsPage() {
     loadGroups();
   }, [loadPersonalData, loadGroups, selectedMonthYear]);
 
+  const currentYearStr = selectedMonthYear.split('-')[0];
+
+  // Expenses filtered for current selected month
+  const currentMonthExpenses = useMemo(() => {
+    return personalExpenses.filter((e) =>
+      String(e.expense_date || '').startsWith(selectedMonthYear)
+    );
+  }, [personalExpenses, selectedMonthYear]);
+
+  // Expenses filtered for current selected year
+  const currentYearExpenses = useMemo(() => {
+    return personalExpenses.filter((e) =>
+      String(e.expense_date || '').startsWith(currentYearStr)
+    );
+  }, [personalExpenses, currentYearStr]);
+
+  const monthlySpent = useMemo(() => {
+    return currentMonthExpenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+  }, [currentMonthExpenses]);
+
+  const yearlySpent = useMemo(() => {
+    return currentYearExpenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+  }, [currentYearExpenses]);
+
   // Fetch AI Prediction
   const fetchPrediction = async () => {
     setLoadingAi(true);
     try {
-      const currentMonthSpent = personalExpenses.reduce(
-        (sum, e) => sum + parseFloat(e.amount || 0),
-        0
-      );
       const overallBudgetObj = budgets.find(
         (b) => b.category.toLowerCase() === 'overall'
       );
@@ -98,10 +118,10 @@ export default function AnalyticsPage() {
 
       const res = await api.post('/api/ai/predict', {
         selected_month: selectedMonthYear,
-        monthly_spent: currentMonthSpent,
+        monthly_spent: monthlySpent,
         overall_budget: overallBudget,
         category_budgets: budgets,
-        recent_personal_expenses: personalExpenses.slice(0, 10),
+        recent_personal_expenses: currentMonthExpenses.slice(0, 10),
       });
 
       setAiPrediction(res.data);
@@ -117,14 +137,14 @@ export default function AnalyticsPage() {
     if (personalExpenses.length > 0 || budgets.length > 0) {
       fetchPrediction();
     }
-  }, [selectedMonthYear, personalExpenses.length, budgets.length]);
+  }, [selectedMonthYear, monthlySpent, budgets.length]);
 
-  // ── 1. Calculate Category Totals ──
+  // ── 1. Calculate Category Totals (For Selected Month) ──
   const { categoryData, totalSpent } = useMemo(() => {
     const totals = {};
     let sum = 0;
 
-    personalExpenses.forEach((exp) => {
+    currentMonthExpenses.forEach((exp) => {
       const cat = (exp.category || 'other').toLowerCase();
       const amt = parseFloat(exp.amount || 0);
       totals[cat] = (totals[cat] || 0) + amt;
@@ -144,7 +164,7 @@ export default function AnalyticsPage() {
     data.sort((a, b) => b.value - a.value);
 
     return { categoryData: data, totalSpent: sum };
-  }, [personalExpenses]);
+  }, [currentMonthExpenses]);
 
   // ── 2. Calculate Budget vs Actual Comparison ──
   const budgetComparisonData = useMemo(() => {
@@ -163,22 +183,28 @@ export default function AnalyticsPage() {
     }).filter((item) => item.Spent > 0 || item.Budget > 0);
   }, [budgets, categoryData]);
 
-  // ── 3. Monthly Trends Simulation / Aggregation ──
+  // ── 3. Monthly Trends Real Data Aggregation ──
   const monthlyTrendsData = useMemo(() => {
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const currentMonthNum = parseInt(selectedMonthYear.split('-')[1], 10);
+    const yr = selectedMonthYear.split('-')[0];
     
-    // Generate trend for adjacent months
-    return monthNames.slice(0, Math.max(currentMonthNum, 9)).map((m, idx) => {
+    return monthNames.map((m, idx) => {
       const mNum = idx + 1;
+      const mStr = String(mNum).padStart(2, '0');
+      const ym = `${yr}-${mStr}`;
+      const actualMonthSpent = personalExpenses
+        .filter((e) => String(e.expense_date || '').startsWith(ym))
+        .reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+
       const isSelected = mNum === currentMonthNum;
       return {
         month: m,
-        spent: isSelected ? totalSpent : Math.round(totalSpent * (0.7 + (idx % 4) * 0.15)),
+        spent: parseFloat(actualMonthSpent.toFixed(2)),
         isSelected,
       };
     });
-  }, [selectedMonthYear, totalSpent]);
+  }, [selectedMonthYear, personalExpenses]);
 
   const handleExportCSV = async () => {
     try {
@@ -254,11 +280,19 @@ export default function AnalyticsPage() {
         </div>
 
         <div className="kpi-card cyber-card">
-          <span className="kpi-label">Daily Burn Rate</span>
+          <span className="kpi-label">Yearly Spent ({currentYearStr})</span>
           <span className="kpi-val text-cyan font-mono">
+            ₹{yearlySpent.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+          </span>
+          <span className="kpi-subtext">All expenses in {currentYearStr}</span>
+        </div>
+
+        <div className="kpi-card cyber-card">
+          <span className="kpi-label">Daily Burn Rate</span>
+          <span className="kpi-val text-pink font-mono">
             ₹{(totalSpent / Math.max(1, new Date().getDate())).toFixed(2)}
           </span>
-          <span className="kpi-subtext">Average per day</span>
+          <span className="kpi-subtext">Average per day ({formattedMonth})</span>
         </div>
 
         <div className="kpi-card cyber-card">
@@ -271,7 +305,7 @@ export default function AnalyticsPage() {
             )}
           </span>
           <span className="kpi-subtext">
-            {categoryData.length > 0 ? `${categoryData[0].percentage}% of total spend` : 'Start logging'}
+            {categoryData.length > 0 ? `${categoryData[0].percentage}% of month's spend` : 'Start logging'}
           </span>
         </div>
 

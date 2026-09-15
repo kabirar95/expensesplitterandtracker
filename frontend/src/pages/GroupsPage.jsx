@@ -87,7 +87,7 @@ export default function GroupsPage() {
     removeGroup,
   } = useGroupStore();
 
-  const { currencies, convertToInr } = useCurrencyStore();
+  const { currencies, convertToInr, isLive, source, lastUpdated } = useCurrencyStore();
 
   // Modals & UI state
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -701,21 +701,31 @@ export default function GroupsPage() {
 
           {newExpenseData.currency !== 'INR' && newExpenseData.amount > 0 && (
             <div style={{
-              padding: '8px 12px',
+              padding: '10px 14px',
               marginBottom: '14px',
-              background: 'rgba(6, 182, 212, 0.1)',
-              border: '1px dashed rgba(6, 182, 212, 0.3)',
-              borderRadius: '8px',
+              background: 'rgba(6, 182, 212, 0.08)',
+              border: '1px solid rgba(6, 182, 212, 0.3)',
+              borderRadius: '10px',
               color: '#22d3ee',
-              fontSize: '0.85rem',
+              fontSize: '0.84rem',
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
+              flexDirection: 'column',
+              gap: '4px',
             }}>
-              <span>Live Conversion:</span>
-              <strong>≈ ₹{convertToInr(newExpenseData.amount, newExpenseData.currency).toLocaleString('en-IN', { minimumFractionDigits: 2 })} INR</strong>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.78rem', color: '#94a3b8' }}>
+                  <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: isLive ? '#10b981' : '#f59e0b', display: 'inline-block' }}></span>
+                  {isLive ? `Live Market Rate (${source})` : 'Offline Cached Rate'}: 1 {newExpenseData.currency} = ₹{currencies[newExpenseData.currency]?.rate_to_inr || 1} INR
+                </span>
+                <span style={{ fontSize: '0.75rem', color: '#64748b' }}>{lastUpdated ? lastUpdated.split(' ')[1] : ''}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: '600', fontSize: '0.92rem', color: '#38bdf8' }}>
+                <span>Converted Total:</span>
+                <span>≈ ₹{convertToInr(newExpenseData.amount, newExpenseData.currency).toLocaleString('en-IN', { minimumFractionDigits: 2 })} INR</span>
+              </div>
             </div>
           )}
+
 
           <div className="input-group">
             <label className="input-label">Paid By</label>

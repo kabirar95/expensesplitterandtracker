@@ -16,6 +16,9 @@ const DEFAULT_CURRENCIES = {
 
 const useCurrencyStore = create((set, get) => ({
   currencies: DEFAULT_CURRENCIES,
+  isLive: false,
+  source: 'Local Cache',
+  lastUpdated: null,
   loading: false,
 
   fetchRates: async () => {
@@ -23,7 +26,12 @@ const useCurrencyStore = create((set, get) => ({
     try {
       const res = await api.get('/api/currencies/rates');
       if (res.data?.currencies) {
-        set({ currencies: res.data.currencies });
+        set({
+          currencies: res.data.currencies,
+          isLive: res.data.is_live ?? true,
+          source: res.data.source || 'Live Exchange API',
+          lastUpdated: res.data.last_updated || new Date().toLocaleTimeString(),
+        });
       }
     } catch (err) {
       console.warn('Using default offline currency rates:', err);

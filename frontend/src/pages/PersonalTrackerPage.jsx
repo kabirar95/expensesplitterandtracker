@@ -14,6 +14,7 @@ import {
   BiBrain,
   BiDownload,
   BiRepeat,
+  BiMailSend,
 } from 'react-icons/bi';
 import { HiSparkles } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
@@ -27,6 +28,7 @@ import Modal from '../components/common/Modal';
 import Spinner from '../components/common/Spinner';
 import SmartExpenseModal from '../components/common/SmartExpenseModal';
 import RecurringExpensesModal from '../components/recurring/RecurringExpensesModal';
+import GmailSyncModal from '../components/gmail/GmailSyncModal';
 import api from '../services/api';
 
 import './PersonalTrackerPage.css';
@@ -55,7 +57,7 @@ export default function PersonalTrackerPage() {
   } = usePersonalExpenseStore();
 
   const { processDue } = useRecurringStore();
-  const { currencies, convertToInr, fetchRates } = useCurrencyStore();
+  const { currencies, convertToInr, fetchRates, isLive, source, lastUpdated } = useCurrencyStore();
 
   const [viewMode, setViewMode] = useState('monthly'); // 'monthly' or 'yearly'
 
@@ -64,6 +66,7 @@ export default function PersonalTrackerPage() {
   const [isSetBudgetModalOpen, setIsSetBudgetModalOpen] = useState(false);
   const [isSmartAddModalOpen, setIsSmartAddModalOpen] = useState(false);
   const [isRecurringModalOpen, setIsRecurringModalOpen] = useState(false);
+  const [isGmailModalOpen, setIsGmailModalOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [detectingCategory, setDetectingCategory] = useState(false);
 
@@ -85,6 +88,26 @@ export default function PersonalTrackerPage() {
   const [submitting, setSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('all');
+  const [feedTimeFilter, setFeedTimeFilter] = useState('month'); // 'month' or 'all'
+
+  const handleGmailImportSuccess = (toImport = []) => {
+    loadPersonalData(selectedMonthYear);
+    if (toImport && toImport.length > 0) {
+      // Find latest date among imported transactions
+      const sorted = [...toImport].sort((a, b) => (b.expense_date || '').localeCompare(a.expense_date || ''));
+      const newestDate = sorted[0]?.expense_date;
+      if (newestDate) {
+        const importMonth = newestDate.substring(0, 7);
+        if (importMonth && importMonth !== selectedMonthYear) {
+          setSelectedMonthYear(importMonth);
+          toast.success(
+            `📅 Switched view to ${getFormattedMonthLabel(importMonth)} to display your imported transactions!`,
+            { duration: 4500 }
+          );
+        }
+      }
+    }
+  };
 
   const handleAutoDetectCategory = async () => {
     if (!expenseForm.description.trim()) {
@@ -203,7 +226,8 @@ export default function PersonalTrackerPage() {
 
   // Filtered Expenses for Feed
   const filteredExpenses = personalExpenses.filter((e) => {
-    const matchesMonth = String(e.expense_date || '').startsWith(selectedMonthYear);
+    const matchesMonth =
+      feedTimeFilter === 'all' || String(e.expense_date || '').startsWith(selectedMonthYear);
     const matchesSearch = e.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory =
       selectedCategoryFilter === 'all' || e.category.toLowerCase() === selectedCategoryFilter;
@@ -307,6 +331,14 @@ export default function PersonalTrackerPage() {
           <p>Track your private daily expenses and monitor category budget limits!</p>
         </div>
         <div className="tracker-header-buttons">
+          <Button
+            variant="outline"
+            icon={BiMailSend}
+            onClick={() => setIsGmailModalOpen(true)}
+            title="Auto-detect bank and UPI alerts from Gmail or paste statements"
+          >
+            📧 Bank & UPI Sync
+          </Button>
           <Button
             variant="outline"
             icon={BiRepeat}
@@ -623,6 +655,16 @@ export default function PersonalTrackerPage() {
               />
             </div>
 
+            {/* Time Period Filter (Selected Month vs All Time) */}
+            <select
+              value={feedTimeFilter}
+              onChange={(e) => setFeedTimeFilter(e.target.value)}
+              className="category-filter-select"
+            >
+              <option value="month">📅 {getFormattedMonthLabel(selectedMonthYear)}</option>
+              <option value="all">🌐 All Months ({personalExpenses.length} Total)</option>
+            </select>
+
             {/* Category Filter dropdown */}
             <select
               value={selectedCategoryFilter}
@@ -646,15 +688,30 @@ export default function PersonalTrackerPage() {
         ) : filteredExpenses.length === 0 ? (
           <div className="empty-state py-10">
             <BiWallet className="empty-icon" />
-            <p>No personal expenses found.</p>
-            <Button
-              variant="outline"
-              size="sm"
-              icon={BiPlus}
-              onClick={() => setIsAddExpenseModalOpen(true)}
-            >
-              Add First Expense
-            </Button>
+            <p>
+              {feedTimeFilter === 'month' && personalExpenses.length > 0
+                ? `No expenses found in ${getFormattedMonthLabel(selectedMonthYear)} (${personalExpenses.length} found in other months).`
+                : 'No personal expenses found.'}
+            </p>
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '12px' }}>
+              {feedTimeFilter === 'month' && personalExpenses.length > 0 && (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setFeedTimeFilter('all')}
+                >
+                  View All Months ({personalExpenses.length})
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                icon={BiPlus}
+                onClick={() => setIsAddExpenseModalOpen(true)}
+              >
+                Add Expense
+              </Button>
+            </div>
           </div>
         ) : (
           <div className="expenses-feed-list">
@@ -736,21 +793,31 @@ export default function PersonalTrackerPage() {
 
           {expenseForm.currency !== 'INR' && expenseForm.amount > 0 && (
             <div style={{
-              padding: '8px 12px',
+              padding: '10px 14px',
               marginBottom: '14px',
-              background: 'rgba(6, 182, 212, 0.1)',
-              border: '1px dashed rgba(6, 182, 212, 0.3)',
-              borderRadius: '8px',
+              background: 'rgba(6, 182, 212, 0.08)',
+              border: '1px solid rgba(6, 182, 212, 0.3)',
+              borderRadius: '10px',
               color: '#22d3ee',
-              fontSize: '0.85rem',
+              fontSize: '0.84rem',
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
+              flexDirection: 'column',
+              gap: '4px',
             }}>
-              <span>Live Conversion:</span>
-              <strong>≈ ₹{convertToInr(expenseForm.amount, expenseForm.currency).toLocaleString('en-IN', { minimumFractionDigits: 2 })} INR</strong>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.78rem', color: '#94a3b8' }}>
+                  <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: isLive ? '#10b981' : '#f59e0b', display: 'inline-block' }}></span>
+                  {isLive ? `Live Market Rate (${source})` : 'Offline Cached Rate'}: 1 {expenseForm.currency} = ₹{currencies[expenseForm.currency]?.rate_to_inr || 1} INR
+                </span>
+                <span style={{ fontSize: '0.75rem', color: '#64748b' }}>{lastUpdated ? lastUpdated.split(' ')[1] : ''}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: '600', fontSize: '0.92rem', color: '#38bdf8' }}>
+                <span>Converted Total:</span>
+                <span>≈ ₹{convertToInr(expenseForm.amount, expenseForm.currency).toLocaleString('en-IN', { minimumFractionDigits: 2 })} INR</span>
+              </div>
             </div>
           )}
+
 
           <div className="input-group">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
@@ -863,8 +930,16 @@ export default function PersonalTrackerPage() {
         onClose={() => setIsRecurringModalOpen(false)}
         onExpensesUpdated={() => loadPersonalData(selectedMonthYear)}
       />
+
+      {/* Modal: Gmail & UPI Bank Transaction Detection */}
+      <GmailSyncModal
+        isOpen={isGmailModalOpen}
+        onClose={() => setIsGmailModalOpen(false)}
+        onImportSuccess={handleGmailImportSuccess}
+      />
     </div>
   );
 }
+
 
 

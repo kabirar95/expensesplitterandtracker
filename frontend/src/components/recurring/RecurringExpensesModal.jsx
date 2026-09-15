@@ -40,7 +40,7 @@ const CATEGORIES = [
 
 export default function RecurringExpensesModal({ isOpen, onClose, onExpensesUpdated }) {
   const { rules, loading, fetchRules, createRule, updateRule, deleteRule, processDue } = useRecurringStore();
-  const { currencies, convertToInr } = useCurrencyStore();
+  const { currencies, convertToInr, isLive, source, lastUpdated } = useCurrencyStore();
 
   const [activeTab, setActiveTab] = useState('list'); // 'list' | 'add'
   const [processing, setProcessing] = useState(false);
@@ -305,10 +305,21 @@ export default function RecurringExpensesModal({ isOpen, onClose, onExpensesUpda
             </div>
 
             {form.currency !== 'INR' && form.amount && (
-              <div className="currency-preview-pill">
-                <span>≈ ₹{convertToInr(form.amount, form.currency).toLocaleString('en-IN')} INR (Auto-converted at live rate)</span>
+              <div className="currency-preview-pill" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '0.78rem', color: '#94a3b8' }}>
+                    <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: isLive ? '#10b981' : '#f59e0b', display: 'inline-block' }}></span>
+                    {isLive ? `Live Market Rate (${source})` : 'Offline Cached Rate'}: 1 {form.currency} = ₹{currencies[form.currency]?.rate_to_inr || 1} INR
+                  </span>
+                  <span style={{ fontSize: '0.75rem', color: '#64748b' }}>{lastUpdated ? lastUpdated.split(' ')[1] : ''}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: '600', fontSize: '0.92rem', color: '#38bdf8' }}>
+                  <span>Converted Total:</span>
+                  <span>≈ ₹{convertToInr(form.amount, form.currency).toLocaleString('en-IN', { minimumFractionDigits: 2 })} INR</span>
+                </div>
               </div>
             )}
+
 
             <div className="form-row-2">
               <div className="form-group">
