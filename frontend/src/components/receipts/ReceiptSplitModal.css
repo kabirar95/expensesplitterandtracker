@@ -28,9 +28,9 @@
 }
 
 .receipt-modal-container {
-  background: rgba(17, 21, 35, 0.95);
-  border: 1px solid rgba(0, 240, 255, 0.2);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 240, 255, 0.1);
+  background: rgba(15, 15, 19, 0.96);
+  border: 1px solid rgba(225, 29, 72, 0.28);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7), 0 0 24px rgba(225, 29, 72, 0.12);
   border-radius: 16px;
   width: 100%;
   max-width: 820px;
@@ -49,7 +49,7 @@
   width: 6px;
 }
 .receipt-modal-container::-webkit-scrollbar-thumb {
-  background: rgba(0, 240, 255, 0.2);
+  background: rgba(225, 29, 72, 0.25);
   border-radius: 4px;
 }
 
@@ -74,9 +74,9 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #00f0ff;
-  background: rgba(0, 240, 255, 0.1);
-  border: 1px solid rgba(0, 240, 255, 0.3);
+  color: #ff4d6d;
+  background: rgba(225, 29, 72, 0.1);
+  border: 1px solid rgba(225, 29, 72, 0.3);
   padding: 0.25rem 0.65rem;
   border-radius: 20px;
 }
@@ -122,7 +122,7 @@
 }
 
 .upload-dropzone {
-  border: 2px dashed rgba(0, 240, 255, 0.3);
+  border: 2px dashed rgba(225, 29, 72, 0.35);
   border-radius: 12px;
   padding: 2.5rem 1.5rem;
   background: rgba(0, 0, 0, 0.25);
@@ -132,8 +132,8 @@
 }
 
 .upload-dropzone:hover {
-  border-color: #00f0ff;
-  background: rgba(0, 240, 255, 0.03);
+  border-color: #e11d48;
+  background: rgba(225, 29, 72, 0.04);
 }
 
 .file-hidden-input {
@@ -158,9 +158,9 @@
 
 .dropzone-icon {
   font-size: 3rem;
-  color: #00f0ff;
-  opacity: 0.8;
-  filter: drop-shadow(0 0 12px rgba(0, 240, 255, 0.4));
+  color: #ff4d6d;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 12px rgba(225, 29, 72, 0.35));
 }
 
 .dropzone-title {
@@ -179,7 +179,7 @@
   max-width: 280px;
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid rgba(0, 240, 255, 0.3);
+  border: 1px solid rgba(225, 29, 72, 0.3);
 }
 
 .receipt-preview-img {
@@ -228,15 +228,15 @@
   font-size: 0.85rem;
   color: #94a3b8;
   padding: 0.5rem;
-  background: rgba(0, 240, 255, 0.03);
-  border: 1px dashed rgba(0, 240, 255, 0.2);
+  background: rgba(225, 29, 72, 0.04);
+  border: 1px dashed rgba(225, 29, 72, 0.25);
   border-radius: 8px;
 }
 
 .manual-link-btn {
   background: none;
   border: none;
-  color: #00f0ff;
+  color: #ff4d6d;
   font-weight: 600;
   cursor: pointer;
   text-decoration: underline;
@@ -266,12 +266,12 @@
   height: 220px;
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid rgba(0, 240, 255, 0.4);
+  border: 1px solid rgba(225, 29, 72, 0.4);
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 25px rgba(0, 240, 255, 0.2);
+  box-shadow: 0 0 20px rgba(225, 29, 72, 0.25);
 }
 
 .scanning-img {
@@ -283,8 +283,8 @@
 
 .scanning-icon-large {
   font-size: 4rem;
-  color: #00f0ff;
-  opacity: 0.5;
+  color: #ff4d6d;
+  opacity: 0.6;
 }
 
 .laser-scanner-line {
@@ -293,8 +293,8 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: #00f0ff;
-  box-shadow: 0 0 15px #00f0ff, 0 0 30px #00f0ff;
+  background: #ff2a44;
+  box-shadow: 0 0 12px #ff2a44, 0 0 24px rgba(225, 29, 72, 0.5);
   animation: scanSweep 2s ease-in-out infinite alternate;
   z-index: 5;
 }
@@ -310,7 +310,7 @@
 
 .receipt-step-scanning h3 {
   font-size: 1.2rem;
-  color: #00f0ff;
+  color: #ff4d6d;
   margin: 0;
 }
 
@@ -464,9 +464,9 @@
 }
 
 .chip-btn.chip-active {
-  background: rgba(0, 240, 255, 0.15);
-  border-color: #00f0ff;
-  color: #00f0ff;
+  background: rgba(225, 29, 72, 0.15);
+  border-color: #ff4d6d;
+  color: #ff4d6d;
   font-weight: 600;
 }
 
@@ -488,7 +488,7 @@
   background: rgba(10, 12, 20, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 4px;
-  color: #00f0ff;
+  color: #ffffff;
   font-family: monospace;
   font-size: 0.95rem;
   font-weight: 600;
@@ -498,7 +498,7 @@
 }
 
 .item-price-input:focus {
-  border-color: #00f0ff;
+  border-color: #e11d48;
 }
 
 .item-delete-btn {
@@ -532,8 +532,8 @@
 
 .add-item-row-btn {
   background: transparent;
-  border: 1px dashed rgba(0, 240, 255, 0.4);
-  color: #00f0ff;
+  border: 1px dashed rgba(225, 29, 72, 0.4);
+  color: #ff4d6d;
   font-size: 0.8rem;
   font-weight: 600;
   padding: 0.35rem 0.75rem;
@@ -546,7 +546,7 @@
 }
 
 .add-item-row-btn:hover {
-  background: rgba(0, 240, 255, 0.1);
+  background: rgba(225, 29, 72, 0.1);
 }
 
 .food-subtotal-tag {
@@ -649,9 +649,9 @@
 }
 
 .grand-total-badge {
-  background: rgba(0, 240, 255, 0.12);
-  border: 1px solid rgba(0, 240, 255, 0.3);
-  color: #00f0ff;
+  background: rgba(225, 29, 72, 0.12);
+  border: 1px solid rgba(225, 29, 72, 0.3);
+  color: #ff4d6d;
   font-family: monospace;
   font-size: 0.85rem;
   font-weight: 700;
@@ -674,7 +674,7 @@
   padding: 0.45rem 0.6rem;
   background: rgba(0, 0, 0, 0.2);
   border-radius: 6px;
-  border-left: 3px solid #00f0ff;
+  border-left: 3px solid var(--color-primary);
 }
 
 .breakdown-col-name {
@@ -697,7 +697,7 @@
   font-family: monospace;
   font-size: 0.9rem;
   font-weight: 700;
-  color: #00f0ff;
+  color: #ff4d6d;
 }
 
 /* Footer Actions */

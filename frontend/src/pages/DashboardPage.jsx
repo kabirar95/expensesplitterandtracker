@@ -40,9 +40,9 @@ export default function DashboardPage() {
       {/* Welcome Banner */}
       <div className="welcome-banner cyber-card">
         <div className="welcome-text">
-          <span className="badge-chip">✨ DIVVY CYBER-SYSTEM v1.0</span>
+          <span className="badge-chip">DIVVY EXECUTIVE PLATFORM</span>
           <h2>Welcome back, <span className="gradient-text">{user?.display_name || user?.username || 'User'}</span>!</h2>
-          <p>Manage your group splits, track personal budgets, and monitor your overall financial health.</p>
+          <p>Manage group splits, track monthly expenses, and monitor financial health.</p>
         </div>
         <div className="welcome-quick-actions">
           <Button
@@ -51,7 +51,7 @@ export default function DashboardPage() {
             onClick={() => setIsSmartAddOpen(true)}
             title="Paste bank SMS or casual note to auto-extract with Divvy AI"
           >
-            ⚡ Smart Add (SMS / AI)
+            Smart Add (Divvy AI)
           </Button>
           <Link to="/groups">
             <Button variant="primary" icon={BiPlusCircle}>

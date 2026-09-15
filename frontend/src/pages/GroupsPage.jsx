@@ -13,6 +13,8 @@ import {
   BiCheckDouble,
   BiDownload,
   BiCamera,
+  BiQrScan,
+  BiCheck,
 } from 'react-icons/bi';
 import { toast } from 'react-hot-toast';
 
@@ -471,7 +473,7 @@ export default function GroupsPage() {
                       onClick={() => setIsReceiptModalOpen(true)}
                       title="Scan dining bill photo with Divvy AI and itemize splits"
                     >
-                      📸 Scan Bill & Itemize
+                      Scan Bill & Itemize
                     </Button>
                     <Button
                       variant="outline"
@@ -586,7 +588,7 @@ export default function GroupsPage() {
                               onClick={() => handleOpenUpiModal(s)}
                               title="Pay via UPI Deep Link / QR Code"
                             >
-                              ⚡ Pay via UPI
+                              <BiQrScan style={{ marginRight: 4, verticalAlign: 'middle' }} /> Pay via UPI
                             </button>
                             <button
                               type="button"
@@ -594,7 +596,7 @@ export default function GroupsPage() {
                               onClick={() => handleRecordSettlement({ debtorName: s.from, creditorName: s.to, amount: s.amount })}
                               title="Record payment without UPI"
                             >
-                              ✓ Settle
+                              <BiCheck style={{ marginRight: 2, verticalAlign: 'middle' }} /> Settle
                             </button>
                           </div>
                         </div>

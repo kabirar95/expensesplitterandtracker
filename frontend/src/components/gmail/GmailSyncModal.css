@@ -13,10 +13,10 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: rgba(139, 92, 246, 0.12);
-  border: 1px solid rgba(139, 92, 246, 0.25);
+  background: rgba(225, 29, 72, 0.12);
+  border: 1px solid rgba(225, 29, 72, 0.3);
   border-radius: 9999px;
-  color: #c084fc;
+  color: #ff4d6d;
   font-size: 0.78rem;
   font-weight: 600;
   width: fit-content;
@@ -24,7 +24,7 @@
 
 .sync-ai-badge .sparkle-icon {
   font-size: 1rem;
-  color: #f43f5e;
+  color: #ff4d6d;
 }
 
 /* Tabs */
@@ -49,16 +49,16 @@
   border-radius: 8px;
   color: #94a3b8;
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .sync-tab-btn.active {
-  background: rgba(6, 182, 212, 0.15);
-  color: #22d3ee;
-  border: 1px solid rgba(6, 182, 212, 0.3);
-  box-shadow: 0 0 14px rgba(6, 182, 212, 0.15);
+  background: rgba(225, 29, 72, 0.15);
+  color: #ff4d6d;
+  border: 1px solid rgba(225, 29, 72, 0.35);
+  box-shadow: 0 0 14px rgba(225, 29, 72, 0.15);
 }
 
 /* Connect Card */

@@ -23,14 +23,14 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: var(--bg-tertiary);
+  border: 1px solid rgba(225, 29, 72, 0.25);
   border-radius: var(--radius-md, 8px);
   padding: 0.35rem 0.75rem;
 }
 
 .analytics-month-selector .month-icon {
-  color: var(--primary, #8b5cf6);
+  color: var(--color-primary, #e11d48);
   font-size: 1.125rem;
 }
 
@@ -242,11 +242,11 @@
 
 /* Tooltip */
 .cyber-chart-tooltip {
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid rgba(139, 92, 246, 0.4);
+  background: rgba(15, 15, 19, 0.95);
+  border: 1px solid rgba(225, 29, 72, 0.35);
   border-radius: 8px;
   padding: 0.5rem 0.75rem;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 10px rgba(225, 29, 72, 0.15);
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -254,23 +254,23 @@
 
 .tooltip-title {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
 .tooltip-amount {
   font-size: 0.9375rem;
   font-weight: 700;
-  color: #c084fc;
+  color: #ff4d6d;
 }
 
 /* AI Forecast Card */
 .ai-forecast-card {
   padding: 1.5rem;
   border-radius: var(--radius-lg, 12px);
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 27, 75, 0.6) 100%);
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  box-shadow: 0 0 30px rgba(139, 92, 246, 0.1);
+  background: linear-gradient(135deg, rgba(15, 15, 19, 0.95) 0%, rgba(225, 29, 72, 0.05) 100%);
+  border: 1px solid var(--border-glow);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), 0 0 16px rgba(225, 29, 72, 0.12);
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -294,13 +294,14 @@
   width: 44px;
   height: 44px;
   border-radius: 12px;
-  background: rgba(139, 92, 246, 0.2);
-  border: 1px solid rgba(139, 92, 246, 0.4);
+  background: rgba(225, 29, 72, 0.12);
+  border: 1px solid rgba(225, 29, 72, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #c084fc;
+  color: #ff4d6d;
   font-size: 1.5rem;
+  box-shadow: 0 0 10px rgba(225, 29, 72, 0.2);
 }
 
 .ai-badge-row {

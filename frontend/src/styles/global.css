@@ -37,6 +37,7 @@ h6 { font-size: var(--font-size-base); }
 /* ── Numbers / Amounts ── */
 .font-mono, .amount-display, .currency-tag {
   font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── Paragraphs ── */
@@ -77,18 +78,18 @@ a:hover {
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--glass-shadow), var(--card-highlight);
   transition: all var(--transition-base);
 }
 
 .cyber-card:hover {
   border-color: var(--border-glow);
-  box-shadow: var(--glow-primary);
+  box-shadow: var(--glow-primary), var(--card-highlight);
 }
 
 /* ── Gradient Text ── */
 .gradient-text {
-  background: linear-gradient(135deg, var(--color-primary), var(--color-accent-cyan));
+  background: linear-gradient(135deg, #ffffff 35%, var(--color-accent-crimson) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }

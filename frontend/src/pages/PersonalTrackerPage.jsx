@@ -16,6 +16,15 @@ import {
   BiRepeat,
   BiMailSend,
   BiSpreadsheet,
+  BiChevronLeft,
+  BiChevronRight,
+  BiRestaurant,
+  BiHomeAlt,
+  BiShoppingBag,
+  BiCar,
+  BiFilm,
+  BiPulse,
+  BiPackage,
 } from 'react-icons/bi';
 import { HiSparkles } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
@@ -36,13 +45,13 @@ import api from '../services/api';
 import './PersonalTrackerPage.css';
 
 const CATEGORY_MAP = {
-  food: { name: 'Food & Dining', icon: '🍔', color: '#8b5cf6' },
-  rent: { name: 'Rent & Bills', icon: '🏠', color: '#06b6d4' },
-  shopping: { name: 'Shopping', icon: '🛍️', color: '#ec4899' },
-  travel: { name: 'Travel & Cab', icon: '🚗', color: '#f59e0b' },
-  entertainment: { name: 'Entertainment', icon: '🎬', color: '#10b981' },
-  health: { name: 'Health & Fitness', icon: '🩺', color: '#3b82f6' },
-  other: { name: 'Other / Misc', icon: '📦', color: '#6b7280' },
+  food: { name: 'Food & Dining', Icon: BiRestaurant, color: '#e11d48' },
+  rent: { name: 'Rent & Bills', Icon: BiHomeAlt, color: '#ff4d6d' },
+  shopping: { name: 'Shopping', Icon: BiShoppingBag, color: '#f43f5e' },
+  travel: { name: 'Travel & Cab', Icon: BiCar, color: '#f59e0b' },
+  entertainment: { name: 'Entertainment', Icon: BiFilm, color: '#10b981' },
+  health: { name: 'Health & Fitness', Icon: BiPulse, color: '#38bdf8' },
+  other: { name: 'Other / Misc', Icon: BiPackage, color: '#71717a' },
 };
 
 export default function PersonalTrackerPage() {
@@ -143,7 +152,7 @@ export default function PersonalTrackerPage() {
       });
       if (res.data?.category && CATEGORY_MAP[res.data.category]) {
         setExpenseForm((prev) => ({ ...prev, category: res.data.category }));
-        toast.success(`✨ Category set to ${CATEGORY_MAP[res.data.category].name}!`);
+        toast.success(`Category set to ${CATEGORY_MAP[res.data.category].name}!`);
       }
     } catch (err) {
       console.error(err);
@@ -358,7 +367,7 @@ export default function PersonalTrackerPage() {
             onClick={() => setIsStatementModalOpen(true)}
             title="Upload bank e-statement PDF or CSV to batch-import transactions"
           >
-            📄 Bank Statement (PDF/CSV)
+            Bank Statement (PDF/CSV)
           </Button>
           <Button
             variant="outline"
@@ -366,7 +375,7 @@ export default function PersonalTrackerPage() {
             onClick={() => setIsGmailModalOpen(true)}
             title="Auto-detect bank and UPI alerts from Gmail or paste statements"
           >
-            📧 Bank & UPI Sync
+            Bank & UPI Sync
           </Button>
           <Button
             variant="outline"
@@ -374,7 +383,7 @@ export default function PersonalTrackerPage() {
             onClick={() => setIsRecurringModalOpen(true)}
             title="Manage automated recurring bills & subscriptions"
           >
-            🔁 Recurring Bills
+            Recurring Bills
           </Button>
           <Button
             variant="outline"
@@ -398,7 +407,7 @@ export default function PersonalTrackerPage() {
             onClick={() => setIsSmartAddModalOpen(true)}
             title="Paste bank SMS or casual note to auto-extract with Divvy AI"
           >
-            ⚡ Smart Add (SMS / AI)
+            Smart Add (Divvy AI)
           </Button>
           <Button
             variant="primary"
@@ -417,20 +426,20 @@ export default function PersonalTrackerPage() {
             className={`tab-btn ${viewMode === 'monthly' ? 'active' : ''}`}
             onClick={() => setViewMode('monthly')}
           >
-            📅 Monthly View
+            Monthly View
           </button>
           <button
             className={`tab-btn ${viewMode === 'yearly' ? 'active' : ''}`}
             onClick={() => setViewMode('yearly')}
           >
-            📈 Yearly Horizon ({selectedMonthYear.substring(0, 4)})
+            Yearly Horizon ({selectedMonthYear.substring(0, 4)})
           </button>
         </div>
 
         {viewMode === 'monthly' && (
           <div className="month-navigator">
             <button className="nav-arrow-btn" onClick={handlePrevMonth} title="Previous Month">
-              ◀
+              <BiChevronLeft />
             </button>
             <div className="current-month-display">
               <span className="month-text">{getFormattedMonthLabel(selectedMonthYear)}</span>
@@ -442,7 +451,7 @@ export default function PersonalTrackerPage() {
               />
             </div>
             <button className="nav-arrow-btn" onClick={handleNextMonth} title="Next Month">
-              ▶
+              <BiChevronRight />
             </button>
           </div>
         )}
@@ -569,7 +578,7 @@ export default function PersonalTrackerPage() {
                   <div key={catKey} className={`category-budget-card ${statusClass}`}>
                     <div className="budget-card-header">
                       <div className="category-title-icon">
-                        <span className="cat-emoji">{catMeta.icon}</span>
+                        <span className="cat-emoji">{catMeta.Icon ? <catMeta.Icon /> : null}</span>
                         <span className="cat-title">{catMeta.name}</span>
                       </div>
                       <button
@@ -748,8 +757,8 @@ export default function PersonalTrackerPage() {
               const catMeta = CATEGORY_MAP[exp.category?.toLowerCase()] || CATEGORY_MAP.other;
               return (
                 <div key={exp.id} className="personal-expense-item">
-                  <div className="category-emoji-box" style={{ backgroundColor: `${catMeta.color}20` }}>
-                    {catMeta.icon}
+                  <div className="category-emoji-box" style={{ backgroundColor: `${catMeta.color}18`, color: catMeta.color }}>
+                    {catMeta.Icon ? <catMeta.Icon /> : null}
                   </div>
 
                   <div className="expense-details">
@@ -869,7 +878,7 @@ export default function PersonalTrackerPage() {
                   transition: 'all 0.2s',
                 }}
               >
-                <HiSparkles /> {detectingCategory ? 'Detecting...' : '✨ Auto-Detect'}
+                <HiSparkles /> {detectingCategory ? 'Detecting...' : 'Auto-Detect'}
               </button>
             </div>
             <select
@@ -879,7 +888,7 @@ export default function PersonalTrackerPage() {
             >
               {Object.entries(CATEGORY_MAP).map(([k, v]) => (
                 <option key={k} value={k}>
-                  {v.icon} {v.name}
+                  {v.name}
                 </option>
               ))}
             </select>
@@ -919,11 +928,11 @@ export default function PersonalTrackerPage() {
               value={budgetForm.category}
               onChange={(e) => setBudgetForm({ ...budgetForm, category: e.target.value })}
             >
-              <option value="overall">🌟 Overall Monthly Budget (Main Target)</option>
+              <option value="overall">Overall Monthly Budget (Main Target)</option>
               <optgroup label="Category Breakdowns">
                 {Object.entries(CATEGORY_MAP).map(([k, v]) => (
                   <option key={k} value={k}>
-                    {v.icon} {v.name}
+                    {v.name}
                   </option>
                 ))}
               </optgroup>

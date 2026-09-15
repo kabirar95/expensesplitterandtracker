@@ -303,7 +303,7 @@
 .settlements-widget {
   padding: var(--space-4);
   border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.06), rgba(6, 182, 212, 0.06));
+  background: rgba(225, 29, 72, 0.04);
   border: 1px solid var(--border-glow);
   display: flex;
   flex-direction: column;
@@ -315,7 +315,7 @@
   font-weight: var(--font-weight-bold);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--color-primary-light);
+  color: #ff4d6d;
 }
 
 .all-settled-badge {
@@ -372,28 +372,29 @@
 .settlement-amount {
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-base);
-  color: var(--color-cyan);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
 }
 
 .settle-upi-btn {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   color: #ffffff;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   padding: 6px 12px;
   border-radius: var(--radius-md);
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 2px 8px rgba(225, 29, 72, 0.25);
   transition: all 0.2s ease-in-out;
 }
 
 .settle-upi-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.45);
+  box-shadow: var(--glow-primary);
 }
 
 .settle-offline-btn {

@@ -11,24 +11,24 @@
 }
 
 .smart-modal-desc strong {
-  color: var(--primary, #8b5cf6);
+  color: var(--color-primary, #e11d48);
 }
 
 .smart-input-box {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: var(--bg-tertiary);
+  border: 1px solid rgba(225, 29, 72, 0.28);
   border-radius: var(--radius-lg, 12px);
   padding: 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.1);
+  box-shadow: 0 0 14px rgba(225, 29, 72, 0.12);
   transition: all 0.2s ease;
 }
 
 .smart-input-box:focus-within {
-  border-color: var(--primary, #8b5cf6);
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.25);
+  border-color: var(--color-primary, #e11d48);
+  box-shadow: 0 0 16px rgba(225, 29, 72, 0.22);
 }
 
 .smart-textarea {

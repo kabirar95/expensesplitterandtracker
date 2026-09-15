@@ -23,12 +23,12 @@
 }
 
 .upi-hero-amount-card {
-  background: linear-gradient(135deg, rgba(30, 27, 75, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: linear-gradient(135deg, rgba(225, 29, 72, 0.08) 0%, rgba(15, 15, 19, 0.95) 100%);
+  border: 1px solid rgba(225, 29, 72, 0.3);
   border-radius: 14px;
   padding: 16px 20px;
   text-align: center;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 12px rgba(225, 29, 72, 0.12);
 }
 
 .upi-hero-direction {
@@ -69,7 +69,8 @@
   font-weight: 800;
   color: #ffffff;
   letter-spacing: -0.02em;
-  text-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+  text-shadow: 0 0 14px rgba(225, 29, 72, 0.35);
+  font-variant-numeric: tabular-nums;
 }
 
 .upi-hero-group {
@@ -188,7 +189,7 @@
   padding: 12px;
   background: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 0 25px rgba(139, 92, 246, 0.35);
+  box-shadow: 0 0 20px rgba(225, 29, 72, 0.28);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -219,19 +220,20 @@
   gap: 10px;
   width: 100%;
   padding: 14px 20px;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   color: #ffffff;
   text-decoration: none;
   border-radius: 12px;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 0.95rem;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   transition: all 0.2s ease-in-out;
 }
 
 .upi-launch-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+  transform: translateY(-1px);
+  box-shadow: var(--glow-primary);
 }
 
 .launch-icon {

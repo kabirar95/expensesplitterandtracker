@@ -36,13 +36,13 @@ import api from '../services/api';
 import './AnalyticsPage.css';
 
 const CATEGORY_MAP = {
-  food: { name: 'Food & Dining', icon: '🍔', color: '#8b5cf6' },
-  rent: { name: 'Rent & Bills', icon: '🏠', color: '#06b6d4' },
-  shopping: { name: 'Shopping', icon: '🛍️', color: '#ec4899' },
-  travel: { name: 'Travel & Cab', icon: '🚗', color: '#f59e0b' },
-  entertainment: { name: 'Entertainment', icon: '🎬', color: '#10b981' },
-  health: { name: 'Health & Fitness', icon: '🩺', color: '#3b82f6' },
-  other: { name: 'Other / Misc', icon: '📦', color: '#64748b' },
+  food: { name: 'Food & Dining', color: '#e11d48' },
+  rent: { name: 'Rent & Bills', color: '#ff4d6d' },
+  shopping: { name: 'Shopping', color: '#f43f5e' },
+  travel: { name: 'Travel & Cab', color: '#f59e0b' },
+  entertainment: { name: 'Entertainment', color: '#10b981' },
+  health: { name: 'Health & Fitness', color: '#38bdf8' },
+  other: { name: 'Other / Misc', color: '#71717a' },
 };
 
 // Custom Cybertech Tooltip for Recharts
@@ -154,8 +154,7 @@ export default function AnalyticsPage() {
     const data = Object.entries(totals).map(([catKey, val]) => ({
       key: catKey,
       name: CATEGORY_MAP[catKey]?.name || catKey,
-      icon: CATEGORY_MAP[catKey]?.icon || '📦',
-      color: CATEGORY_MAP[catKey]?.color || '#8b5cf6',
+      color: CATEGORY_MAP[catKey]?.color || '#e11d48',
       value: parseFloat(val.toFixed(2)),
       percentage: sum > 0 ? Math.round((val / sum) * 100) : 0,
     }));
@@ -175,7 +174,6 @@ export default function AnalyticsPage() {
       return {
         name: catInfo.name.split(' ')[0], // short name
         fullName: catInfo.name,
-        icon: catInfo.icon,
         color: catInfo.color,
         Spent: spent,
         Budget: budgetLimit,
@@ -370,7 +368,7 @@ export default function AnalyticsPage() {
                     <div className="legend-left">
                       <span className="legend-dot" style={{ backgroundColor: item.color }} />
                       <span className="legend-name">
-                        {item.icon} {item.name}
+                        {item.name}
                       </span>
                     </div>
                     <div className="legend-right font-mono">

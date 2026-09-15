@@ -20,17 +20,26 @@
   gap: var(--space-3);
 }
 
-.navbar-logo-icon {
-  font-size: 1.85rem;
-  filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.5));
+.navbar-logo-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent-ruby));
+  color: #ffffff;
+  font-weight: var(--font-weight-black);
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 14px rgba(225, 29, 72, 0.35);
+  letter-spacing: -0.02em;
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .navbar-logo-text {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-black);
-  background: linear-gradient(135deg, var(--color-primary), var(--color-accent-cyan));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text-primary);
   letter-spacing: -0.03em;
 }
 

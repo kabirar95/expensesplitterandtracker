@@ -15,7 +15,7 @@ export default function Navbar() {
   return (
     <header className="navbar">
       <div className="navbar-brand">
-        <span className="navbar-logo-icon">💸</span>
+        <div className="navbar-logo-badge">D</div>
         <span className="navbar-logo-text">Divvy</span>
       </div>
 

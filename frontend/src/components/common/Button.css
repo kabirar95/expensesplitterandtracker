@@ -45,15 +45,15 @@
 .btn-primary {
   background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
   color: #ffffff;
-  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 14px rgba(225, 29, 72, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 .btn-primary:hover:not(:disabled) {
   box-shadow: var(--glow-primary);
-  transform: translateY(-2px) scale(1.02);
+  transform: translateY(-1px);
 }
 .btn-primary:active:not(:disabled) {
-  transform: translateY(0) scale(0.98);
+  transform: translateY(0);
 }
 
 .btn-secondary {
@@ -74,9 +74,9 @@
 }
 .btn-outline:hover:not(:disabled) {
   border-color: var(--color-primary);
-  color: var(--color-primary);
+  color: #ff4d6d;
   background-color: var(--color-primary-ghost);
-  box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+  box-shadow: 0 0 12px rgba(225, 29, 72, 0.16);
 }
 
 .btn-ghost {
