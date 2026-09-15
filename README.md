@@ -41,4 +41,4 @@ docker compose up --build
 
 ---
 
-*Built with ❤️ by Kabir Ramteke*
+
