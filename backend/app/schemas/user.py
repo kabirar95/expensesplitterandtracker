@@ -31,6 +31,7 @@ class UserUpdate(BaseModel):
     display_name: Optional[str] = None
     avatar_url: Optional[str] = None
     default_currency: Optional[str] = None
+    upi_id: Optional[str] = None
     email_digest_enabled: Optional[bool] = None
 
 
@@ -46,6 +47,7 @@ class UserResponse(BaseModel):
     display_name: str
     avatar_url: Optional[str] = None
     default_currency: str = "INR"
+    upi_id: Optional[str] = None
     email_digest_enabled: bool = False
     created_at: datetime
 

@@ -52,5 +52,6 @@ async def get_current_user(
         display_name=user_data.get("display_name", ""),
         avatar_url=user_data.get("avatar_url"),
         default_currency=user_data.get("default_currency", "INR"),
+        upi_id=user_data.get("upi_id"),
         email_digest_enabled=user_data.get("email_digest_enabled", False),
     )

@@ -1,0 +1,15 @@
+{
+  "name": "divvy-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Divvy — Full-Stack Expense Splitter and Personal Finance Tracker",
+  "scripts": {
+    "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"magenta.bold,cyan.bold\" --kill-others \"cd backend && python3 -m uvicorn app.main:app --reload --port 8000\" \"cd frontend && npm run dev\"",
+    "dev:backend": "cd backend && python3 -m uvicorn app.main:app --reload --port 8000",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

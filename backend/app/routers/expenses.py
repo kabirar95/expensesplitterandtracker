@@ -3,8 +3,11 @@
 # ============================================================
 
 import uuid
+import csv
+from io import StringIO
 from datetime import datetime
 from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi.responses import Response
 
 from app.models.user import UserProfile
 from app.schemas.expense import (
@@ -140,6 +143,56 @@ async def list_group_expenses(
 
     expenses = [e for e in _local_expenses_db.values() if e.get("group_id") == group_id]
     return [_expense_to_response(e) for e in expenses]
+
+
+@router.get("/groups/{group_id}/expenses/export/csv")
+async def export_group_expenses_csv(
+    group_id: str,
+    current_user: UserProfile = Depends(get_current_user),
+):
+    """
+    Export all expenses for a group as a structured CSV spreadsheet.
+    """
+    supabase = get_supabase()
+    expenses = []
+    if supabase:
+        try:
+            res = supabase.table("expenses").select("*").eq("group_id", group_id).order("created_at", desc=True).execute()
+            if res.data:
+                expenses = res.data
+        except Exception as e:
+            print(f"Supabase group CSV export error: {e}")
+
+    if not expenses:
+        expenses = [e for e in _local_expenses_db.values() if e.get("group_id") == group_id]
+
+    output = StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Expense ID", "Description", "Category", "Amount (INR)", "Paid By", "Split Type", "Splits Breakdown", "Notes", "Date Created"])
+
+    for exp in expenses:
+        splits_text = "; ".join([f"{s.get('user_name')}: ₹{s.get('amount')}" for s in exp.get("splits", []) if isinstance(s, dict)])
+        writer.writerow([
+            exp.get("id", ""),
+            exp.get("description", ""),
+            str(exp.get("category", "")).capitalize(),
+            f"{float(exp.get('amount', 0)):.2f}",
+            exp.get("paid_by", ""),
+            exp.get("split_type", ""),
+            splits_text,
+            exp.get("notes", ""),
+            exp.get("created_at", "")
+        ])
+
+    filename = f"divvy_group_{group_id[:8]}_expenses.csv"
+    return Response(
+        content=output.getvalue(),
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}",
+            "Access-Control-Expose-Headers": "Content-Disposition"
+        }
+    )
 
 
 @router.delete("/expenses/{expense_id}", status_code=status.HTTP_204_NO_CONTENT)

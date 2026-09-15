@@ -40,6 +40,7 @@ def _user_dict_to_response(user_data: dict) -> UserResponse:
         display_name=user_data.get("display_name"),
         avatar_url=user_data.get("avatar_url"),
         default_currency=user_data.get("default_currency", "INR"),
+        upi_id=user_data.get("upi_id"),
         email_digest_enabled=user_data.get("email_digest_enabled", False),
         created_at=user_data.get("created_at") or datetime.utcnow(),
     )
@@ -151,6 +152,7 @@ async def get_me(current_user: UserProfile = Depends(get_current_user)):
         display_name=current_user.display_name,
         avatar_url=current_user.avatar_url,
         default_currency=current_user.default_currency,
+        upi_id=getattr(current_user, "upi_id", None),
         email_digest_enabled=current_user.email_digest_enabled,
         created_at=current_user.created_at,
     )
@@ -171,6 +173,8 @@ async def update_me(data: UserUpdate, current_user: UserProfile = Depends(get_cu
         user_data["avatar_url"] = data.avatar_url
     if data.default_currency is not None:
         user_data["default_currency"] = data.default_currency
+    if data.upi_id is not None:
+        user_data["upi_id"] = data.upi_id.strip() if data.upi_id else None
     if data.email_digest_enabled is not None:
         user_data["email_digest_enabled"] = data.email_digest_enabled
 

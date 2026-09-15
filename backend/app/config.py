@@ -38,6 +38,10 @@ class Settings(BaseSettings):
     resend_api_key: str = ""
     email_from: str = "Divvy <noreply@yourdomain.com>"
 
+    # ── Google OAuth (Gmail API) ──
+    google_client_id: str = ""
+    google_client_secret: str = ""
+
     # ── Default App Settings ──
     default_currency: str = "INR"
 

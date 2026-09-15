@@ -113,8 +113,9 @@ async def save_user(user_data: Dict) -> Dict:
     supabase = get_supabase()
     if supabase:
         try:
-            res = supabase.table("profiles").insert(user_data).execute()
+            res = supabase.table("profiles").upsert(user_data).execute()
             if res.data and len(res.data) > 0:
+                _local_users_db[user_data["id"]] = res.data[0]
                 return res.data[0]
         except Exception as e:
             print(f"Supabase save notice: {e}")

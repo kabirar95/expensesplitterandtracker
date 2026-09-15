@@ -77,10 +77,14 @@ Whether managing shared household expenses, splitting vacation costs among frien
 [Phase 3: Visual Polish] ✔
 - Cybertech Dark Aesthetics, High Contrast UI, Recharts Analytics
 
-[Phase 4: Next Release] ⏳
-- Automated OCR Receipt Scanner (Scan receipts via camera/upload)
-- Automated Email & SMS Digest Notifications
-- Native iOS & Android Mobile Apps
+[Phase 4: Next Release & Automations] ⏳
+- Automated OCR Itemized Receipt Scanner (Line-item assignment & tax distribution)
+- Smart Bank SMS Interception & Quick-Add Parser (Gemini AI)
+- Zero-Touch Gmail UPI Bank Sync (Google Apps Script / OAuth + Gemini)
+- Monthly Bank Statement (PDF/CSV) Bulk Importer
+- Native Android Companion Service (NotificationListener)
+
+> 📖 **Full Architectural Backlog**: See [FUTURE_FEATURES_AND_IDEAS.md](file:///Users/kabirramteke/Desktop/expense%20splitter%20and%20tracker/FUTURE_FEATURES_AND_IDEAS.md) for complete technical breakdowns and calculation engines.
 ```
 
 ---

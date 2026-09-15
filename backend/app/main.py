@@ -18,7 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.database import init_db
-from app.routers import auth, groups, expenses, personal_expenses, budgets, ai
+from app.routers import auth, groups, expenses, personal_expenses, budgets, ai, recurring_expenses, currencies, gmail, receipts, statements
 
 
 # ── Lifespan — runs on startup and shutdown ──
@@ -62,6 +62,11 @@ app.include_router(expenses.router)
 app.include_router(personal_expenses.router)
 app.include_router(budgets.router)
 app.include_router(ai.router)
+app.include_router(recurring_expenses.router)
+app.include_router(currencies.router)
+app.include_router(gmail.router)
+app.include_router(receipts.router)
+app.include_router(statements.router)
 
 
 # ── Health Check ──
