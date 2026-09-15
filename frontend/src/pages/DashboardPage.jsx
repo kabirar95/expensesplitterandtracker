@@ -49,7 +49,7 @@ export default function DashboardPage() {
             variant="secondary"
             icon={BiBrain}
             onClick={() => setIsSmartAddOpen(true)}
-            title="Paste bank SMS or casual note to auto-extract with Gemini"
+            title="Paste bank SMS or casual note to auto-extract with Divvy AI"
           >
             ⚡ Smart Add (SMS / AI)
           </Button>

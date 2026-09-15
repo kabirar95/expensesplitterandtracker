@@ -1,0 +1,322 @@
+/* ============================================================
+   UPI PAYMENT MODAL — Cyberpunk Glassmorphic Design
+   ============================================================ */
+
+.upi-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.upi-ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  color: #34d399;
+  font-weight: 500;
+  width: fit-content;
+}
+
+.upi-hero-amount-card {
+  background: linear-gradient(135deg, rgba(30, 27, 75, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 14px;
+  padding: 16px 20px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.upi-hero-direction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.debtor-badge {
+  background: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+  padding: 2px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.arrow-text {
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.creditor-badge {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+  padding: 2px 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.upi-hero-price {
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+}
+
+.upi-hero-group {
+  font-size: 0.78rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+/* Recipient UPI ID Box */
+.upi-id-box {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+.upi-id-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.upi-id-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-muted, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.edit-upi-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: var(--color-primary, #8b5cf6);
+  font-size: 0.78rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.edit-upi-btn:hover {
+  background: rgba(139, 92, 246, 0.15);
+}
+
+.upi-edit-form {
+  display: flex;
+  gap: 8px;
+}
+
+.upi-edit-input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #fff;
+  font-size: 0.88rem;
+  outline: none;
+}
+
+.upi-edit-input:focus {
+  border-color: #a855f7;
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);
+}
+
+.upi-id-display-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.upi-id-val {
+  font-size: 0.95rem;
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+.copy-icon-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted, #94a3b8);
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.copy-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+/* Dynamic QR Code Card */
+.upi-qr-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 14px;
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+}
+
+.qr-wrapper {
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 0 25px rgba(139, 92, 246, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-caption {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 0.8rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.qr-caption strong {
+  color: #f1f5f9;
+}
+
+/* Mobile 1-Tap Launch Button */
+.mobile-upi-launch {
+  width: 100%;
+}
+
+.upi-launch-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+  transition: all 0.2s ease-in-out;
+}
+
+.upi-launch-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+}
+
+.launch-icon {
+  font-size: 1.25rem;
+}
+
+.upi-secondary-actions {
+  text-align: center;
+}
+
+.text-action-link {
+  background: none;
+  border: none;
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.82rem;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.text-action-link:hover {
+  color: #fff;
+}
+
+/* Settlement Confirmation Card */
+.settlement-confirm-card {
+  margin-top: 6px;
+  padding: 14px 16px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.confirm-icon-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.shield-check {
+  font-size: 1.4rem;
+  color: #34d399;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.confirm-icon-row h5 {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.confirm-icon-row p {
+  margin: 2px 0 0 0;
+  font-size: 0.78rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.sync-personal-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 8px 10px;
+  border-radius: 8px;
+  user-select: none;
+  transition: border-color 0.15s ease;
+}
+
+.sync-personal-checkbox-label:hover {
+  border-color: rgba(0, 240, 255, 0.4);
+}
+
+.sync-personal-checkbox-label input[type="checkbox"] {
+  accent-color: #00f0ff;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+

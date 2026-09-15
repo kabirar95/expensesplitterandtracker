@@ -1,0 +1,363 @@
+/* ============================================================
+   BANK STATEMENT MODAL — Cyberpunk Glassmorphic Aesthetics
+   ============================================================ */
+
+.statement-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 12, 20, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 1.5rem;
+  animation: fadeInModal 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.statement-modal-container {
+  background: rgba(17, 21, 35, 0.95);
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 240, 255, 0.1);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 860px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 2rem;
+  color: #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.statement-modal-container::-webkit-scrollbar {
+  width: 6px;
+}
+.statement-modal-container::-webkit-scrollbar-thumb {
+  background: rgba(0, 240, 255, 0.2);
+  border-radius: 4px;
+}
+
+/* Header */
+.statement-modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 1rem;
+}
+
+.statement-modal-header h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem 0;
+  color: #f8fafc;
+}
+
+.statement-modal-header .subtitle {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Step 1: Upload */
+.statement-step-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.password-input-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.password-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.password-hint {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+/* Step 2: Parsing */
+.statement-step-parsing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 1.5rem;
+  text-align: center;
+  gap: 1rem;
+}
+
+.radar-spinner-box {
+  margin-bottom: 0.5rem;
+}
+
+.statement-step-parsing h3 {
+  font-size: 1.2rem;
+  color: #00f0ff;
+  margin: 0;
+}
+
+.statement-step-parsing p {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  margin: 0;
+  max-width: 480px;
+  line-height: 1.4;
+}
+
+/* Step 3: Review Grid */
+.statement-step-review {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.statement-summary-bar {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.stat-pill {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stat-pill.debit-stat {
+  background: rgba(0, 240, 255, 0.08);
+  border-color: rgba(0, 240, 255, 0.25);
+}
+
+.stat-pill.debit-stat .stat-value {
+  color: #00f0ff;
+  font-family: monospace;
+  font-weight: 700;
+}
+
+.stat-pill.warn-stat {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.stat-pill.warn-stat .stat-value {
+  color: #f59e0b;
+  font-weight: 700;
+}
+
+.stat-label {
+  color: #94a3b8;
+}
+
+.stat-value {
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+/* Toolbar */
+.statement-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.filter-buttons-group {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.filter-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.filter-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.filter-btn.active {
+  background: rgba(0, 240, 255, 0.15);
+  border-color: #00f0ff;
+  color: #00f0ff;
+  font-weight: 600;
+}
+
+.filter-btn.warn-filter.active {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: #f59e0b;
+  color: #f59e0b;
+}
+
+.selection-actions-group {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.text-action-btn {
+  background: transparent;
+  border: none;
+  color: #00f0ff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.text-action-btn:hover {
+  text-decoration: underline;
+}
+
+.text-action-btn.warn-text {
+  color: #f59e0b;
+}
+
+/* Table */
+.statement-grid-container {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+  overflow-y: auto;
+  max-height: 340px;
+}
+
+.statement-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.statement-table th {
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.statement-table td {
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 0.85rem;
+}
+
+.table-row {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.table-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.table-row.row-selected {
+  background: rgba(0, 240, 255, 0.03);
+}
+
+.table-row.row-duplicate {
+  border-left: 3px solid #f59e0b;
+  opacity: 0.7;
+}
+
+.txn-checkbox {
+  cursor: pointer;
+  accent-color: #00f0ff;
+  width: 16px;
+  height: 16px;
+}
+
+.txn-desc-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.clean-desc {
+  font-weight: 600;
+  color: #f1f5f9;
+}
+
+.dup-badge {
+  font-size: 0.68rem;
+  color: #f59e0b;
+  font-weight: 600;
+  background: rgba(245, 158, 11, 0.1);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.raw-narration {
+  font-size: 0.7rem;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 320px;
+}
+
+.table-cat-select {
+  background: rgba(10, 12, 20, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-size: 0.78rem;
+  padding: 0.35rem 0.5rem;
+  width: 100%;
+  outline: none;
+}
+
+.table-cat-select:focus {
+  border-color: #00f0ff;
+}
+
+.amount-tag {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.amount-debit {
+  color: #f43f5e;
+}
+
+.amount-credit {
+  color: #10b981;
+}

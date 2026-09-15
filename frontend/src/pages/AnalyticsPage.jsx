@@ -438,7 +438,7 @@ export default function AnalyticsPage() {
                 )}
               </div>
               <p className="ai-header-sub">
-                Predictive burn rate modeling powered by Google Gemini AI
+                Predictive burn rate modeling powered by Divvy AI
               </p>
             </div>
           </div>
@@ -457,7 +457,7 @@ export default function AnalyticsPage() {
         {loadingAi ? (
           <div className="ai-loading-box">
             <Spinner size="md" />
-            <p>Gemini is computing burn rates and financial forecasts...</p>
+            <p>Divvy AI is computing burn rates and financial forecasts...</p>
           </div>
         ) : aiPrediction ? (
           <div className="ai-forecast-content">

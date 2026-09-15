@@ -103,7 +103,7 @@ export default function GmailSyncModal({ isOpen, onClose, onImportSuccess }) {
       setStatusMessage(res.data?.message || `Detected ${items.length} transactions`);
 
       if (items.length > 0) {
-        toast.success(`✨ Found ${items.length} bank transactions via Gemini!`);
+        toast.success(`✨ Found ${items.length} bank transactions via Divvy AI!`);
       } else {
         toast('No recent bank alert emails found', { icon: 'ℹ️' });
       }
@@ -124,7 +124,7 @@ export default function GmailSyncModal({ isOpen, onClose, onImportSuccess }) {
     }
 
     setScanning(true);
-    setStatusMessage('Gemini is analyzing transaction details, amounts, and UPI references...');
+    setStatusMessage('Divvy AI is analyzing transaction details, amounts, and UPI references...');
     try {
       const res = await api.post('/api/gmail/parse-text-batch', {
         text: pastedText.trim(),
@@ -137,7 +137,7 @@ export default function GmailSyncModal({ isOpen, onClose, onImportSuccess }) {
       setStatusMessage(res.data?.message || `Extracted ${items.length} transactions`);
 
       if (items.length > 0) {
-        toast.success(`✨ Gemini extracted ${items.length} transactions!`);
+        toast.success(`✨ Divvy AI extracted ${items.length} transactions!`);
       } else {
         toast('No valid debit transactions found in text', { icon: 'ℹ️' });
       }
@@ -195,7 +195,7 @@ export default function GmailSyncModal({ isOpen, onClose, onImportSuccess }) {
         {/* Subheader info pill */}
         <div className="sync-ai-badge">
           <HiSparkles className="sparkle-icon" />
-          <span>Powered by Google Gemini 2.5 Flash • Smart Indian UPI & Debit Parser</span>
+          <span>Powered by Divvy AI • Smart Indian UPI & Debit Parser</span>
         </div>
 
         {/* Input Mode Tabs */}
@@ -220,7 +220,7 @@ export default function GmailSyncModal({ isOpen, onClose, onImportSuccess }) {
         {scanning && (
           <div className="sync-loading-container animate-fade-in">
             <Spinner size="lg" />
-            <h4>Scanning with Gemini AI...</h4>
+            <h4>Scanning with Divvy AI...</h4>
             <p className="loading-status-text">{statusMessage}</p>
           </div>
         )}
@@ -283,7 +283,7 @@ export default function GmailSyncModal({ isOpen, onClose, onImportSuccess }) {
             />
             <div className="paste-actions">
               <Button type="submit" variant="primary" icon={HiSparkles}>
-                Extract Transactions with Gemini
+                Extract Transactions with Divvy AI
               </Button>
             </div>
           </form>

@@ -15,6 +15,7 @@ import {
   BiDownload,
   BiRepeat,
   BiMailSend,
+  BiSpreadsheet,
 } from 'react-icons/bi';
 import { HiSparkles } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
@@ -29,6 +30,7 @@ import Spinner from '../components/common/Spinner';
 import SmartExpenseModal from '../components/common/SmartExpenseModal';
 import RecurringExpensesModal from '../components/recurring/RecurringExpensesModal';
 import GmailSyncModal from '../components/gmail/GmailSyncModal';
+import BankStatementModal from '../components/statements/BankStatementModal';
 import api from '../services/api';
 
 import './PersonalTrackerPage.css';
@@ -67,6 +69,7 @@ export default function PersonalTrackerPage() {
   const [isSmartAddModalOpen, setIsSmartAddModalOpen] = useState(false);
   const [isRecurringModalOpen, setIsRecurringModalOpen] = useState(false);
   const [isGmailModalOpen, setIsGmailModalOpen] = useState(false);
+  const [isStatementModalOpen, setIsStatementModalOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [detectingCategory, setDetectingCategory] = useState(false);
 
@@ -102,6 +105,24 @@ export default function PersonalTrackerPage() {
           setSelectedMonthYear(importMonth);
           toast.success(
             `📅 Switched view to ${getFormattedMonthLabel(importMonth)} to display your imported transactions!`,
+            { duration: 4500 }
+          );
+        }
+      }
+    }
+  };
+
+  const handleStatementImportSuccess = (toImport = []) => {
+    loadPersonalData(selectedMonthYear);
+    if (toImport && toImport.length > 0) {
+      const sorted = [...toImport].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      const newestDate = sorted[0]?.date;
+      if (newestDate) {
+        const importMonth = newestDate.substring(0, 7);
+        if (importMonth && importMonth !== selectedMonthYear) {
+          setSelectedMonthYear(importMonth);
+          toast.success(
+            `📅 Switched view to ${getFormattedMonthLabel(importMonth)} to show imported statement expenses!`,
             { duration: 4500 }
           );
         }
@@ -333,6 +354,14 @@ export default function PersonalTrackerPage() {
         <div className="tracker-header-buttons">
           <Button
             variant="outline"
+            icon={BiSpreadsheet}
+            onClick={() => setIsStatementModalOpen(true)}
+            title="Upload bank e-statement PDF or CSV to batch-import transactions"
+          >
+            📄 Bank Statement (PDF/CSV)
+          </Button>
+          <Button
+            variant="outline"
             icon={BiMailSend}
             onClick={() => setIsGmailModalOpen(true)}
             title="Auto-detect bank and UPI alerts from Gmail or paste statements"
@@ -367,7 +396,7 @@ export default function PersonalTrackerPage() {
             variant="secondary"
             icon={BiBrain}
             onClick={() => setIsSmartAddModalOpen(true)}
-            title="Paste bank SMS or casual note to auto-extract with Gemini"
+            title="Paste bank SMS or casual note to auto-extract with Divvy AI"
           >
             ⚡ Smart Add (SMS / AI)
           </Button>
@@ -936,6 +965,13 @@ export default function PersonalTrackerPage() {
         isOpen={isGmailModalOpen}
         onClose={() => setIsGmailModalOpen(false)}
         onImportSuccess={handleGmailImportSuccess}
+      />
+
+      {/* Modal: Bank Statement (PDF & CSV) Bulk Importer */}
+      <BankStatementModal
+        isOpen={isStatementModalOpen}
+        onClose={() => setIsStatementModalOpen(false)}
+        onImportSuccess={handleStatementImportSuccess}
       />
     </div>
   );

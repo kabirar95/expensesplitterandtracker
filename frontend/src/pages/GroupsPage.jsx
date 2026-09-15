@@ -12,6 +12,7 @@ import {
   BiRightArrowAlt,
   BiCheckDouble,
   BiDownload,
+  BiCamera,
 } from 'react-icons/bi';
 import { toast } from 'react-hot-toast';
 
@@ -24,6 +25,8 @@ import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import Modal from '../components/common/Modal';
 import Spinner from '../components/common/Spinner';
+import UpiPaymentModal from '../components/groups/UpiPaymentModal';
+import ReceiptSplitModal from '../components/receipts/ReceiptSplitModal';
 
 import './GroupsPage.css';
 
@@ -92,6 +95,7 @@ export default function GroupsPage() {
   // Modals & UI state
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
   const [isDeleteGroupModalOpen, setIsDeleteGroupModalOpen] = useState(false);
   const [newMemberInput, setNewMemberInput] = useState('');
   const [expandedExpenseId, setExpandedExpenseId] = useState(null);
@@ -110,6 +114,78 @@ export default function GroupsPage() {
 
   const [submitting, setSubmitting] = useState(false);
   const [exportingCSV, setExportingCSV] = useState(false);
+
+  // ── UPI Payment Settlement Modal State ──
+  const [upiModalData, setUpiModalData] = useState({
+    isOpen: false,
+    debtorName: '',
+    creditorName: '',
+    amount: 0,
+    creditorUpiId: '',
+  });
+
+  const handleOpenUpiModal = (settlement) => {
+    const creditorMember = activeGroup?.members?.find((m) => m.name === settlement.to);
+    setUpiModalData({
+      isOpen: true,
+      debtorName: settlement.from,
+      creditorName: settlement.to,
+      amount: settlement.amount,
+      creditorUpiId: creditorMember?.upi_id || '',
+    });
+  };
+
+  const handleRecordSettlement = async ({ debtorName, creditorName, amount, upiId, syncToPersonal = true }) => {
+    const amt = parseFloat(amount);
+    await addExpenseToActiveGroup({
+      description: `🤝 Settlement: ${debtorName} paid ${creditorName}`,
+      amount: amt,
+      currency: 'INR',
+      category: 'other',
+      paid_by: debtorName,
+      split_type: 'exact',
+      splits: [{ user_name: creditorName, amount: amt }],
+      notes: upiId ? `Paid via UPI (${upiId})` : 'Settled via Divvy UPI',
+    });
+
+    // Automatically synchronize into debtor's Personal Expense Tracker if debtor is current user
+    const isDebtorCurrentUser =
+      debtorName && user && (
+        debtorName.toLowerCase() === (user.display_name || '').toLowerCase() ||
+        debtorName.toLowerCase() === (user.username || '').toLowerCase() ||
+        debtorName.toLowerCase() === (user.full_name || '').toLowerCase() ||
+        debtorName.toLowerCase() === 'you'
+      );
+
+    if (syncToPersonal && isDebtorCurrentUser) {
+      try {
+        const groupCat = (activeGroup?.category || '').toLowerCase();
+        let personalCat = 'other';
+        if (['trip', 'travel'].includes(groupCat)) personalCat = 'travel';
+        else if (['food', 'dining'].includes(groupCat)) personalCat = 'food';
+        else if (['home', 'flat', 'apartment'].includes(groupCat)) personalCat = 'rent';
+
+        await api.post('/api/personal-expenses', {
+          description: `Settled debt to ${creditorName} (${activeGroup?.name || 'Group'})`,
+          amount: amt,
+          category: personalCat,
+          expense_date: new Date().toISOString().split('T')[0],
+          notes: upiId
+            ? `Group Settlement via UPI to ${creditorName} (${upiId})`
+            : `Group Settlement to ${creditorName} for ${activeGroup?.name || 'Group'}`,
+        });
+
+        toast.success(`🤝 Settlement recorded & logged ₹${amt.toFixed(2)} to your Personal Expenses!`, {
+          duration: 5000,
+        });
+        return;
+      } catch (err) {
+        console.warn('Auto-sync to personal expenses failed:', err);
+      }
+    }
+
+    toast.success(`Settlement recorded! Balances updated.`);
+  };
 
   const handleExportGroupCSV = async () => {
     if (!activeGroup) return;
@@ -391,6 +467,15 @@ export default function GroupsPage() {
                     <Button
                       variant="outline"
                       size="md"
+                      icon={BiCamera}
+                      onClick={() => setIsReceiptModalOpen(true)}
+                      title="Scan dining bill photo with Divvy AI and itemize splits"
+                    >
+                      📸 Scan Bill & Itemize
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="md"
                       icon={BiDownload}
                       onClick={handleExportGroupCSV}
                       loading={exportingCSV}
@@ -490,9 +575,28 @@ export default function GroupsPage() {
                             pays <BiRightArrowAlt />
                           </span>
                           <span className="settlement-to">{s.to}</span>
-                          <span className="settlement-amount font-mono">
-                            ₹{s.amount.toFixed(2)}
-                          </span>
+                          
+                          <div className="settlement-right-actions">
+                            <span className="settlement-amount font-mono">
+                              ₹{s.amount.toFixed(2)}
+                            </span>
+                            <button
+                              type="button"
+                              className="settle-upi-btn"
+                              onClick={() => handleOpenUpiModal(s)}
+                              title="Pay via UPI Deep Link / QR Code"
+                            >
+                              ⚡ Pay via UPI
+                            </button>
+                            <button
+                              type="button"
+                              className="settle-offline-btn"
+                              onClick={() => handleRecordSettlement({ debtorName: s.from, creditorName: s.to, amount: s.amount })}
+                              title="Record payment without UPI"
+                            >
+                              ✓ Settle
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -783,6 +887,31 @@ export default function GroupsPage() {
           </div>
         </div>
       </Modal>
+
+      {/* Modal: 1-Tap UPI Settlement & Dynamic QR Code */}
+      <UpiPaymentModal
+        isOpen={upiModalData.isOpen}
+        onClose={() => setUpiModalData((prev) => ({ ...prev, isOpen: false }))}
+        debtorName={upiModalData.debtorName}
+        creditorName={upiModalData.creditorName}
+        amount={upiModalData.amount}
+        groupName={activeGroup?.name || 'Group'}
+        creditorUpiId={upiModalData.creditorUpiId}
+        onRecordSettlement={handleRecordSettlement}
+      />
+
+      {/* Modal: Smart Receipt OCR & Itemized Dining Splitter */}
+      <ReceiptSplitModal
+        isOpen={isReceiptModalOpen}
+        onClose={() => setIsReceiptModalOpen(false)}
+        group={activeGroup}
+        currentUser={user}
+        onExpenseCreated={async () => {
+          if (activeGroup) {
+            await setActiveGroup(activeGroup);
+          }
+        }}
+      />
     </div>
   );
 }

@@ -80,7 +80,7 @@ export default function SmartExpenseModal({ isOpen, onClose }) {
           payment_method: res.data.payment_method || 'UPI',
           notes: res.data.notes || '',
         });
-        toast.success('✨ Details extracted with Gemini AI!');
+        toast.success('✨ Details extracted with Divvy AI!');
       }
     } catch (err) {
       console.error(err);
@@ -146,7 +146,7 @@ export default function SmartExpenseModal({ isOpen, onClose }) {
       <div className="smart-modal-content">
         <p className="smart-modal-desc">
           Paste your <strong>Bank Debit SMS</strong> or casual note (e.g. <em>"Swiggy dinner 450"</em>).
-          Gemini AI will automatically extract amount, merchant, and category!
+          Divvy AI will automatically extract amount, merchant, and category!
         </p>
 
         {/* Input & Paste Action */}
@@ -174,7 +174,7 @@ export default function SmartExpenseModal({ isOpen, onClose }) {
               onClick={() => handleParse()}
               disabled={!rawText.trim() || parsing}
             >
-              {parsing ? 'Extracting...' : 'Extract with Gemini'}
+              {parsing ? 'Extracting...' : 'Extract with Divvy AI'}
             </Button>
           </div>
         </div>
