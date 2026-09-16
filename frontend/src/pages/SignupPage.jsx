@@ -62,9 +62,12 @@ export default function SignupPage() {
     <div className="auth-page animate-fade-in">
       <div className="auth-card">
         <div className="auth-header">
-          <div className="auth-logo">💸 Divvy</div>
+          <div className="auth-brand">
+            <div className="auth-logo-badge">D</div>
+            <span className="auth-logo-text">Divvy</span>
+          </div>
           <h1 className="auth-title">Create an account</h1>
-          <p className="auth-subtitle">Start tracking and splitting expenses effortlessly</p>
+          <p className="auth-subtitle">Institutional-grade shared expenses & smart personal budgeting</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">

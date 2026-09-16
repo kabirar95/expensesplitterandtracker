@@ -190,75 +190,66 @@
   gap: var(--space-3);
 }
 
-.dash-group-item {
+.dash-header-title {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: var(--space-3) var(--space-4);
-  background-color: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
+  gap: var(--space-2);
+  font-size: 1.1rem;
+}
+
+.dash-mini-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--font-size-xs);
+}
+
+.dash-mini-table th {
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.68rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-color);
+  text-align: left;
+}
+
+.dash-mini-table td {
+  padding: var(--space-3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
+}
+
+.dash-table-row {
+  transition: background var(--transition-fast);
+}
+
+.dash-table-row:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.dash-item-title {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+  display: block;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-row-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.72rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
   transition: all var(--transition-fast);
 }
 
-.dash-group-item:hover {
-  border-color: var(--color-primary-light);
-  transform: translateX(3px);
-}
-
-.group-item-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.dash-group-name {
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-}
-
-.dash-group-meta {
-  font-size: var(--font-size-xs);
-  color: var(--text-muted);
-  text-transform: capitalize;
-}
-
-.arrow-icon {
-  font-size: 1.25rem;
-  color: var(--text-muted);
-}
-
-.dash-personal-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-3) var(--space-4);
-  background-color: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-}
-
-.personal-item-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.dash-expense-title {
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
-}
-
-.dash-expense-meta {
-  font-size: var(--font-size-xs);
-  color: var(--text-muted);
-  text-transform: capitalize;
-}
-
-.dash-expense-cost {
-  font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-sm);
-  color: var(--text-primary);
+.dash-row-link:hover {
+  color: #ff3b5c;
+  transform: translateX(2px);
 }

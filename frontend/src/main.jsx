@@ -24,6 +24,7 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV !== 'test') {
     navigator.serviceWorker
       .register('/sw.js')
       .then((reg) => {
+        reg.update();
         console.log('⚡ [Divvy] PWA Service Worker registered successfully:', reg.scope);
       })
       .catch((err) => {

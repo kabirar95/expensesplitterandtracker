@@ -108,13 +108,16 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Two Column Layout: Quick Access Cards */}
+      {/* Two Column Layout: Structured Ledger Previews */}
       <div className="dash-two-col">
         {/* Left Column: Recent Groups */}
         <div className="dash-card cyber-card">
           <div className="dash-card-header">
-            <h3><BiGroup /> Your Expense Groups</h3>
-            <Link to="/groups" className="see-all-link">See All</Link>
+            <div className="dash-header-title">
+              <BiGroup className="text-primary" />
+              <h3>Expense Groups</h3>
+            </div>
+            <Link to="/groups" className="see-all-link">View All ({groups.length})</Link>
           </div>
 
           {groups.length === 0 ? (
@@ -125,16 +128,37 @@ export default function DashboardPage() {
               </Link>
             </div>
           ) : (
-            <div className="groups-dash-list">
-              {groups.slice(0, 4).map((g) => (
-                <Link key={g.id} to="/groups" className="dash-group-item">
-                  <div className="group-item-info">
-                    <span className="dash-group-name">{g.name}</span>
-                    <span className="dash-group-meta">{g.members?.length || 0} Members • {g.category}</span>
-                  </div>
-                  <BiRightArrowAlt className="arrow-icon" />
-                </Link>
-              ))}
+            <div className="table-responsive">
+              <table className="dash-mini-table">
+                <thead>
+                  <tr>
+                    <th>Group</th>
+                    <th>Category</th>
+                    <th>Members</th>
+                    <th className="text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {groups.slice(0, 5).map((g) => (
+                    <tr key={g.id} className="dash-table-row">
+                      <td>
+                        <span className="dash-item-title font-semibold">{g.name}</span>
+                      </td>
+                      <td>
+                        <span className="ledger-category-badge">{g.category}</span>
+                      </td>
+                      <td className="text-secondary" style={{ fontSize: '0.78rem' }}>
+                        {g.members?.length || 0} members
+                      </td>
+                      <td className="text-right">
+                        <Link to="/groups" className="dash-row-link">
+                          Open <BiRightArrowAlt />
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
@@ -142,8 +166,11 @@ export default function DashboardPage() {
         {/* Right Column: Recent Personal Transactions */}
         <div className="dash-card cyber-card">
           <div className="dash-card-header">
-            <h3><BiWallet /> Recent Personal Expenses</h3>
-            <Link to="/personal" className="see-all-link">See All</Link>
+            <div className="dash-header-title">
+              <BiWallet className="text-primary" />
+              <h3>Recent Personal Expenses</h3>
+            </div>
+            <Link to="/personal" className="see-all-link">View Ledger ({personalExpenses.length})</Link>
           </div>
 
           {personalExpenses.length === 0 ? (
@@ -154,16 +181,35 @@ export default function DashboardPage() {
               </Link>
             </div>
           ) : (
-            <div className="personal-dash-list">
-              {personalExpenses.slice(0, 4).map((e) => (
-                <div key={e.id} className="dash-personal-item">
-                  <div className="personal-item-info">
-                    <span className="dash-expense-title">{e.description}</span>
-                    <span className="dash-expense-meta">{e.category} • {e.expense_date}</span>
-                  </div>
-                  <span className="dash-expense-cost font-mono">₹{parseFloat(e.amount).toFixed(2)}</span>
-                </div>
-              ))}
+            <div className="table-responsive">
+              <table className="dash-mini-table">
+                <thead>
+                  <tr>
+                    <th>Expense</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th className="text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {personalExpenses.slice(0, 5).map((e) => (
+                    <tr key={e.id} className="dash-table-row">
+                      <td>
+                        <span className="dash-item-title">{e.description}</span>
+                      </td>
+                      <td>
+                        <span className="ledger-category-badge">{e.category}</span>
+                      </td>
+                      <td className="text-secondary font-mono" style={{ fontSize: '0.76rem' }}>
+                        {e.expense_date}
+                      </td>
+                      <td className="text-right font-mono font-semibold">
+                        ₹{parseFloat(e.amount).toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>

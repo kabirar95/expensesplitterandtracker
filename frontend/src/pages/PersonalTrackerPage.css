@@ -9,39 +9,198 @@
   padding-bottom: var(--space-12);
 }
 
-.tracker-header {
+/* ── Unified Executive Header ── */
+.personal-executive-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--space-4);
+  margin-bottom: var(--space-2);
 }
 
-.tracker-header h1 {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-extrabold);
+.header-left-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+  flex-wrap: wrap;
 }
 
-.tracker-header p {
+.header-subtext {
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
+  margin-top: 4px;
 }
 
-.tracker-header-buttons {
+.executive-month-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--bg-secondary);
+  padding: 4px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+}
+
+.header-right-group {
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  flex-wrap: wrap;
 }
 
-/* Month & Horizon Navigation Bar */
-.budget-navigation-bar {
-  padding: var(--space-3) var(--space-5);
+/* ── Consolidated Automations Dropdown ── */
+.automations-dropdown-wrap {
+  position: relative;
+}
+
+.btn-automations-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  padding: 9px 15px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-automations-trigger:hover,
+.btn-automations-trigger.active {
+  border-color: rgba(225, 29, 72, 0.4);
+  background: var(--bg-tertiary);
+  box-shadow: 0 0 12px rgba(225, 29, 72, 0.12);
+}
+
+.btn-auto-icon {
+  font-size: 1.15rem;
+  color: #ff3b5c;
+}
+
+.chevron-arrow {
+  font-size: 1.1rem;
+  transition: transform var(--transition-fast);
+}
+
+.chevron-arrow.rotate-180 {
+  transform: rotate(180deg);
+}
+
+.automations-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 300px;
+  background: #121217;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 20px rgba(225, 29, 72, 0.12);
+  padding: 8px;
+  z-index: 60;
+  backdrop-filter: blur(16px);
+  animation: fadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.auto-menu-header {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  letter-spacing: 0.08em;
+  padding: 6px 12px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 4px;
+}
+
+.auto-menu-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  flex-wrap: wrap;
-  background-color: var(--bg-secondary);
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--text-primary);
+}
+
+.auto-menu-item:hover {
+  background: rgba(225, 29, 72, 0.1);
+  border-color: rgba(225, 29, 72, 0.25);
+}
+
+.auto-item-icon {
+  font-size: 1.25rem;
+  color: #ff3b5c;
+  flex-shrink: 0;
+}
+
+.auto-item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.auto-item-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.auto-item-desc {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+}
+
+/* ── Content Navigation Tabs (Ledger vs Budgets) ── */
+.personal-content-tabs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
+  margin-top: var(--space-1);
+  margin-bottom: var(--space-2);
+}
+
+.content-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  padding: 9px 18px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.content-tab-btn:hover {
+  color: #ffffff;
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+.content-tab-btn.active {
+  background: rgba(225, 29, 72, 0.14);
+  border-color: rgba(225, 29, 72, 0.38);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 0 16px rgba(225, 29, 72, 0.15);
+}
+
+.tab-icon {
+  font-size: 1.15rem;
+  color: #ff3b5c;
 }
 
 .view-mode-tabs {
@@ -178,14 +337,111 @@
   color: var(--color-secondary);
 }
 
-/* Overall Budget Hero Card */
+/* ── 3 Executive KPI Metric Cards ── */
+.personal-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+}
+
+@media (max-width: 900px) {
+  .personal-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.personal-kpi-card {
+  padding: var(--space-5);
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  position: relative;
+  overflow: hidden;
+}
+
+.personal-kpi-card .kpi-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.personal-kpi-card .kpi-label {
+  font-size: 0.72rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+}
+
+.personal-kpi-card .kpi-amount {
+  font-size: 1.85rem;
+  font-weight: var(--font-weight-black);
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+}
+
+.kpi-edit-action {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: var(--font-weight-semibold);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  transition: all var(--transition-fast);
+}
+
+.kpi-edit-action:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background: rgba(225, 29, 72, 0.08);
+}
+
+.kpi-progress-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.kpi-progress-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+}
+
+.kpi-hairline-track {
+  width: 100%;
+  height: 4px;
+  background: var(--bg-primary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.kpi-hairline-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.4s ease-out;
+}
+
+.personal-kpi-card .kpi-subtext {
+  font-size: var(--font-size-xs);
+}
+
+/* Overall Budget Hero Card (Legacy fallback) */
 .overall-budget-hero {
   padding: var(--space-6);
   display: flex;
   flex-direction: column;
   gap: var(--space-5);
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(6, 182, 212, 0.12) 100%);
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: linear-gradient(135deg, rgba(225, 29, 72, 0.08) 0%, rgba(15, 23, 42, 0.4) 100%);
+  border: 1px solid rgba(225, 29, 72, 0.25);
 }
 
 .overall-budget-header {
@@ -498,154 +754,87 @@
   color: var(--text-muted);
 }
 
-/* Personal Transactions Section */
-.transactions-section {
+/* ── Personal Financial Ledger Card & Table ── */
+.personal-ledger-card {
   padding: var(--space-6);
+  border-radius: var(--radius-xl);
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
-}
-
-.transactions-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
   gap: var(--space-4);
 }
 
-.transactions-header-row h3 {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-bold);
-}
-
-.filters-bar {
+.ledger-toolbar-right {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   flex-wrap: wrap;
 }
 
-.search-input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.search-icon {
-  position: absolute;
-  left: var(--space-3);
-  color: var(--text-muted);
-  font-size: 1.1rem;
-}
-
-.search-input {
-  background-color: var(--bg-tertiary);
+.ledger-time-select {
+  background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-9);
-  color: var(--text-primary);
+  border-radius: var(--radius-full);
+  padding: 6px var(--space-4);
   font-size: var(--font-size-xs);
-  outline: none;
-  transition: all var(--transition-fast);
-}
-
-.search-input:focus {
-  border-color: var(--color-primary-light);
-}
-
-.category-filter-select {
-  background-color: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: var(--space-2) var(--space-3);
   color: var(--text-primary);
-  font-size: var(--font-size-xs);
   outline: none;
   cursor: pointer;
-}
-
-.expenses-feed-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.personal-expense-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-3) var(--space-4);
-  background-color: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
   transition: all var(--transition-fast);
 }
 
-.personal-expense-item:hover {
-  border-color: var(--border-hover);
-  background-color: var(--bg-elevated);
+.ledger-time-select:focus {
+  border-color: rgba(225, 29, 72, 0.5);
 }
 
-.category-emoji-box {
-  width: 42px;
-  height: 42px;
-  border-radius: var(--radius-md);
+/* ── Category Filter Pills Row ── */
+.category-filter-pills-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  flex-shrink: 0;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding-bottom: 4px;
 }
 
-.expense-details {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex: 1;
-  margin: 0 var(--space-4);
+.cat-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-medium);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
 }
 
-.expense-title {
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-sm);
+.cat-pill-btn:hover {
+  background: var(--bg-hover);
   color: var(--text-primary);
+  border-color: var(--border-color-strong);
 }
 
-.expense-submeta {
-  font-size: var(--font-size-xs);
-  color: var(--text-muted);
-}
-
-.expense-notes {
-  font-size: var(--font-size-xs);
-  color: var(--color-secondary);
-  font-style: italic;
-}
-
-.expense-amount-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-}
-
-.expense-cost {
+.cat-pill-btn.active {
+  background: rgba(225, 29, 72, 0.15);
+  border-color: rgba(225, 29, 72, 0.4);
+  color: #ff3b5c;
   font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-md);
-  color: var(--text-primary);
+  box-shadow: 0 0 10px rgba(225, 29, 72, 0.15);
 }
 
-.delete-item-btn {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  font-size: 1.15rem;
-  cursor: pointer;
-  padding: var(--space-1);
-  border-radius: var(--radius-sm);
-  transition: color var(--transition-fast);
+.cat-pill-icon {
+  font-size: 0.9rem;
 }
 
-.delete-item-btn:hover {
-  color: var(--color-danger);
+.ledger-notes-text {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+  max-width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
 }

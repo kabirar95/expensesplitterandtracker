@@ -2,7 +2,7 @@
 // DIVVY PWA SERVICE WORKER
 // ============================================================
 
-const CACHE_NAME = 'divvy-cache-v1';
+const CACHE_NAME = 'divvy-cache-v2';
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
@@ -16,7 +16,7 @@ const PRECACHE_ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('⚡ [Divvy SW] Precaching app shell assets');
+      console.log('⚡ [Divvy SW] Precaching app shell assets (v2)');
       return cache.addAll(PRECACHE_ASSETS).catch((err) => {
         console.warn('⚠️ [Divvy SW] Precache warning:', err);
       });
@@ -41,14 +41,20 @@ self.addEventListener('activate', (event) => {
 });
 
 // 3. Fetch strategy:
-// - API requests: Network-First (with offline error fallback if disconnected)
-// - Static assets: Cache-First with background revalidation
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
   // Skip non-GET requests or browser extension protocols
   if (request.method !== 'GET' || !url.protocol.startsWith('http')) {
+    return;
+  }
+
+  // Handle localhost / development: ALWAYS network-first so HMR and updates reflect instantly
+  if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+    event.respondWith(
+      fetch(request).catch(() => caches.match(request))
+    );
     return;
   }
 

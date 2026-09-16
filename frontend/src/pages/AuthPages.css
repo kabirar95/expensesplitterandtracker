@@ -1,3 +1,7 @@
+/* ============================================================
+   AUTH PAGES — Executive Crimson & Obsidian Palette
+   ============================================================ */
+
 .auth-page {
   min-height: 100vh;
   display: flex;
@@ -5,7 +9,9 @@
   justify-content: center;
   padding: var(--space-6);
   background-color: var(--bg-primary);
-  background-image: var(--mesh-glow-1), var(--mesh-glow-2);
+  background-image: 
+    radial-gradient(circle at 50% 20%, rgba(225, 29, 72, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 80% 80%, rgba(225, 29, 72, 0.04) 0%, transparent 50%);
   background-attachment: fixed;
   position: relative;
   overflow: hidden;
@@ -14,14 +20,25 @@
 .auth-card {
   width: 100%;
   max-width: 440px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-secondary);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-2xl);
   padding: var(--space-10) var(--space-8);
-  box-shadow: var(--glass-shadow), var(--glow-primary);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.7), 0 0 24px rgba(225, 29, 72, 0.08);
+  position: relative;
   transition: all var(--transition-base);
+}
+
+.auth-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(225, 29, 72, 0.4), transparent);
 }
 
 .auth-header {
@@ -29,13 +46,34 @@
   margin-bottom: var(--space-8);
 }
 
-.auth-logo {
+.auth-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.auth-logo-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-accent-ruby));
+  color: #ffffff;
+  font-weight: var(--font-weight-black);
+  font-size: 1.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 16px rgba(225, 29, 72, 0.4);
+  letter-spacing: -0.02em;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.auth-logo-text {
   font-size: var(--font-size-3xl);
   font-weight: var(--font-weight-black);
-  background: linear-gradient(135deg, var(--color-primary), var(--color-accent-cyan));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: var(--space-2);
+  color: var(--text-primary);
   letter-spacing: -0.03em;
 }
 
@@ -44,6 +82,7 @@
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
   margin-bottom: var(--space-2);
+  letter-spacing: -0.02em;
 }
 
 .auth-subtitle {
@@ -52,6 +91,9 @@
 }
 
 .auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
   margin-bottom: var(--space-6);
 }
 
@@ -68,6 +110,6 @@
 }
 
 .auth-link:hover {
-  color: var(--color-accent-cyan);
-  text-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+  color: #ff3b5c;
+  text-shadow: 0 0 10px rgba(225, 29, 72, 0.35);
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   BiPlus,
   BiGroup,
@@ -15,6 +15,9 @@ import {
   BiCamera,
   BiQrScan,
   BiCheck,
+  BiSearch,
+  BiCreditCard,
+  BiCheckCircle,
 } from 'react-icons/bi';
 import { toast } from 'react-hot-toast';
 
@@ -101,6 +104,19 @@ export default function GroupsPage() {
   const [isDeleteGroupModalOpen, setIsDeleteGroupModalOpen] = useState(false);
   const [newMemberInput, setNewMemberInput] = useState('');
   const [expandedExpenseId, setExpandedExpenseId] = useState(null);
+  const [isGroupDropdownOpen, setIsGroupDropdownOpen] = useState(false);
+  const [expenseSearchQuery, setExpenseSearchQuery] = useState('');
+  const groupDropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (groupDropdownRef.current && !groupDropdownRef.current.contains(e.target)) {
+        setIsGroupDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Form states
   const [newGroupData, setNewGroupData] = useState({ name: '', description: '', category: 'trip', membersInput: '' });
@@ -274,6 +290,46 @@ export default function GroupsPage() {
   // Calculate Simplified Debt Settlements (Who Pays Whom)
   const settlements = calculateSimplifiedSettlements(memberBalances);
 
+  // ── Executive KPI Figures ──
+  const totalGroupSpend = activeExpenses.reduce(
+    (sum, exp) => sum + parseFloat(exp.amount || 0),
+    0
+  );
+
+  const currentUserName =
+    user?.full_name || user?.display_name || (user?.email ? user.email.split('@')[0] : '');
+
+  let userBalance = 0;
+  if (currentUserName && memberBalances) {
+    if (currentUserName in memberBalances) {
+      userBalance = memberBalances[currentUserName];
+    } else {
+      const match = Object.entries(memberBalances).find(
+        ([name]) => name.toLowerCase() === currentUserName.toLowerCase()
+      );
+      if (match) userBalance = match[1];
+    }
+  }
+
+  const userIsOwed = userBalance > 0.01 ? userBalance : 0;
+  const userOwes = userBalance < -0.01 ? Math.abs(userBalance) : 0;
+
+  // Pending settlement that current user owes
+  const mySettlementToPay = settlements.find(
+    (s) => s.from.toLowerCase() === currentUserName.toLowerCase()
+  );
+
+  // Filtered expense ledger
+  const filteredExpenses = activeExpenses.filter((exp) => {
+    if (!expenseSearchQuery.trim()) return true;
+    const q = expenseSearchQuery.toLowerCase();
+    return (
+      (exp.description || '').toLowerCase().includes(q) ||
+      (exp.paid_by || '').toLowerCase().includes(q) ||
+      (exp.category || '').toLowerCase().includes(q)
+    );
+  });
+
   // Handlers
   const handleCreateGroup = async (e) => {
     e.preventDefault();
@@ -398,321 +454,500 @@ export default function GroupsPage() {
 
   return (
     <div className="groups-container animate-fade-in">
-      {/* Header */}
-      <div className="groups-header">
-        <div>
-          <h1 className="gradient-text">Expense Groups</h1>
-          <p>Split trip, roommate, and party expenses effortlessly with simplified settlements!</p>
-        </div>
-        <Button variant="primary" icon={BiPlus} onClick={() => setIsCreateModalOpen(true)}>
-          Create Group
-        </Button>
-      </div>
-
-      {/* Main Layout */}
-      <div className="groups-layout">
-        {/* Groups List Sidebar */}
-        <div className="groups-list-card cyber-card">
-          <div className="card-section-header">
-            <h3>Your Groups</h3>
-            <span className="group-count-badge">{groups.length}</span>
-          </div>
-
-          {loading && groups.length === 0 ? (
-            <div className="text-center py-6">
-              <Spinner size="md" />
-            </div>
-          ) : groups.length === 0 ? (
-            <div className="empty-state">
-              <BiGroup className="empty-icon" />
-              <p>No groups yet. Create one to start splitting!</p>
+      {/* ── Executive Top Header & Group Switcher ── */}
+      <div className="groups-executive-header">
+        <div className="group-switcher-wrapper" ref={groupDropdownRef}>
+          {groups.length === 0 ? (
+            <div className="group-empty-trigger">
+              <h2>Expense Groups</h2>
             </div>
           ) : (
-            <div className="groups-items">
-              {groups.map((group) => {
-                const isActive = activeGroup?.id === group.id;
-                return (
-                  <div
-                    key={group.id}
-                    className={`group-item-card ${isActive ? 'group-item-active' : ''}`}
-                    onClick={() => setActiveGroup(group)}
-                  >
-                    <div className="group-item-header">
-                      <span className="group-name">{group.name}</span>
-                      <span className="group-category-pill">{group.category}</span>
-                    </div>
-                    <div className="group-item-footer">
-                      <span className="member-count-tag">
-                        <BiGroup /> {group.members?.length || 0} members
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Active Group Details */}
-        <div className="group-detail-view">
-          {activeGroup ? (
-            <>
-              {/* Group Header Card */}
-              <div className="active-group-header cyber-card">
-                <div className="active-group-title-row">
-                  <div>
-                    <span className="active-group-category">{activeGroup.category}</span>
-                    <h2>{activeGroup.name}</h2>
-                    {activeGroup.description && <p>{activeGroup.description}</p>}
-                  </div>
-                  <div className="active-group-actions">
-                    <Button
-                      variant="outline"
-                      size="md"
-                      icon={BiCamera}
-                      onClick={() => setIsReceiptModalOpen(true)}
-                      title="Scan dining bill photo with Divvy AI and itemize splits"
-                    >
-                      Scan Bill & Itemize
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="md"
-                      icon={BiDownload}
-                      onClick={handleExportGroupCSV}
-                      loading={exportingCSV}
-                      title="Download CSV breakdown of group expenses"
-                    >
-                      Export CSV
-                    </Button>
-                    <Button
-                      variant="primary"
-                      size="md"
-                      icon={BiReceipt}
-                      onClick={() => setIsAddExpenseModalOpen(true)}
-                    >
-                      Add Expense
-                    </Button>
-                    <Button
-                      variant="danger"
-                      size="md"
-                      icon={BiTrash}
-                      onClick={() => setIsDeleteGroupModalOpen(true)}
-                    >
-                      Delete Group
-                    </Button>
-                  </div>
+            <div className="group-dropdown-rel">
+              <button
+                type="button"
+                className="group-dropdown-btn"
+                onClick={() => setIsGroupDropdownOpen(!isGroupDropdownOpen)}
+              >
+                <div className="group-badge-icon">
+                  <BiGroup />
                 </div>
-
-                {/* Members Row */}
-                <div className="group-members-section">
-                  <span className="section-label">Members:</span>
-                  <div className="members-pills-list">
-                    {activeGroup.members?.map((m, idx) => (
-                      <span key={idx} className="member-pill">
-                        {m.name}
-                      </span>
-                    ))}
+                <div className="group-dropdown-meta">
+                  <div className="group-dropdown-title-row">
+                    <span className="group-title-text">{activeGroup?.name || 'Select Group'}</span>
+                    <span className="group-cat-pill">{activeGroup?.category || 'Group'}</span>
+                    <BiChevronDown className={`group-chevron ${isGroupDropdownOpen ? 'rotate-180' : ''}`} />
                   </div>
-
-                  {/* Add Member Form */}
-                  <form onSubmit={handleAddMember} className="quick-add-member-form">
-                    <input
-                      type="text"
-                      placeholder="Add member name..."
-                      value={newMemberInput}
-                      onChange={(e) => setNewMemberInput(e.target.value)}
-                      className="quick-member-input"
-                    />
-                    <button type="submit" className="quick-member-btn" title="Add member">
-                      <BiUserPlus />
-                    </button>
-                  </form>
+                  <span className="group-subtitle-text">
+                    {activeGroup?.members?.length || 0} members • {activeExpenses.length} expenses
+                  </span>
                 </div>
+              </button>
 
-                {/* LIVE NET BALANCES WIDGET */}
-                <div className="group-balances-widget">
-                  <h4 className="balances-title">
-                    <BiTrendingUp /> Net Balances
-                  </h4>
-                  <div className="balances-grid">
-                    {Object.entries(memberBalances).map(([memberName, bal]) => {
-                      const isPositive = bal > 0.01;
-                      const isNegative = bal < -0.01;
+              {isGroupDropdownOpen && (
+                <div className="group-dropdown-menu animate-fade-in">
+                  <div className="group-dropdown-header">
+                    <span>SWITCH GROUP ({groups.length})</span>
+                  </div>
+                  <div className="group-dropdown-list">
+                    {groups.map((g) => {
+                      const isSelected = activeGroup?.id === g.id;
                       return (
                         <div
-                          key={memberName}
-                          className={`balance-card ${
-                            isPositive ? 'balance-positive' : isNegative ? 'balance-negative' : 'balance-zero'
-                          }`}
+                          key={g.id}
+                          className={`group-dropdown-item ${isSelected ? 'active' : ''}`}
+                          onClick={() => {
+                            setActiveGroup(g);
+                            setIsGroupDropdownOpen(false);
+                          }}
                         >
-                          <span className="balance-name">{memberName}</span>
-                          <span className="balance-val font-mono">
-                            {isPositive ? `+₹${bal.toFixed(2)}` : isNegative ? `-₹${Math.abs(bal).toFixed(2)}` : '₹0.00'}
-                          </span>
-                          <span className="balance-status font-mono">
-                            {isPositive ? 'gets back' : isNegative ? 'owes' : 'settled up'}
-                          </span>
+                          <div className="group-item-info">
+                            <span className="group-item-name">{g.name}</span>
+                            <span className="group-item-meta">{g.members?.length || 0} members • {g.category}</span>
+                          </div>
+                          {isSelected && <BiCheck className="text-primary font-bold" />}
                         </div>
                       );
                     })}
                   </div>
-                </div>
-
-                {/* SIMPLIFIED SETTLEMENTS (WHO PAYS WHOM) */}
-                <div className="settlements-widget">
-                  <h4 className="settlements-title">
-                    🤝 Simplified Settlements (Who Pays Whom)
-                  </h4>
-                  {settlements.length === 0 ? (
-                    <div className="all-settled-badge">
-                      <BiCheckDouble /> All members are completely settled up!
-                    </div>
-                  ) : (
-                    <div className="settlements-list">
-                      {settlements.map((s, idx) => (
-                        <div key={idx} className="settlement-card">
-                          <span className="settlement-from">{s.from}</span>
-                          <span className="settlement-action">
-                            pays <BiRightArrowAlt />
-                          </span>
-                          <span className="settlement-to">{s.to}</span>
-                          
-                          <div className="settlement-right-actions">
-                            <span className="settlement-amount font-mono">
-                              ₹{s.amount.toFixed(2)}
-                            </span>
-                            <button
-                              type="button"
-                              className="settle-upi-btn"
-                              onClick={() => handleOpenUpiModal(s)}
-                              title="Pay via UPI Deep Link / QR Code"
-                            >
-                              <BiQrScan style={{ marginRight: 4, verticalAlign: 'middle' }} /> Pay via UPI
-                            </button>
-                            <button
-                              type="button"
-                              className="settle-offline-btn"
-                              onClick={() => handleRecordSettlement({ debtorName: s.from, creditorName: s.to, amount: s.amount })}
-                              title="Record payment without UPI"
-                            >
-                              <BiCheck style={{ marginRight: 2, verticalAlign: 'middle' }} /> Settle
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Expense History Section */}
-              <div className="expenses-section cyber-card">
-                <div className="card-section-header">
-                  <h3>Group Expenses</h3>
-                  <span className="expenses-count">{activeExpenses.length} transactions</span>
-                </div>
-
-                {activeExpenses.length === 0 ? (
-                  <div className="empty-state py-8">
-                    <BiReceipt className="empty-icon" />
-                    <p>No expenses logged in this group yet.</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      icon={BiPlus}
-                      onClick={() => setIsAddExpenseModalOpen(true)}
+                  <div className="group-dropdown-footer">
+                    <button
+                      type="button"
+                      className="group-add-new-btn"
+                      onClick={() => {
+                        setIsGroupDropdownOpen(false);
+                        setIsCreateModalOpen(true);
+                      }}
                     >
-                      Add First Expense
-                    </Button>
+                      <BiPlus /> Create New Group
+                    </button>
                   </div>
-                ) : (
-                  <div className="expenses-list">
-                    {activeExpenses.map((exp) => {
-                      const isExpanded = expandedExpenseId === exp.id;
-                      const splitCount = exp.splits?.length || activeGroup.members?.length || 1;
-                      const sharePerPerson = exp.amount / splitCount;
-
-                      return (
-                        <div key={exp.id} className="expense-item-wrapper">
-                          <div
-                            className="expense-item-card"
-                            onClick={() => toggleExpandExpense(exp.id)}
-                          >
-                            <div className="expense-icon-badge">
-                              <BiMoney />
-                            </div>
-                            <div className="expense-main-info">
-                              <span className="expense-description">{exp.description}</span>
-                              <span className="expense-meta">
-                                Paid by <strong>{exp.paid_by}</strong> • Split {exp.split_type} (₹
-                                {sharePerPerson.toFixed(2)}/person)
-                              </span>
-                            </div>
-                            <div className="expense-amount-col">
-                              <span className="expense-amount font-mono">
-                                ₹{exp.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                              </span>
-                              <button className="expand-toggle-btn">
-                                {isExpanded ? <BiChevronUp /> : <BiChevronDown />}
-                              </button>
-                              <button
-                                className="expense-delete-btn"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteExpense(exp.id);
-                                }}
-                                title="Delete expense"
-                              >
-                                <BiTrash />
-                              </button>
-                            </div>
-                          </div>
-
-                          {/* Expanded Split Breakdown Drawer */}
-                          {isExpanded && (
-                            <div className="expense-splits-drawer animate-fade-in">
-                              <span className="drawer-title">Split Breakdown per member:</span>
-                              <div className="splits-pills-grid">
-                                {exp.splits && exp.splits.length > 0 ? (
-                                  exp.splits.map((s, idx) => (
-                                    <div key={idx} className="split-member-card">
-                                      <span className="split-member-name">
-                                        {s.user_name || s.member_name}
-                                      </span>
-                                      <span className="split-member-amount font-mono">
-                                        ₹{parseFloat(s.amount).toFixed(2)}
-                                      </span>
-                                    </div>
-                                  ))
-                                ) : (
-                                  activeGroup.members?.map((m, idx) => (
-                                    <div key={idx} className="split-member-card">
-                                      <span className="split-member-name">{m.name}</span>
-                                      <span className="split-member-amount font-mono">
-                                        ₹{sharePerPerson.toFixed(2)}
-                                      </span>
-                                    </div>
-                                  ))
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            </>
-          ) : (
-            <div className="cyber-card empty-active-view">
-              <BiGroup className="huge-icon" />
-              <h3>Select or create a group to start</h3>
+                </div>
+              )}
             </div>
           )}
         </div>
+
+        {/* Primary Action Buttons */}
+        <div className="groups-action-toolbar">
+          <Button
+            variant="outline"
+            size="md"
+            icon={BiCamera}
+            onClick={() => setIsReceiptModalOpen(true)}
+            title="Scan dining bill photo with Divvy AI and itemize splits"
+            disabled={!activeGroup}
+          >
+            Scan Bill & Itemize
+          </Button>
+          <Button
+            variant="outline"
+            size="md"
+            icon={BiDownload}
+            onClick={handleExportGroupCSV}
+            loading={exportingCSV}
+            title="Download CSV breakdown of group expenses"
+            disabled={!activeGroup}
+          >
+            Export CSV
+          </Button>
+          <Button
+            variant="primary"
+            size="md"
+            icon={BiPlus}
+            onClick={() => {
+              if (!activeGroup) {
+                setIsCreateModalOpen(true);
+              } else {
+                setIsAddExpenseModalOpen(true);
+              }
+            }}
+          >
+            {activeGroup ? 'Add Expense' : 'Create Group'}
+          </Button>
+          {activeGroup && (
+            <Button
+              variant="danger"
+              size="md"
+              icon={BiTrash}
+              onClick={() => setIsDeleteGroupModalOpen(true)}
+              title="Delete group"
+            />
+          )}
+        </div>
       </div>
+
+      {/* Main Group Content */}
+      {loading && groups.length === 0 ? (
+        <div className="text-center py-12">
+          <Spinner size="lg" />
+          <p className="text-secondary mt-3">Loading your financial groups...</p>
+        </div>
+      ) : !activeGroup ? (
+        <div className="empty-group-state cyber-card py-12 text-center">
+          <BiGroup className="huge-icon text-tertiary mb-3" />
+          <h3>No Active Group Selected</h3>
+          <p className="text-secondary max-w-md mx-auto mb-4">
+            Create an expense group to easily itemize bills, track shared expenses, and settle balances with 1-Tap UPI.
+          </p>
+          <Button variant="primary" icon={BiPlus} onClick={() => setIsCreateModalOpen(true)}>
+            Create First Group
+          </Button>
+        </div>
+      ) : (
+        <>
+          {/* Members Bar & Quick Add Member */}
+          <div className="group-members-strip cyber-card">
+            <div className="members-strip-left">
+              <span className="members-strip-label">Group Members ({activeGroup.members?.length || 0}):</span>
+              <div className="members-avatar-stack">
+                {activeGroup.members?.map((m, idx) => (
+                  <span key={idx} className="member-avatar-chip" title={m.name}>
+                    <span className="member-avatar-circle">{m.name.charAt(0).toUpperCase()}</span>
+                    <span className="member-avatar-name">{m.name}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <form onSubmit={handleAddMember} className="members-quick-add-form">
+              <input
+                type="text"
+                placeholder="Add member name..."
+                value={newMemberInput}
+                onChange={(e) => setNewMemberInput(e.target.value)}
+                className="members-quick-input"
+              />
+              <button type="submit" className="members-quick-submit" title="Add member to group">
+                <BiUserPlus /> Add
+              </button>
+            </form>
+          </div>
+
+          {/* ── 3 Executive Balance KPI Cards ── */}
+          <div className="group-kpi-grid">
+            {/* KPI 1: Total Spend */}
+            <div className="group-kpi-card cyber-card">
+              <div className="kpi-top">
+                <span className="kpi-label">TOTAL GROUP SPEND</span>
+                <div className="kpi-icon-badge">
+                  <BiReceipt />
+                </div>
+              </div>
+              <div className="kpi-amount font-mono">
+                ₹{totalGroupSpend.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              </div>
+              <div className="kpi-subtext text-secondary">
+                {activeExpenses.length} transactions across {activeGroup.members?.length || 0} members
+              </div>
+            </div>
+
+            {/* KPI 2: You are Owed */}
+            <div className="group-kpi-card cyber-card">
+              <div className="kpi-top">
+                <span className="kpi-label">YOU ARE OWED</span>
+                <div className="kpi-icon-badge badge-success">
+                  <BiTrendingUp />
+                </div>
+              </div>
+              <div className={`kpi-amount font-mono ${userIsOwed > 0 ? 'text-success' : 'text-secondary'}`}>
+                {userIsOwed > 0 ? `+₹${userIsOwed.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '₹0.00'}
+              </div>
+              <div className="kpi-subtext text-secondary">
+                {userIsOwed > 0 ? 'Group members owe you this balance' : 'You have no outstanding credit'}
+              </div>
+            </div>
+
+            {/* KPI 3: You Owe (With direct Settle Up action) */}
+            <div className={`group-kpi-card cyber-card ${userOwes > 0 ? 'kpi-card-debt' : ''}`}>
+              <div className="kpi-top">
+                <span className="kpi-label">YOU OWE</span>
+                <div className={`kpi-icon-badge ${userOwes > 0 ? 'badge-danger' : ''}`}>
+                  <BiCreditCard />
+                </div>
+              </div>
+              <div className={`kpi-amount font-mono ${userOwes > 0 ? 'text-danger' : 'text-secondary'}`}>
+                {userOwes > 0 ? `-₹${userOwes.toLocaleString('en-IN', { minimumFractionDigits: 2 })}` : '₹0.00'}
+              </div>
+              <div className="kpi-footer-action">
+                <span className="kpi-subtext text-secondary">
+                  {userOwes > 0 ? 'Outstanding debt to group' : 'You are all settled up!'}
+                </span>
+                {userOwes > 0 && (
+                  <button
+                    type="button"
+                    className="kpi-settle-btn"
+                    onClick={() => handleOpenUpiModal(mySettlementToPay || settlements[0])}
+                  >
+                    <BiQrScan /> Settle Up
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* ── Settlements & Net Balances Strip ── */}
+          <div className="group-settlements-panel cyber-card">
+            <div className="settlements-panel-header">
+              <div className="panel-title-group">
+                <h4>Simplified Settlements & Net Balances</h4>
+                <span className="panel-hint">Calculated via minimum-cash-flow algorithm</span>
+              </div>
+              <div className="member-net-chips">
+                {Object.entries(memberBalances).map(([memberName, bal]) => {
+                  const isPositive = bal > 0.01;
+                  const isNegative = bal < -0.01;
+                  return (
+                    <span
+                      key={memberName}
+                      className={`member-net-pill ${isPositive ? 'net-positive' : isNegative ? 'net-negative' : 'net-zero'}`}
+                    >
+                      <strong>{memberName}:</strong>{' '}
+                      <span className="font-mono">
+                        {isPositive ? `+₹${bal.toFixed(2)}` : isNegative ? `-₹${Math.abs(bal).toFixed(2)}` : '₹0.00'}
+                      </span>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+
+            {settlements.length === 0 ? (
+              <div className="all-settled-notice">
+                <BiCheckCircle className="settled-icon text-success" />
+                <span>All members are completely settled up — zero outstanding balances!</span>
+              </div>
+            ) : (
+              <div className="settlements-row-grid">
+                {settlements.map((s, idx) => (
+                  <div key={idx} className="settlement-ticket">
+                    <div className="ticket-flow">
+                      <span className="ticket-debtor">{s.from}</span>
+                      <span className="ticket-arrow">pays <BiRightArrowAlt /></span>
+                      <span className="ticket-creditor">{s.to}</span>
+                    </div>
+                    <div className="ticket-right">
+                      <span className="ticket-amount font-mono">₹{s.amount.toFixed(2)}</span>
+                      <button
+                        type="button"
+                        className="btn-ticket-upi"
+                        onClick={() => handleOpenUpiModal(s)}
+                        title="Pay via UPI Deep Link / QR Code"
+                      >
+                        <BiQrScan /> Pay via UPI
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-ticket-offline"
+                        onClick={() => handleRecordSettlement({ debtorName: s.from, creditorName: s.to, amount: s.amount })}
+                        title="Record payment without UPI"
+                      >
+                        <BiCheck /> Settle
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* ── Structured Financial Ledger Table ── */}
+          <div className="expenses-ledger-card cyber-card">
+            <div className="ledger-toolbar">
+              <div className="ledger-header-info">
+                <h3>Financial Activity</h3>
+                <span className="expenses-count-pill">{filteredExpenses.length} transactions</span>
+              </div>
+              <div className="ledger-search-box">
+                <BiSearch className="ledger-search-icon" />
+                <input
+                  type="text"
+                  placeholder="Filter by description, payer, category..."
+                  value={expenseSearchQuery}
+                  onChange={(e) => setExpenseSearchQuery(e.target.value)}
+                  className="ledger-search-input"
+                />
+              </div>
+            </div>
+
+            {filteredExpenses.length === 0 ? (
+              <div className="empty-state py-8 text-center">
+                <BiReceipt className="empty-icon text-tertiary mb-2" />
+                <p className="text-secondary">
+                  {activeExpenses.length === 0 ? 'No expenses logged in this group yet.' : 'No transactions match your search query.'}
+                </p>
+                {activeExpenses.length === 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    icon={BiPlus}
+                    onClick={() => setIsAddExpenseModalOpen(true)}
+                    className="mt-3"
+                  >
+                    Add First Expense
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <div className="table-responsive">
+                <table className="ledger-table">
+                  <thead>
+                    <tr>
+                      <th>Expense & Date</th>
+                      <th>Category</th>
+                      <th>Paid By</th>
+                      <th className="text-right">Total Amount</th>
+                      <th className="text-right">Your Share</th>
+                      <th>Status</th>
+                      <th className="text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredExpenses.map((exp) => {
+                      const isExpanded = expandedExpenseId === exp.id;
+                      const splitCount = exp.splits?.length || activeGroup.members?.length || 1;
+
+                      // Calculate current user's specific share
+                      let myShare = 0;
+                      if (exp.splits && exp.splits.length > 0) {
+                        const mySplit = exp.splits.find(
+                          (s) => (s.user_name || s.member_name || '').toLowerCase() === currentUserName.toLowerCase()
+                        );
+                        myShare = mySplit ? parseFloat(mySplit.amount) : 0;
+                      } else {
+                        myShare = exp.amount / splitCount;
+                      }
+
+                      const isPayer = (exp.paid_by || '').toLowerCase() === currentUserName.toLowerCase();
+
+                      return (
+                        <React.Fragment key={exp.id}>
+                          <tr
+                            className={`ledger-row ${isExpanded ? 'ledger-row-expanded' : ''}`}
+                            onClick={() => toggleExpandExpense(exp.id)}
+                          >
+                            <td>
+                              <div className="ledger-desc-cell">
+                                <div className="ledger-icon-badge">
+                                  <BiReceipt />
+                                </div>
+                                <div className="ledger-desc-text">
+                                  <span className="ledger-desc-title">{exp.description}</span>
+                                  <span className="ledger-desc-date">
+                                    {exp.created_at
+                                      ? new Date(exp.created_at).toLocaleDateString('en-IN', {
+                                          month: 'short',
+                                          day: 'numeric',
+                                          year: 'numeric',
+                                        })
+                                      : 'Recent'}
+                                  </span>
+                                </div>
+                              </div>
+                            </td>
+                            <td>
+                              <span className="ledger-category-badge">
+                                {exp.category || 'General'}
+                              </span>
+                            </td>
+                            <td>
+                              <div className="ledger-payer-cell">
+                                <span className="ledger-payer-avatar">
+                                  {(exp.paid_by || '?').charAt(0).toUpperCase()}
+                                </span>
+                                <span className="ledger-payer-name">{exp.paid_by}</span>
+                              </div>
+                            </td>
+                            <td className="text-right font-mono font-semibold">
+                              ₹{exp.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                            </td>
+                            <td className="text-right font-mono">
+                              <span className={isPayer ? 'text-success' : 'text-secondary'}>
+                                ₹{myShare.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                              </span>
+                            </td>
+                            <td>
+                              <span className={`status-pill ${isPayer ? 'status-paid' : 'status-split'}`}>
+                                {isPayer ? 'You Paid' : `Split ${exp.split_type || 'Equal'}`}
+                              </span>
+                            </td>
+                            <td className="text-right">
+                              <div className="ledger-actions-group" onClick={(e) => e.stopPropagation()}>
+                                <button
+                                  type="button"
+                                  className="ledger-btn-icon"
+                                  onClick={() => toggleExpandExpense(exp.id)}
+                                  title="View split breakdown"
+                                >
+                                  {isExpanded ? <BiChevronUp /> : <BiChevronDown />}
+                                </button>
+                                <button
+                                  type="button"
+                                  className="ledger-btn-icon text-danger"
+                                  onClick={() => handleDeleteExpense(exp.id)}
+                                  title="Delete expense"
+                                >
+                                  <BiTrash />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+
+                          {/* Expanded Split Breakdown Drawer Row */}
+                          {isExpanded && (
+                            <tr className="ledger-drawer-row">
+                              <td colSpan="7">
+                                <div className="ledger-drawer-content animate-fade-in">
+                                  <div className="drawer-header">
+                                    <span className="drawer-title">Split Breakdown per member:</span>
+                                    <span className="drawer-split-type">Split Type: {exp.split_type || 'Equal'}</span>
+                                  </div>
+                                  <div className="drawer-splits-grid">
+                                    {exp.splits && exp.splits.length > 0 ? (
+                                      exp.splits.map((s, idx) => (
+                                        <div key={idx} className="drawer-member-card">
+                                          <div className="drawer-member-left">
+                                            <span className="drawer-member-avatar">
+                                              {(s.user_name || s.member_name || '?').charAt(0).toUpperCase()}
+                                            </span>
+                                            <span className="drawer-member-name">
+                                              {s.user_name || s.member_name}
+                                            </span>
+                                          </div>
+                                          <span className="drawer-member-amount font-mono">
+                                            ₹{parseFloat(s.amount).toFixed(2)}
+                                          </span>
+                                        </div>
+                                      ))
+                                    ) : (
+                                      activeGroup.members?.map((m, idx) => (
+                                        <div key={idx} className="drawer-member-card">
+                                          <div className="drawer-member-left">
+                                            <span className="drawer-member-avatar">
+                                              {m.name.charAt(0).toUpperCase()}
+                                            </span>
+                                            <span className="drawer-member-name">{m.name}</span>
+                                          </div>
+                                          <span className="drawer-member-amount font-mono">
+                                            ₹{(exp.amount / splitCount).toFixed(2)}
+                                          </span>
+                                        </div>
+                                      ))
+                                    )}
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </>
+      )}
 
       {/* Create Group Modal */}
       <Modal
@@ -743,10 +978,10 @@ export default function GroupsPage() {
               value={newGroupData.category}
               onChange={(e) => setNewGroupData({ ...newGroupData, category: e.target.value })}
             >
-              <option value="trip">✈️ Trip / Vacation</option>
-              <option value="home">🏠 Home / Roommates</option>
-              <option value="couple">❤️ Couple</option>
-              <option value="other">🎉 Event / Party / Other</option>
+              <option value="trip">Trip / Vacation</option>
+              <option value="home">Home / Flatmates</option>
+              <option value="couple">Couple</option>
+              <option value="other">Event / Other</option>
             </select>
           </div>
 
