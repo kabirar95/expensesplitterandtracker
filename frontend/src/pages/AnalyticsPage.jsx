@@ -24,6 +24,13 @@ import {
   BiCheckCircle,
   BiErrorCircle,
   BiInfoCircle,
+  BiRestaurant,
+  BiHomeAlt,
+  BiShoppingBag,
+  BiCar,
+  BiFilm,
+  BiPulse,
+  BiPackage,
 } from 'react-icons/bi';
 import { toast } from 'react-hot-toast';
 
@@ -36,13 +43,13 @@ import api from '../services/api';
 import './AnalyticsPage.css';
 
 const CATEGORY_MAP = {
-  food: { name: 'Food & Dining', color: '#e11d48' },
-  rent: { name: 'Rent & Bills', color: '#ff4d6d' },
-  shopping: { name: 'Shopping', color: '#f43f5e' },
-  travel: { name: 'Travel & Cab', color: '#f59e0b' },
-  entertainment: { name: 'Entertainment', color: '#10b981' },
-  health: { name: 'Health & Fitness', color: '#38bdf8' },
-  other: { name: 'Other / Misc', color: '#71717a' },
+  food: { name: 'Food & Dining', Icon: BiRestaurant, color: '#e11d48' },
+  rent: { name: 'Rent & Bills', Icon: BiHomeAlt, color: '#ff4d6d' },
+  shopping: { name: 'Shopping', Icon: BiShoppingBag, color: '#f43f5e' },
+  travel: { name: 'Travel & Cab', Icon: BiCar, color: '#f59e0b' },
+  entertainment: { name: 'Entertainment', Icon: BiFilm, color: '#10b981' },
+  health: { name: 'Health & Fitness', Icon: BiPulse, color: '#38bdf8' },
+  other: { name: 'Other / Misc', Icon: BiPackage, color: '#71717a' },
 };
 
 // Custom Cybertech Tooltip for Recharts
@@ -154,6 +161,7 @@ export default function AnalyticsPage() {
     const data = Object.entries(totals).map(([catKey, val]) => ({
       key: catKey,
       name: CATEGORY_MAP[catKey]?.name || catKey,
+      Icon: CATEGORY_MAP[catKey]?.Icon || BiPackage,
       color: CATEGORY_MAP[catKey]?.color || '#e11d48',
       value: parseFloat(val.toFixed(2)),
       percentage: sum > 0 ? Math.round((val / sum) * 100) : 0,
@@ -234,6 +242,9 @@ export default function AnalyticsPage() {
     return date.toLocaleString('default', { month: 'long', year: 'numeric' });
   }, [selectedMonthYear]);
 
+  const topCategory = categoryData[0];
+  const TopCategoryIcon = topCategory?.Icon;
+
   return (
     <div className="analytics-page-container animate-fade-in">
       {/* Header */}
@@ -295,15 +306,18 @@ export default function AnalyticsPage() {
 
         <div className="kpi-card cyber-card">
           <span className="kpi-label">Top Spending Category</span>
-          <span className="kpi-val text-pink">
-            {categoryData.length > 0 ? (
-              `${categoryData[0].icon} ${categoryData[0].name}`
+          <span className="kpi-val text-pink" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+            {topCategory ? (
+              <>
+                {TopCategoryIcon && <TopCategoryIcon style={{ fontSize: '1.25rem', flexShrink: 0 }} />}
+                <span>{topCategory.name}</span>
+              </>
             ) : (
               'No expenses'
             )}
           </span>
           <span className="kpi-subtext">
-            {categoryData.length > 0 ? `${categoryData[0].percentage}% of month's spend` : 'Start logging'}
+            {topCategory ? `${topCategory.percentage}% of month's spend` : 'Start logging'}
           </span>
         </div>
 
@@ -363,20 +377,24 @@ export default function AnalyticsPage() {
               </div>
 
               <div className="category-legend-list">
-                {categoryData.map((item) => (
-                  <div key={item.key} className="legend-row">
-                    <div className="legend-left">
-                      <span className="legend-dot" style={{ backgroundColor: item.color }} />
-                      <span className="legend-name">
-                        {item.name}
-                      </span>
+                {categoryData.map((item) => {
+                  const Icon = item.Icon;
+                  return (
+                    <div key={item.key} className="legend-row">
+                      <div className="legend-left">
+                        <span className="legend-dot" style={{ backgroundColor: item.color }} />
+                        {Icon && <Icon style={{ fontSize: '0.95rem', color: item.color, marginRight: '4px' }} />}
+                        <span className="legend-name">
+                          {item.name}
+                        </span>
+                      </div>
+                      <div className="legend-right font-mono">
+                        <span className="legend-val">₹{item.value.toLocaleString()}</span>
+                        <span className="legend-pct">{item.percentage}%</span>
+                      </div>
                     </div>
-                    <div className="legend-right font-mono">
-                      <span className="legend-val">₹{item.value.toLocaleString()}</span>
-                      <span className="legend-pct">{item.percentage}%</span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

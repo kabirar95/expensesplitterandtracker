@@ -1,57 +1,61 @@
 /* ============================================================
-   CYBER-TECH THEMES (Dark First + Cyber Light)
+   DIVVY COMMAND STUDIO THEME (Red & Obsidian Black)
    ============================================================ */
 
-/* ── Dark Theme (Obsidian & Crimson Red) ── */
-[data-theme="dark"], :root {
-  /* Brand Accents - Crimson & Ruby */
+:root,
+[data-theme="dark"],
+[data-theme="light"] {
+  /* Brand Accents - High-Precision Crimson & Electric Ruby */
   --color-primary: #e11d48;          /* Vibrant Crimson */
   --color-primary-hover: #be123c;
-  --color-primary-light: rgba(225, 29, 72, 0.12);
+  --color-primary-light: rgba(225, 29, 72, 0.16);
   --color-primary-ghost: rgba(225, 29, 72, 0.08);
 
   --color-accent-crimson: #ff2a44;   /* Electric Crimson */
   --color-accent-ruby: #9f1239;      /* Deep Ruby */
-  --color-accent-cyan: #ff4d6d;      /* Secondary Coral Crimson */
+  --color-accent-coral: #ff4d6d;     /* Radiant Coral Red */
+  --color-accent-cyan: #ff4d6d;
   --color-accent-magenta: #e11d48;
+  --color-accent-violet: #8b5cf6;
 
-  --color-success: #10b981;          /* Muted Emerald for + balances */
+  --color-success: #10b981;          /* Emerald Green for + balances & Sys.Online */
   --color-success-light: rgba(16, 185, 129, 0.12);
   --color-warning: #f59e0b;          /* Amber */
   --color-warning-light: rgba(245, 158, 11, 0.12);
   --color-danger: #ef4444;           /* Debt Red */
   --color-danger-light: rgba(239, 68, 68, 0.12);
 
-  /* Deep Obsidian Canvas & Surfaces */
-  --bg-primary: #08080a;             /* Pure Obsidian Black */
-  --bg-secondary: #0f0f13;           /* Dark Charcoal Card Container */
-  --bg-tertiary: #14141a;            /* Elevated Dark Card */
-  --bg-elevated: rgba(18, 18, 24, 0.85);
-  --bg-sidebar: #0a0a0d;
-  --bg-input: rgba(18, 18, 24, 0.9);
-  --bg-hover: rgba(255, 255, 255, 0.04);
+  /* Deep Obsidian Black Canvas & Sleek Studio Surfaces */
+  --bg-primary: #07080c;             /* True Deep Obsidian Black Canvas */
+  --bg-secondary: #0e1017;           /* Obsidian Glass Container */
+  --bg-tertiary: #131622;            /* Elevated Dark Tile / Input */
+  --bg-elevated: rgba(16, 19, 30, 0.88);
+  --bg-sidebar: #08090e;
+  --bg-input: rgba(19, 22, 34, 0.94);
+  --bg-hover: rgba(255, 255, 255, 0.05);
 
-  /* Clean Titanium Text */
-  --text-primary: #ffffff;
-  --text-secondary: #a1a1aa;         /* Muted Slate / Titanium */
-  --text-tertiary: #71717a;
-  --text-muted: #52525b;
-  --text-inverse: #08080a;
+  /* Clean High-Legibility Titanium Text (Soft, Zero Glare) */
+  --text-primary: #f8fafc;           /* Crisp Soft White - zero halation glare */
+  --text-secondary: #94a3b8;         /* Clear Titanium Slate */
+  --text-tertiary: #64748b;          /* Subdued Monospace Metadata */
+  --text-muted: #475569;
+  --text-inverse: #07080c;
   --text-link: #ff4d6d;
 
-  /* Refined Hairline Borders */
+  /* Refined Studio Hairline Borders & Crimson Edge Glow */
   --border-color: rgba(255, 255, 255, 0.08);
-  --border-color-strong: rgba(255, 255, 255, 0.14);
-  --border-glow: rgba(225, 29, 72, 0.35);
+  --border-color-strong: rgba(255, 255, 255, 0.16);
+  --border-glow: rgba(225, 29, 72, 0.40);
 
-  /* Subtle Frosted Glassmorphism */
-  --glass-bg: rgba(15, 15, 19, 0.75);
+  /* Frosted Glassmorphism with Obsidian Depth */
+  --glass-bg: rgba(14, 16, 23, 0.82);
   --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
+  --glass-shadow: 0 16px 44px rgba(0, 0, 0, 0.65);
 
-  /* Peaceful Ambient Crimson Atmospheric Glow */
-  --mesh-glow-1: radial-gradient(circle at 18% 12%, rgba(225, 29, 72, 0.08) 0%, transparent 45%);
-  --mesh-glow-2: radial-gradient(circle at 82% 88%, rgba(225, 29, 72, 0.05) 0%, transparent 42%);
+  /* Atmospheric Radial Glow Halo: Top-Center Crimson Spotlight radiating downward */
+  --mesh-glow-1: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(225, 29, 72, 0.22) 0%, transparent 72%);
+  --mesh-glow-2: radial-gradient(circle at 12% 20%, rgba(159, 18, 57, 0.10) 0%, transparent 48%);
+  --mesh-glow-3: radial-gradient(circle at 88% 75%, rgba(225, 29, 72, 0.08) 0%, transparent 52%);
 
   /* Harmonious Chart Colors */
   --chart-1: #e11d48;
@@ -59,61 +63,8 @@
   --chart-3: #10b981;
   --chart-4: #f59e0b;
   --chart-5: #38bdf8;
-  --chart-6: #71717a;
+  --chart-6: #94a3b8;
 
-  --scrollbar-track: #08080a;
-  --scrollbar-thumb: #1c1c24;
-}
-
-/* ── Light Theme (Futuristic Light) ── */
-[data-theme="light"] {
-  --color-primary: #7c3aed;
-  --color-primary-hover: #6d28d9;
-  --color-primary-light: #f3e8ff;
-  --color-primary-ghost: rgba(124, 58, 237, 0.08);
-
-  --color-accent-cyan: #0284c7;
-  --color-accent-magenta: #e11d48;
-
-  --color-success: #059669;
-  --color-success-light: #d1fae5;
-  --color-warning: #d97706;
-  --color-warning-light: #fef3c7;
-  --color-danger: #dc2626;
-  --color-danger-light: #fee2e2;
-
-  --bg-primary: #f8fafc;
-  --bg-secondary: #f1f5f9;
-  --bg-tertiary: #e2e8f0;
-  --bg-elevated: rgba(255, 255, 255, 0.85);
-  --bg-sidebar: #ffffff;
-  --bg-input: #ffffff;
-  --bg-hover: #f1f5f9;
-
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-tertiary: #94a3b8;
-  --text-inverse: #ffffff;
-  --text-link: #7c3aed;
-
-  --border-color: #e2e8f0;
-  --border-color-strong: #cbd5e1;
-  --border-glow: rgba(124, 58, 237, 0.3);
-
-  --glass-bg: rgba(255, 255, 255, 0.8);
-  --glass-border: rgba(226, 232, 240, 0.8);
-  --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-
-  --mesh-glow-1: radial-gradient(circle at 15% 15%, rgba(124, 58, 237, 0.06) 0%, transparent 45%);
-  --mesh-glow-2: radial-gradient(circle at 85% 85%, rgba(2, 132, 199, 0.06) 0%, transparent 45%);
-
-  --chart-1: #7c3aed;
-  --chart-2: #0284c7;
-  --chart-3: #059669;
-  --chart-4: #d97706;
-  --chart-5: #dc2626;
-  --chart-6: #db2777;
-
-  --scrollbar-track: #f1f5f9;
-  --scrollbar-thumb: #cbd5e1;
+  --scrollbar-track: #07080c;
+  --scrollbar-thumb: #1a1d2c;
 }

@@ -30,10 +30,31 @@ export default function DashboardPage() {
     loadPersonalData();
   }, [loadGroups, loadPersonalData]);
 
-  // Compute metrics
-  const totalPersonalSpent = personalExpenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+  // Compute accurate metrics for current month & year
+  const now = new Date();
+  const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const currentYearStr = String(now.getFullYear());
+
+  // Personal spend strictly for current month
+  const thisMonthExpenses = personalExpenses.filter((e) =>
+    String(e.expense_date || '').startsWith(currentMonthStr)
+  );
+  const thisMonthSpent = thisMonthExpenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+
+  // Personal spend for current year
+  const thisYearExpenses = personalExpenses.filter((e) =>
+    String(e.expense_date || '').startsWith(currentYearStr)
+  );
+  const thisYearSpent = thisYearExpenses.reduce((sum, e) => sum + parseFloat(e.amount || 0), 0);
+
+  // Monthly target budget & remaining balance
   const totalPersonalBudget = budgets.reduce((sum, b) => sum + parseFloat(b.target_amount || 0), 0);
-  const remainingBudget = totalPersonalBudget - totalPersonalSpent;
+  const remainingBudget = totalPersonalBudget - thisMonthSpent;
+
+  // Recent personal expenses sorted newest first
+  const recentSortedExpenses = [...personalExpenses].sort((a, b) =>
+    String(b.expense_date || '').localeCompare(String(a.expense_date || ''))
+  );
 
   return (
     <div className="dashboard-container animate-fade-in">
@@ -87,10 +108,15 @@ export default function DashboardPage() {
           </div>
           <div className="stat-details">
             <span className="stat-title">Personal Spent (This Month)</span>
-            <span className="stat-number font-mono">₹{totalPersonalSpent.toFixed(2)}</span>
-            <Link to="/personal" className="stat-link">
-              View Expenses <BiRightArrowAlt />
-            </Link>
+            <span className="stat-number font-mono">₹{thisMonthSpent.toFixed(2)}</span>
+            <div className="stat-meta-row">
+              <span className="stat-meta-item">
+                Yearly: <strong className="font-mono">₹{thisYearSpent.toFixed(2)}</strong>
+              </span>
+              <Link to="/personal" className="stat-link">
+                View Expenses <BiRightArrowAlt />
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -101,9 +127,16 @@ export default function DashboardPage() {
           <div className="stat-details">
             <span className="stat-title">Target Budget Limit</span>
             <span className="stat-number font-mono">₹{totalPersonalBudget.toFixed(2)}</span>
-            <Link to="/personal" className="stat-link">
-              Set Budgets <BiRightArrowAlt />
-            </Link>
+            <div className="stat-meta-row">
+              <span className="stat-meta-item">
+                Remaining: <strong className={`font-mono ${remainingBudget < 0 ? 'text-danger' : 'text-success'}`}>
+                  {remainingBudget < 0 ? `-₹${Math.abs(remainingBudget).toFixed(2)}` : `₹${remainingBudget.toFixed(2)}`}
+                </strong>
+              </span>
+              <Link to="/personal" className="stat-link">
+                Set Budgets <BiRightArrowAlt />
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -192,7 +225,7 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {personalExpenses.slice(0, 5).map((e) => (
+                  {recentSortedExpenses.slice(0, 5).map((e) => (
                     <tr key={e.id} className="dash-table-row">
                       <td>
                         <span className="dash-item-title">{e.description}</span>

@@ -120,20 +120,36 @@
   color: #ffffff;
 }
 
+.stat-meta-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+.stat-meta-item {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+}
+
+.stat-meta-item strong {
+  color: var(--text-secondary);
+}
+
 .stat-link {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   color: #38bdf8;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  margin-top: var(--space-1);
-  font-weight: var(--font-weight-bold);
+  gap: 3px;
+  font-weight: var(--font-weight-semibold);
   transition: all var(--transition-fast);
 }
 
 .stat-link:hover {
-  color: #c084fc;
-  text-shadow: 0 0 10px rgba(192, 132, 252, 0.5);
+  color: #ff3b5c;
+  text-shadow: 0 0 10px rgba(225, 29, 72, 0.4);
 }
 
 /* Two Column Layout */

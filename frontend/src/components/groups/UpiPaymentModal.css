@@ -322,3 +322,39 @@
   cursor: pointer;
 }
 
+/* ── WhatsApp P2P Request Button ── */
+.whatsapp-request-block {
+  width: 100%;
+}
+
+.upi-whatsapp-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: rgba(37, 211, 102, 0.14);
+  border: 1px solid rgba(37, 211, 102, 0.4);
+  color: #25d366;
+  font-weight: 600;
+  font-size: 0.86rem;
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.upi-whatsapp-btn:hover {
+  background: #25d366;
+  color: #0b0d14;
+  box-shadow: 0 0 16px rgba(37, 211, 102, 0.35);
+  transform: translateY(-1px);
+}
+
+.whatsapp-btn-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+

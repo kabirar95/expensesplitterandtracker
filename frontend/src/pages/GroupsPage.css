@@ -449,6 +449,36 @@
   color: var(--text-tertiary);
 }
 
+.settlements-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.btn-panel-record-settle {
+  background: rgba(225, 29, 72, 0.12);
+  border: 1px solid rgba(225, 29, 72, 0.35);
+  color: #ff3b5c;
+  font-size: 0.74rem;
+  font-weight: var(--font-weight-semibold);
+  padding: 5px 12px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition-fast);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.btn-panel-record-settle:hover {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 12px rgba(225, 29, 72, 0.4);
+}
+
 .member-net-chips {
   display: flex;
   align-items: center;
@@ -545,6 +575,27 @@
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
+}
+
+.btn-ticket-whatsapp {
+  background: rgba(37, 211, 102, 0.12);
+  border: 1px solid rgba(37, 211, 102, 0.35);
+  color: #25d366;
+  font-size: 0.72rem;
+  font-weight: var(--font-weight-semibold);
+  padding: 4px 8px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all var(--transition-fast);
+}
+
+.btn-ticket-whatsapp:hover {
+  background: #25d366;
+  color: #0b0d14;
+  box-shadow: 0 0 10px rgba(37, 211, 102, 0.4);
 }
 
 .btn-ticket-upi {
@@ -918,3 +969,89 @@
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
 }
+
+/* ── Record Peer Settlement Modal ── */
+.settlement-record-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.settlement-modal-intro {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 2px;
+}
+
+.quick-settle-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+}
+
+.quick-settle-label {
+  font-size: 0.72rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.quick-settle-chips-row {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.quick-settle-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.quick-settle-chip:hover {
+  border-color: var(--color-primary);
+  color: var(--text-primary);
+  background: rgba(225, 29, 72, 0.08);
+}
+
+.quick-settle-chip.active {
+  background: rgba(225, 29, 72, 0.16);
+  border-color: #ff3b5c;
+  color: #ffffff;
+  box-shadow: 0 0 8px rgba(225, 29, 72, 0.3);
+}
+
+.quick-settle-chip strong {
+  color: #ff3b5c;
+}
+
+.quick-settle-chip.active strong {
+  color: #ff6b85;
+}
+
+.form-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 640px) {
+  .form-row-2col {
+    grid-template-columns: 1fr;
+  }
+}
+

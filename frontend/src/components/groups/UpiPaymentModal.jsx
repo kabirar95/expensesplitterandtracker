@@ -9,6 +9,7 @@ import {
   BiCreditCard,
   BiEdit,
 } from 'react-icons/bi';
+import { RiWhatsappFill } from 'react-icons/ri';
 import { HiSparkles, HiShieldCheck } from 'react-icons/hi';
 import Modal from '../common/Modal';
 import Button from '../common/Button';
@@ -71,11 +72,30 @@ export default function UpiPaymentModal({
     setTimeout(() => setCopiedUpiId(false), 2000);
   };
 
+  const getPayUrl = () => {
+    const origin = window.location.origin;
+    return `${origin}/pay?group=${encodeURIComponent(groupName)}&from=${encodeURIComponent(debtorName)}&to=${encodeURIComponent(creditorName)}&amount=${cleanAmount}${upiId ? `&upiId=${encodeURIComponent(upiId.trim())}` : ''}`;
+  };
+
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(upiUri);
+    const payUrl = getPayUrl();
+    navigator.clipboard.writeText(payUrl);
     setCopiedLink(true);
-    toast.success('UPI Payment Link copied to clipboard!');
+    toast.success('Web Payment Link copied to clipboard!');
     setTimeout(() => setCopiedLink(false), 2500);
+  };
+
+  const handleOpenPayPage = () => {
+    const payUrl = getPayUrl();
+    window.open(payUrl, '_blank');
+  };
+
+  const handleShareWhatsApp = () => {
+    const formattedAmt = parseFloat(cleanAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 });
+    const payUrl = getPayUrl();
+    const message = `👋 Hey *${debtorName}*!\n\nOn Divvy for *${groupName}*, you have an outstanding balance to settle with *${creditorName}*:\n\n💰 *Amount to pay:* ₹${formattedAmt}\n👤 *Pay To:* ${creditorName}\n\n👉 *Tap here to pay directly via Google Pay / PhonePe / Paytm:*\n${payUrl}\n\n(Zero app download required. Opens your native UPI payment app with 1 tap!)`;
+    const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+    window.open(waUrl, '_blank');
   };
 
   const handleSaveUpi = async (e) => {
@@ -200,17 +220,30 @@ export default function UpiPaymentModal({
           </p>
         </div>
 
-        {/* Mobile 1-Tap Launch Button */}
+        {/* Mobile / Web 1-Tap Redirection Launch Button */}
         <div className="mobile-upi-launch">
-          <a
-            href={upiUri}
+          <button
+            type="button"
             className="upi-launch-btn"
-            target="_blank"
-            rel="noopener noreferrer"
+            onClick={handleOpenPayPage}
+            style={{ width: '100%', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
           >
             <BiMobileAlt className="launch-icon" />
-            <span>⚡ Open in GPay / PhonePe / Paytm</span>
-          </a>
+            <span>⚡ Open 1-Tap Payment Page (/pay)</span>
+          </button>
+        </div>
+
+        {/* WhatsApp P2P Share Button */}
+        <div className="whatsapp-request-block">
+          <button
+            type="button"
+            className="upi-whatsapp-btn"
+            onClick={handleShareWhatsApp}
+            title="Send prefilled UPI payment request to debtor on WhatsApp"
+          >
+            <RiWhatsappFill className="whatsapp-btn-icon" />
+            <span>📲 Send Payment Request on WhatsApp</span>
+          </button>
         </div>
 
         {/* Copy Deep Link Helper */}

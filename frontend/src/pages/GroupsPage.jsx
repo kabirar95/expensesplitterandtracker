@@ -19,6 +19,7 @@ import {
   BiCreditCard,
   BiCheckCircle,
 } from 'react-icons/bi';
+import { RiWhatsappFill } from 'react-icons/ri';
 import { toast } from 'react-hot-toast';
 
 import useGroupStore from '../store/groupStore';
@@ -142,6 +143,16 @@ export default function GroupsPage() {
     creditorUpiId: '',
   });
 
+  // ── Universal Peer Settlement Modal State ──
+  const [isRecordSettlementModalOpen, setIsRecordSettlementModalOpen] = useState(false);
+  const [manualSettlementForm, setManualSettlementForm] = useState({
+    debtor: '',
+    creditor: '',
+    amount: '',
+    paymentMethod: 'UPI',
+    notes: 'Settled between members',
+  });
+
   const handleOpenUpiModal = (settlement) => {
     const creditorMember = activeGroup?.members?.find((m) => m.name === settlement.to);
     setUpiModalData({
@@ -151,6 +162,66 @@ export default function GroupsPage() {
       amount: settlement.amount,
       creditorUpiId: creditorMember?.upi_id || '',
     });
+  };
+
+  const handleShareWhatsAppSettlement = (settlement) => {
+    const creditorMember = activeGroup?.members?.find((m) => m.name === settlement.to);
+    const sanitizedName = (settlement.to || 'user').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const upiId = creditorMember?.upi_id || localStorage.getItem(`divvy_upi_${sanitizedName}`) || '';
+    const amtStr = settlement.amount.toFixed(2);
+
+    // Generate Universal 1-Tap Redirection Link (works on any mobile browser without login)
+    const origin = window.location.origin;
+    const payUrl = `${origin}/pay?group=${encodeURIComponent(activeGroup?.name || 'Group')}&groupId=${encodeURIComponent(activeGroup?.id || '')}&from=${encodeURIComponent(settlement.from)}&to=${encodeURIComponent(settlement.to)}&amount=${amtStr}${upiId ? `&upiId=${encodeURIComponent(upiId)}` : ''}`;
+
+    const message = `👋 Hey *${settlement.from}*!\n\nOn Divvy for *${activeGroup?.name || 'our group'}*, you have an outstanding balance to settle with *${settlement.to}*:\n\n💰 *Amount to pay:* ₹${amtStr}\n👤 *Pay To:* ${settlement.to}\n\n👉 *Tap here to pay directly via Google Pay / PhonePe / Paytm:*\n${payUrl}\n\n(Zero app download required. Opens your native UPI payment app with 1 tap!)`;
+
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
+  const handleDirectPayPage = (settlement) => {
+    const creditorMember = activeGroup?.members?.find((m) => m.name === settlement.to);
+    const sanitizedName = (settlement.to || 'user').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const upiId = creditorMember?.upi_id || localStorage.getItem(`divvy_upi_${sanitizedName}`) || '';
+    const amtStr = settlement.amount.toFixed(2);
+    const origin = window.location.origin;
+    const payUrl = `${origin}/pay?group=${encodeURIComponent(activeGroup?.name || 'Group')}&groupId=${encodeURIComponent(activeGroup?.id || '')}&from=${encodeURIComponent(settlement.from)}&to=${encodeURIComponent(settlement.to)}&amount=${amtStr}${upiId ? `&upiId=${encodeURIComponent(upiId)}` : ''}`;
+    window.open(payUrl, '_blank');
+  };
+
+  const handleManualSettlementSubmit = async (e) => {
+    e.preventDefault();
+    const { debtor, creditor, amount, paymentMethod } = manualSettlementForm;
+    if (!debtor || !creditor) {
+      toast.error('Please select both payer and receiver.');
+      return;
+    }
+    if (debtor === creditor) {
+      toast.error('Payer and receiver cannot be the same person.');
+      return;
+    }
+    const amt = parseFloat(amount);
+    if (isNaN(amt) || amt <= 0) {
+      toast.error('Please enter a valid amount greater than 0.');
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      await handleRecordSettlement({
+        debtorName: debtor,
+        creditorName: creditor,
+        amount: amt,
+        upiId: paymentMethod === 'UPI' ? 'UPI / Direct' : paymentMethod,
+        syncToPersonal: true,
+      });
+      setIsRecordSettlementModalOpen(false);
+    } catch (err) {
+      console.error('Failed to record settlement:', err);
+      toast.error('Failed to record settlement.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleRecordSettlement = async ({ debtorName, creditorName, amount, upiId, syncToPersonal = true }) => {
@@ -692,22 +763,42 @@ export default function GroupsPage() {
                 <h4>Simplified Settlements & Net Balances</h4>
                 <span className="panel-hint">Calculated via minimum-cash-flow algorithm</span>
               </div>
-              <div className="member-net-chips">
-                {Object.entries(memberBalances).map(([memberName, bal]) => {
-                  const isPositive = bal > 0.01;
-                  const isNegative = bal < -0.01;
-                  return (
-                    <span
-                      key={memberName}
-                      className={`member-net-pill ${isPositive ? 'net-positive' : isNegative ? 'net-negative' : 'net-zero'}`}
-                    >
-                      <strong>{memberName}:</strong>{' '}
-                      <span className="font-mono">
-                        {isPositive ? `+₹${bal.toFixed(2)}` : isNegative ? `-₹${Math.abs(bal).toFixed(2)}` : '₹0.00'}
+              <div className="settlements-header-right">
+                <div className="member-net-chips">
+                  {Object.entries(memberBalances).map(([memberName, bal]) => {
+                    const isPositive = bal > 0.01;
+                    const isNegative = bal < -0.01;
+                    return (
+                      <span
+                        key={memberName}
+                        className={`member-net-pill ${isPositive ? 'net-positive' : isNegative ? 'net-negative' : 'net-zero'}`}
+                      >
+                        <strong>{memberName}:</strong>{' '}
+                        <span className="font-mono">
+                          {isPositive ? `+₹${bal.toFixed(2)}` : isNegative ? `-₹${Math.abs(bal).toFixed(2)}` : '₹0.00'}
+                        </span>
                       </span>
-                    </span>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+                <button
+                  type="button"
+                  className="btn-panel-record-settle"
+                  onClick={() => {
+                    const first = settlements[0];
+                    setManualSettlementForm({
+                      debtor: first?.from || activeGroup?.members?.[0]?.name || '',
+                      creditor: first?.to || activeGroup?.members?.[1]?.name || '',
+                      amount: first ? String(first.amount) : '',
+                      paymentMethod: 'UPI',
+                      notes: 'Settled between members',
+                    });
+                    setIsRecordSettlementModalOpen(true);
+                  }}
+                  title="Record direct payment between any two members"
+                >
+                  <BiCheckDouble /> Record Settlement
+                </button>
               </div>
             </div>
 
@@ -729,11 +820,41 @@ export default function GroupsPage() {
                       <span className="ticket-amount font-mono">₹{s.amount.toFixed(2)}</span>
                       <button
                         type="button"
+                        className="btn-ticket-pay"
+                        onClick={() => handleDirectPayPage(s)}
+                        title="Open 1-Tap Payment Redirection Page (/pay)"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '6px 12px',
+                          background: 'linear-gradient(135deg, rgba(225, 29, 72, 0.2), rgba(244, 63, 94, 0.1))',
+                          border: '1px solid rgba(244, 63, 94, 0.4)',
+                          borderRadius: '8px',
+                          color: '#fda4af',
+                          fontSize: '0.8rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
+                        <BiCreditCard /> Pay Online
+                      </button>
+                      <button
+                        type="button"
+                        className="btn-ticket-whatsapp"
+                        onClick={() => handleShareWhatsAppSettlement(s)}
+                        title="Send prefilled 1-Tap UPI Payment Request on WhatsApp"
+                      >
+                        <RiWhatsappFill /> Ping WhatsApp
+                      </button>
+                      <button
+                        type="button"
                         className="btn-ticket-upi"
                         onClick={() => handleOpenUpiModal(s)}
                         title="Pay via UPI Deep Link / QR Code"
                       >
-                        <BiQrScan /> Pay via UPI
+                        <BiQrScan /> UPI QR
                       </button>
                       <button
                         type="button"
@@ -1123,6 +1244,131 @@ export default function GroupsPage() {
             </Button>
           </div>
         </div>
+      </Modal>
+
+      {/* Universal Modal: Record Peer-to-Peer Settlement */}
+      <Modal
+        isOpen={isRecordSettlementModalOpen}
+        onClose={() => setIsRecordSettlementModalOpen(false)}
+        title="🤝 Record Peer Settlement"
+      >
+        <form onSubmit={handleManualSettlementSubmit} className="settlement-record-modal-form">
+          <p className="settlement-modal-intro">
+            Record a direct payment between any two group members (Cash, UPI, GPay, Bank Transfer). This zeroes out their simplified balance in Divvy.
+          </p>
+
+          {settlements.length > 0 && (
+            <div className="quick-settle-section">
+              <label className="quick-settle-label">Quick Select Outstanding Balance:</label>
+              <div className="quick-settle-chips-row">
+                {settlements.map((s, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    className={`quick-settle-chip ${
+                      manualSettlementForm.debtor === s.from &&
+                      manualSettlementForm.creditor === s.to &&
+                      parseFloat(manualSettlementForm.amount) === s.amount
+                        ? 'active'
+                        : ''
+                    }`}
+                    onClick={() =>
+                      setManualSettlementForm((prev) => ({
+                        ...prev,
+                        debtor: s.from,
+                        creditor: s.to,
+                        amount: String(s.amount),
+                      }))
+                    }
+                  >
+                    <span>{s.from} → {s.to}</span>
+                    <strong className="font-mono">₹{s.amount.toFixed(2)}</strong>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="form-row-2col">
+            <div className="input-group">
+              <label className="input-label">Who Paid (Debtor)?</label>
+              <select
+                className="input-field"
+                value={manualSettlementForm.debtor}
+                onChange={(e) => setManualSettlementForm((prev) => ({ ...prev, debtor: e.target.value }))}
+                required
+              >
+                <option value="">Select member...</option>
+                {activeGroup?.members?.map((m) => (
+                  <option key={m.id || m.name} value={m.name}>
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="input-group">
+              <label className="input-label">Who Received (Creditor)?</label>
+              <select
+                className="input-field"
+                value={manualSettlementForm.creditor}
+                onChange={(e) => setManualSettlementForm((prev) => ({ ...prev, creditor: e.target.value }))}
+                required
+              >
+                <option value="">Select member...</option>
+                {activeGroup?.members?.map((m) => (
+                  <option key={m.id || m.name} value={m.name}>
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="form-row-2col">
+            <Input
+              label="Amount (₹)"
+              type="number"
+              step="0.01"
+              min="0.01"
+              placeholder="e.g. 450.00"
+              value={manualSettlementForm.amount}
+              onChange={(e) => setManualSettlementForm((prev) => ({ ...prev, amount: e.target.value }))}
+              required
+            />
+
+            <div className="input-group">
+              <label className="input-label">Payment Mode</label>
+              <select
+                className="input-field"
+                value={manualSettlementForm.paymentMethod}
+                onChange={(e) => setManualSettlementForm((prev) => ({ ...prev, paymentMethod: e.target.value }))}
+              >
+                <option value="UPI">UPI (Google Pay / PhonePe / Paytm)</option>
+                <option value="Cash">Cash in Hand</option>
+                <option value="Bank Transfer">Bank Transfer (IMPS / NEFT)</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <Input
+            label="Notes (Optional)"
+            type="text"
+            placeholder="e.g. Paid in cash at dinner or direct UPI"
+            value={manualSettlementForm.notes}
+            onChange={(e) => setManualSettlementForm((prev) => ({ ...prev, notes: e.target.value }))}
+          />
+
+          <div className="modal-actions-row mt-4">
+            <Button variant="outline" type="button" onClick={() => setIsRecordSettlementModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" type="submit" loading={submitting}>
+              Confirm & Settle Balance
+            </Button>
+          </div>
+        </form>
       </Modal>
 
       {/* Modal: 1-Tap UPI Settlement & Dynamic QR Code */}

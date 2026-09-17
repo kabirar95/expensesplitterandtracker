@@ -2,7 +2,7 @@
 // DIVVY PWA SERVICE WORKER
 // ============================================================
 
-const CACHE_NAME = 'divvy-cache-v2';
+const CACHE_NAME = 'divvy-cache-v3';
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',

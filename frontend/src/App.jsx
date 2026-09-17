@@ -17,7 +17,7 @@ import PersonalTrackerPage from './pages/PersonalTrackerPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import AIAssistantPage from './pages/AIAssistantPage';
 import ProfilePage from './pages/ProfilePage';
-
+import PaymentRedirectionPage from './pages/PaymentRedirectionPage';
 
 export default function App() {
   const { accessToken, setLoading } = useAuthStore();
@@ -58,6 +58,7 @@ export default function App() {
         {/* Public Routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/pay" element={<PaymentRedirectionPage />} />
 
         {/* Protected App Routes */}
         <Route

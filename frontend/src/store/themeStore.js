@@ -1,69 +1,31 @@
 /* ============================================================
-   THEME STORE — Dark/Light mode state management
-   ============================================================
-   Zustand is a tiny state management library for React.
-   Think of it like a global variable that all components can 
-   read and update. When the theme changes, every component
-   that uses this store automatically re-renders.
-   
-   How dark mode works:
-   1. On first load → check localStorage, then system preference
-   2. Set data-theme="dark" or "light" on <html>
-   3. All CSS variables switch automatically (see theme.css)
-   4. Save preference to localStorage for next visit
+   THEME STORE — Permanently Dark Command Studio Mode
    ============================================================ */
 
 import { create } from 'zustand';
 
 const useThemeStore = create((set) => ({
-  // Current theme: "light" or "dark"
-  theme: getInitialTheme(),
+  // Always dark theme
+  theme: 'dark',
 
-  // Toggle between light and dark
+  // No-op or keep dark
   toggleTheme: () => {
-    set((state) => {
-      const newTheme = state.theme === 'light' ? 'dark' : 'light';
-      applyTheme(newTheme);
-      return { theme: newTheme };
-    });
+    applyDarkTheme();
+    set({ theme: 'dark' });
   },
 
-  // Set a specific theme
-  setTheme: (theme) => {
-    applyTheme(theme);
-    set({ theme });
+  setTheme: () => {
+    applyDarkTheme();
+    set({ theme: 'dark' });
   },
 }));
 
-
-/**
- * Determine the initial theme on first load.
- * Priority: localStorage > system preference > light (default)
- */
-function getInitialTheme() {
-  // Check if user has a saved preference
-  const saved = localStorage.getItem('theme');
-  if (saved === 'dark' || saved === 'light') {
-    applyTheme(saved);
-    return saved;
-  }
-
-  // Check system preference (is the user's OS in dark mode?)
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const theme = prefersDark ? 'dark' : 'light';
-  applyTheme(theme);
-  return theme;
+function applyDarkTheme() {
+  document.documentElement.setAttribute('data-theme', 'dark');
+  localStorage.setItem('theme', 'dark');
 }
 
-
-/**
- * Apply the theme by setting the data-theme attribute on <html>
- * and saving to localStorage.
- */
-function applyTheme(theme) {
-  document.documentElement.setAttribute('data-theme', theme);
-  localStorage.setItem('theme', theme);
-}
-
+// Initial application
+applyDarkTheme();
 
 export default useThemeStore;

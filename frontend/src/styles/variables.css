@@ -56,8 +56,9 @@
   --glow-primary: 0 0 16px rgba(225, 29, 72, 0.22);
   --glow-crimson: 0 0 18px rgba(225, 29, 72, 0.28);
   --glow-crimson-subtle: 0 0 10px rgba(225, 29, 72, 0.15);
+  --glow-violet: 0 0 18px rgba(139, 92, 246, 0.20);
   --glow-emerald: 0 0 14px rgba(16, 185, 129, 0.2);
-  --card-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --card-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 
   /* ── Transitions ── */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);

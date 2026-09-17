@@ -9,9 +9,7 @@
   justify-content: center;
   padding: var(--space-6);
   background-color: var(--bg-primary);
-  background-image: 
-    radial-gradient(circle at 50% 20%, rgba(225, 29, 72, 0.08) 0%, transparent 60%),
-    radial-gradient(circle at 80% 80%, rgba(225, 29, 72, 0.04) 0%, transparent 50%);
+  background-image: var(--mesh-glow-1), var(--mesh-glow-2), var(--mesh-glow-3);
   background-attachment: fixed;
   position: relative;
   overflow: hidden;
@@ -20,13 +18,13 @@
 .auth-card {
   width: 100%;
   max-width: 440px;
-  background: var(--bg-secondary);
+  background: var(--glass-bg);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-color-strong);
   border-radius: var(--radius-2xl);
   padding: var(--space-10) var(--space-8);
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.7), 0 0 24px rgba(225, 29, 72, 0.08);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6), 0 0 30px rgba(139, 92, 246, 0.08), 0 0 30px rgba(225, 29, 72, 0.08);
   position: relative;
   transition: all var(--transition-base);
 }
